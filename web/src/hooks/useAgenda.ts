@@ -2,6 +2,8 @@ import { api } from '@/lib/axios'
 import { Agenda } from '@/shared/types/agenda'
 import { useState } from 'react'
 
+type CreateAgendaInput = Omit<Agenda, 'id' | 'votes'>
+
 export function useAgenda() {
   const [agendas, setAgendas] = useState<Agenda[]>([])
   const [totalOnList, setTotalOnList] = useState<number>(0)
@@ -25,8 +27,22 @@ export function useAgenda() {
     }
   }
 
+  async function createAgenda(agenda: CreateAgendaInput) {
+    try {
+      const { data } = await api.post('/agenda', agenda)
+
+      setAgendas([...agendas, data])
+
+      return data
+    } catch (error) {
+      console.error('Erro ao criar agenda:', error)
+      throw error
+    }
+  }
+
   return {
     getAllAgenda,
+    createAgenda,
     agendas,
     totalOnList,
   }

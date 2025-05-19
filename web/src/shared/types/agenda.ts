@@ -1,6 +1,4 @@
-export type AgendaStatus = 'OPEN' | 'IN_PROGRESS' | 'FINISHED' | 'CANCELLED' | 'ALL'
-export type AgendaCategory = 'PROJETOS' | 'ADMINISTRATIVO' | 'ELEICOES' | 'ESTATUTARIO' | 'FINANCEIRO' | 'OUTROS' | 'ALL'
-export type AgendaResult = 'APPROVED' | 'REJECTED' | 'TIE' | 'UNVOTED' | 'ALL'
+
 
 export interface Agenda {
   id: string
@@ -13,8 +11,32 @@ export interface Agenda {
     yes: number
     no: number
   }
-  session?: {
-    endTime: string
-    startTime: string
-  }
+  startDate: string
+  endDate: string
+}
+
+
+
+export enum AgendaCategory {
+  PROJETOS = 'PROJETOS',
+  ADMINISTRATIVO = 'ADMINISTRATIVO',
+  ELEICOES = 'ELEICOES',
+  ESTATUTARIO = 'ESTATUTARIO',
+  FINANCEIRO = 'FINANCEIRO',
+  OUTROS = 'OUTROS',
+}
+
+export enum AgendaStatus {
+  OPEN = 'OPEN',
+  IN_PROGRESS = 'IN_PROGRESS',
+  FINISHED = 'FINISHED',
+  CANCELLED = 'CANCELLED',
+}
+
+
+export enum AgendaResult {
+  APPROVED = 'APPROVED',
+  REJECTED = 'REJECTED',
+  TIE = 'TIE',
+  UNVOTED = 'UNVOTED',
 }

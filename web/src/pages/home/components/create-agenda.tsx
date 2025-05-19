@@ -25,33 +25,65 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Loader2, CheckCircle } from 'lucide-react'
 import { toast, Toaster } from 'sonner'
+import { useAgenda } from '@/hooks/useAgenda'
+import {
+  AgendaResult,
+  AgendaStatus,
+  AgendaCategory,
+} from '@/shared/types/agenda'
+import { DateTimePicker } from './date-picker'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { Switch } from '@/components/ui/switch'
+
 const formSchema = z.object({
-  title: z
-    .string()
-    .min(5, {
-      message: 'O título deve ter pelo menos 5 caracteres.',
-    })
-    .max(100, {
-      message: 'O título não pode ter mais de 100 caracteres.',
-    }),
-  description: z
-    .string()
-    .min(10, {
-      message: 'A descrição deve ter pelo menos 10 caracteres.',
-    })
-    .max(500, {
-      message: 'A descrição não pode ter mais de 500 caracteres.',
-    }),
+  title: z.string().min(3, 'Título inválido!').max(100),
+  description: z.string().min(3, 'Descrição inválida!').max(255),
+  category: z.enum([
+    AgendaCategory.OUTROS,
+    AgendaCategory.FINANCEIRO,
+    AgendaCategory.ADMINISTRATIVO,
+    AgendaCategory.ELEICOES,
+    AgendaCategory.ESTATUTARIO,
+    AgendaCategory.PROJETOS,
+  ]),
+  status: z.enum([
+    AgendaStatus.OPEN,
+    AgendaStatus.IN_PROGRESS,
+    AgendaStatus.FINISHED,
+    AgendaStatus.CANCELLED,
+  ]),
+  result: z.enum([
+    AgendaResult.UNVOTED,
+    AgendaResult.APPROVED,
+    AgendaResult.REJECTED,
+  ]),
+  startDate: z.string().min(3, 'Data de início inválida!').max(255),
+  endDate: z.string().min(3, 'Data de término inválida!').max(255),
 })
 
 export function CreateAgenda() {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
   const [isSuccess, setIsSuccess] = useState<boolean>(false)
+  const { createAgenda } = useAgenda()
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: '',
       description: '',
+      category: AgendaCategory.OUTROS,
+      status: AgendaStatus.OPEN,
+      result: AgendaResult.UNVOTED,
+      startDate: new Date().toISOString(),
+      endDate: new Date(
+        new Date().getTime() + 1 * 60 * 60 * 1000,
+      ).toISOString(),
     },
   })
 
@@ -60,7 +92,15 @@ export function CreateAgenda() {
       setIsSubmitting(true)
       setIsSuccess(false)
 
-      await new Promise((resolve) => setTimeout(resolve, 1000)) // Success
+      await createAgenda({
+        title: form.getValues('title'),
+        description: form.getValues('description'),
+        category: form.getValues('category'),
+        status: form.getValues('status'),
+        result: form.getValues('result'),
+        startDate: form.getValues('startDate'),
+        endDate: form.getValues('endDate'),
+      })
 
       setIsSuccess(true)
       form.reset()
@@ -115,6 +155,36 @@ export function CreateAgenda() {
             />
             <FormField
               control={form.control}
+              name="category"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Categoria</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger className="capitalize w-full">
+                        <SelectValue placeholder="Selecione uma categoria" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {Object.values(AgendaCategory).map((category) => (
+                        <SelectItem key={category} value={category}>
+                          {category}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormDescription>
+                    Selecione a categoria que melhor se adequa à pauta.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
               name="description"
               render={({ field }) => (
                 <FormItem>
@@ -134,6 +204,91 @@ export function CreateAgenda() {
                 </FormItem>
               )}
             />
+
+            <FormField
+              control={form.control}
+              name="status"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border border-gray-300 p-4 bg-gray-300/50">
+                  <div className="space-y-0.5">
+                    <FormLabel className="text-base">Agendar Votação</FormLabel>
+                    <FormDescription>
+                      Defina uma data e hora para início e encerramento
+                      automático da votação.
+                    </FormDescription>
+
+                    {form.watch('status') !== AgendaStatus.IN_PROGRESS && (
+                      <FormDescription className="text-xs text-gray-500 italic font-bold">
+                        Caso a pauta não seja agendada, a votação será aberta
+                        imediatamente após o cadastro. Sendo assim, a pauta será
+                        encerrada após 1 hora.
+                      </FormDescription>
+                    )}
+                  </div>
+                  <FormControl>
+                    <Switch
+                      checked={field.value === AgendaStatus.IN_PROGRESS}
+                      onCheckedChange={(checked) => {
+                        field.onChange(
+                          checked
+                            ? AgendaStatus.IN_PROGRESS
+                            : AgendaStatus.OPEN,
+                        )
+                      }}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+
+            {form.watch('status') === AgendaStatus.IN_PROGRESS && (
+              <div className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="startDate"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Data de Início</FormLabel>
+                      <FormControl>
+                        <DateTimePicker
+                          date={field.value ? new Date(field.value) : undefined}
+                          setDate={(date) => {
+                            field.onChange(date?.toISOString())
+                          }}
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        Selecione a data e hora de início da votação
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="endDate"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Data de Término</FormLabel>
+                      <FormControl>
+                        <DateTimePicker
+                          date={field.value ? new Date(field.value) : undefined}
+                          setDate={(date) => {
+                            field.onChange(date?.toISOString())
+                          }}
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        Selecione a data e hora de término da votação
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            )}
+
             <div className="flex justify-end gap-4">
               <Button
                 type="button"
