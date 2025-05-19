@@ -1,0 +1,8 @@
+# Dependências
+node_modules/
+
+# Configurações
+.env
+
+# Logs
+logs/

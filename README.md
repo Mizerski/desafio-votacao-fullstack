@@ -2,7 +2,7 @@
 
 ## Objetivo
 
-No cooperativismo, cada associado possui um voto e as decisões são tomadas em assembleias, por votação. Imagine que você deve criar uma solução we para gerenciar e participar dessas sessões de votação.
+No cooperativismo, cada associado possui um voto e as decisões são tomadas em assembleias, por votação. Imagine que você deve criar uma solução web para gerenciar e participar dessas sessões de votação.
 Essa solução deve ser executada na nuvem e promover as seguintes funcionalidades através de uma API REST / Front:
 
 - Cadastrar uma nova pauta
@@ -25,7 +25,7 @@ Lembre de deixar todas as orientações necessárias para executar o seu código
 ### Tarefas bônus
 
 - Tarefa Bônus 1 - Integração com sistemas externos
-  - Criar uma Facade/Client Fake que retorna aleátoriamente se um CPF recebido é válido ou não.
+  - Criar uma Facade/Client Fake que retorna aleatoriamente se um CPF recebido é válido ou não.
   - Caso o CPF seja inválido, a API retornará o HTTP Status 404 (Not found). Você pode usar geradores de CPF para gerar CPFs válidos
   - Caso o CPF seja válido, a API retornará se o usuário pode (ABLE_TO_VOTE) ou não pode (UNABLE_TO_VOTE) executar a operação. Essa operação retorna resultados aleatórios, portanto um mesmo CPF pode funcionar em um teste e não funcionar no outro.
 
