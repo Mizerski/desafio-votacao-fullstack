@@ -1,102 +1,28 @@
 'use client'
 
-import { useState, useEffect } from 'react'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Button } from '@/components/ui/button'
-import { LogIn, LogOut, Calendar } from 'lucide-react'
-import { format } from 'date-fns'
-import { ptBR } from 'date-fns/locale'
+import { LogOut, MailIcon, User2Icon } from 'lucide-react'
+import { useAuth } from '@/hooks/useAuth'
 
-interface UserInfo {
-  id: string
-  firstName: string
-  lastName: string
-  email: string
-  joinedAt: string
-}
-
-export  function UserAvatar() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
-  const [user, setUser] = useState<UserInfo | null>(null)
-
-  const mockUser: UserInfo = {
-    id: '1',
-    firstName: 'John',
-    lastName: 'Doe',
-    email: 'john.doe@example.com',
-    joinedAt: '2024-01-01',
-  }
-  // Verificar status de login e informações do usuário
-  useEffect(() => {
-    const checkLoginStatus = () => {
-      const loggedIn = true
-      setIsLoggedIn(loggedIn)
-
-      if (loggedIn) {
-        setUser(mockUser)
-      } else {
-        setUser(null)
-      }
-    }
-
-    checkLoginStatus()
-
-  }, [])
-
-  const handleLogin = () => {
-
-    if (true) {
-      setIsLoggedIn(true)
-      setUser(mockUser)
-    }
-  }
+export function UserAvatar() {
+  const { user, logout } = useAuth()
 
   const handleLogout = () => {
-    setIsLoggedIn(false)
-    setUser(null)
+    logout()
   }
 
-  // Gerar iniciais do nome do usuário
   const getInitials = () => {
     if (!user) return '?'
-    return `${user.firstName.charAt(0)}${user.lastName.charAt(0)}`.toUpperCase()
-  }
-
-
-
-  // Formatar data de ingresso
-  const formatJoinDate = (dateString: string) => {
-    try {
-      return format(new Date(dateString), "dd 'de' MMMM 'de' yyyy", {
-        locale: ptBR,
-      })
-    } catch (e) {
-      return dateString
-    }
-  }
-
-
-  if (!isLoggedIn) {
-    return (
-      <Button
-        variant="outline"
-        size="sm"
-        className=" absolute top-4 right-4"
-        onClick={handleLogin}
-      >
-        <LogIn className="h-4 w-4 mr-1" />
-        <span className="hidden sm:inline-block">Entrar</span>
-      </Button>
-    )
+    return `${user.name.charAt(0)}`.toUpperCase()
   }
 
   return (
@@ -114,34 +40,27 @@ export  function UserAvatar() {
             </Avatar>
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent
-          className="w-64 "
-          align="end"
-        >
+        <DropdownMenuContent className="w-64 " align="end">
           <DropdownMenuLabel>
             <div className="flex flex-col space-y-1">
-              <p className="text-base font-medium">
-                {user?.firstName} {user?.lastName}
-              </p>
-              <p className="text-xs text-gray-400">{user?.email}</p>
+              <div className="flex items-center gap-2">
+                <User2Icon className="h-4 w-4 text-gray-400" />
+                <p className="text-base font-medium">{user?.name}</p>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <MailIcon className="h-4 w-4 text-gray-400" />
+                <p className="text-xs text-gray-400">{user?.email}</p>
+              </div>
             </div>
           </DropdownMenuLabel>
-          <DropdownMenuSeparator />
-          <DropdownMenuGroup>
-           
-            <DropdownMenuItem className="flex items-center gap-2 cursor-default">
-              <Calendar className="h-4 w-4 text-gray-400" />
-              <span className="text-xs">
-                Membro desde: {user ? formatJoinDate(user.joinedAt) : ''}
-              </span>
-            </DropdownMenuItem>
-          </DropdownMenuGroup>
+
           <DropdownMenuSeparator />
           <DropdownMenuItem
             className="flex items-center gap-2 text-red-400 focus:text-red-400 focus:bg-red-900/20"
             onClick={handleLogout}
           >
-            <LogOut className="h-4 w-4" />
+            <LogOut className="h-4 w-4 text-red-400" />
             <span>Sair</span>
           </DropdownMenuItem>
         </DropdownMenuContent>

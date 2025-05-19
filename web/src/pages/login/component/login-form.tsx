@@ -1,25 +1,28 @@
 import { VoteIcon } from 'lucide-react'
+import { useState } from 'react'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { cn } from '@/components/lib/utils'
 import { Label } from '@/components/ui/label'
-import { useNavigate } from 'react-router'
+import { useAuth } from '@/hooks/useAuth'
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<'div'>) {
-  const navigation = useNavigate()
+  const [email, setEmail] = useState<string>('')
+  const [password, setPassword] = useState<string>('')
+  const { login, isLoading, error } = useAuth()
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    navigation('/home')
+    await login(email, password)
   }
 
   return (
     <div className={cn('flex flex-col gap-6', className)} {...props}>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} className="w-full">
         <div className="flex flex-col gap-6">
           <div className="flex flex-col items-center gap-2">
             <div className="flex h-8 w-8 items-center justify-center rounded-md">
@@ -38,6 +41,8 @@ export function LoginForm({
                 type="email"
                 placeholder="exemplo@email.com"
                 required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
               />
             </div>
           </div>
@@ -48,10 +53,15 @@ export function LoginForm({
               type="password"
               placeholder="********"
               required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
             />
           </div>
-          <Button type="submit" className="w-full">
-            Acessar
+          {error && (
+            <span className="text-sm text-red-500 text-center">{error}</span>
+          )}
+          <Button type="submit" className="w-full" disabled={isLoading}>
+            {isLoading ? 'Carregando...' : 'Acessar'}
           </Button>
         </div>
       </form>
