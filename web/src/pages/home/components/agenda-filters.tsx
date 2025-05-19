@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { AgendaCategory, AgendaStatus } from '../types/agenda'
+import { Label } from '@/components/ui/label'
 
 interface AgendaFiltersProps {
   statusFilter: AgendaStatus
@@ -40,7 +41,7 @@ export function AgendaFilters({
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Filtro por status */}
         <div className="w-full space-y-2">
-          <label className="text-sm text-gray-400">Status</label>
+          <Label className="text-sm text-gray-400">Status</Label>
           <Select value={statusFilter} onValueChange={onStatusChange}>
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Todos os status" />
@@ -57,7 +58,7 @@ export function AgendaFilters({
 
         {/* Filtro por categoria */}
         <div className="space-y-2 w-full">
-          <label className="text-sm text-gray-400">Categoria</label>
+          <Label className="text-sm text-gray-400">Categoria</Label>
           <Select value={categoryFilter} onValueChange={onCategoryChange} >
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Todas as categorias" />
@@ -74,7 +75,7 @@ export function AgendaFilters({
 
         {/* Busca por texto */}
         <div className="space-y-2 w-full">
-          <label className="text-sm text-gray-400">Buscar</label>
+          <Label className="text-sm text-gray-400">Buscar</Label>
           <div className="relative">
             <Input
               className="pl-10"
