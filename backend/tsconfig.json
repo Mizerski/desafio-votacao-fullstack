@@ -1,0 +1,41 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "commonjs",
+    "outDir": "./build",
+    "rootDir": "./",
+    "baseUrl": "./",
+    "strict": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "paths": {
+      "@prisma/*": [
+        "./prisma/*"
+      ],
+      "@controllers/*": [
+        "./src/http/controllers/*"
+      ],
+      "@routes/*": [
+        "./src/routes/*"
+      ],
+      "@services/*": [
+        "src/services/*"
+      ],
+      "@shared/*": [
+        "./src/shared/*"
+      ],
+      "@utils/*": [
+        "./src/utils/*"
+      ],
+      "@constants/*": [
+        "./src/shared/constants/*"
+      ],
+      "@repositories/*": [
+        "./src/repositories/*"
+      ],
+      "@use-cases/*": [
+        "./src/use-cases/*"
+      ],
+    }
+  }
+}
