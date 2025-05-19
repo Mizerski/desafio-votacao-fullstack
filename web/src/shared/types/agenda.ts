@@ -1,5 +1,3 @@
-
-
 export interface Agenda {
   id: string
   title: string
@@ -12,9 +10,12 @@ export interface Agenda {
   }
   startDate: string
   endDate: string
+  totalVotes?: number
+  yesVotes?: number
+  noVotes?: number
+  isActive?: boolean
+  sessionTimeRemaining?: number // tempo restante em segundos
 }
-
-
 
 export enum AgendaCategory {
   PROJETOS = 'PROJETOS',
@@ -34,14 +35,12 @@ export enum AgendaStatus {
   ALL = 'ALL',
 }
 
-
 export enum AgendaResult {
   APPROVED = 'APPROVED',
   REJECTED = 'REJECTED',
   TIE = 'TIE',
   UNVOTED = 'UNVOTED',
 }
-
 
 export enum AgendaVote {
   YES = 'YES',

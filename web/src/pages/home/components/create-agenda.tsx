@@ -31,7 +31,6 @@ import {
   AgendaStatus,
   AgendaCategory,
 } from '@/shared/types/agenda'
-import { DateTimePicker } from './date-picker'
 import {
   Select,
   SelectContent,
@@ -39,7 +38,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Switch } from '@/components/ui/switch'
 
 const formSchema = z.object({
   title: z.string().min(3, 'Título inválido!').max(100),
@@ -204,90 +202,6 @@ export function CreateAgenda() {
                 </FormItem>
               )}
             />
-
-            <FormField
-              control={form.control}
-              name="status"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-lg border border-gray-300 p-4 bg-gray-300/50">
-                  <div className="space-y-0.5">
-                    <FormLabel className="text-base">Agendar Votação</FormLabel>
-                    <FormDescription>
-                      Defina uma data e hora para início e encerramento
-                      automático da votação.
-                    </FormDescription>
-
-                    {form.watch('status') !== AgendaStatus.IN_PROGRESS && (
-                      <FormDescription className="text-xs text-gray-500 italic font-bold">
-                        Caso a pauta não seja agendada, a votação será aberta
-                        imediatamente após o cadastro. Sendo assim, a pauta será
-                        encerrada após 1 hora.
-                      </FormDescription>
-                    )}
-                  </div>
-                  <FormControl>
-                    <Switch
-                      checked={field.value === AgendaStatus.IN_PROGRESS}
-                      onCheckedChange={(checked) => {
-                        field.onChange(
-                          checked
-                            ? AgendaStatus.IN_PROGRESS
-                            : AgendaStatus.OPEN,
-                        )
-                      }}
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-
-            {form.watch('status') === AgendaStatus.IN_PROGRESS && (
-              <div className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="startDate"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Data de Início</FormLabel>
-                      <FormControl>
-                        <DateTimePicker
-                          date={field.value ? new Date(field.value) : undefined}
-                          setDate={(date) => {
-                            field.onChange(date?.toISOString())
-                          }}
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        Selecione a data e hora de início da votação
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="endDate"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Data de Término</FormLabel>
-                      <FormControl>
-                        <DateTimePicker
-                          date={field.value ? new Date(field.value) : undefined}
-                          setDate={(date) => {
-                            field.onChange(date?.toISOString())
-                          }}
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        Selecione a data e hora de término da votação
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-            )}
 
             <div className="flex justify-end gap-4">
               <Button

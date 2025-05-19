@@ -58,6 +58,10 @@ model Agenda {
   result      AgendaResult
   votes       Votes[]
   createdAt   DateTime       @default(now())
+  totalVotes  Int            @default(0)
+  yesVotes    Int            @default(0)
+  noVotes     Int            @default(0)
+  isActive    Boolean        @default(true)
 }
 
 model Session {

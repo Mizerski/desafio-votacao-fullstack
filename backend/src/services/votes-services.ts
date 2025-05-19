@@ -2,12 +2,15 @@ import { VotesRepo } from '@repositories/votes-repo'
 import { Votes, Prisma, AgendaStatus } from '@prisma/client'
 import { AgendaRepo } from '@repositories/agenda-repo'
 import { PrismaAgenda } from '@repositories/prisma/prisma-agenda'
+import { AgendaTimerService } from './agenda-timer-service'
 
 export class VotesService {
   private agendaRepo: AgendaRepo
+  private agendaTimerService: AgendaTimerService
 
   constructor(private votesRepo: VotesRepo) {
     this.agendaRepo = new PrismaAgenda()
+    this.agendaTimerService = new AgendaTimerService(this.agendaRepo)
   }
 
   async create(votes: Prisma.VotesCreateInput) {
@@ -24,7 +27,10 @@ export class VotesService {
       throw new Error('Pauta não encontrada')
     }
 
-    if (agenda.status !== AgendaStatus.OPEN) {
+    if (
+      agenda.status !== AgendaStatus.OPEN &&
+      agenda.status !== AgendaStatus.IN_PROGRESS
+    ) {
       throw new Error('Pauta não está aberta para votos')
     }
 
@@ -39,12 +45,17 @@ export class VotesService {
 
     const vote = await this.votesRepo.create(votes)
 
+    if (agenda.status === AgendaStatus.OPEN) {
+      await this.agendaTimerService.startTimer(agendaId, 5)
+    }
+
+    await this.agendaTimerService.updateVoteCount(agendaId, vote.vote)
+
     return { vote }
   }
 
   async findAll(): Promise<Votes[]> {
     const votes = await this.votesRepo.findAll()
-
     return votes
   }
 }

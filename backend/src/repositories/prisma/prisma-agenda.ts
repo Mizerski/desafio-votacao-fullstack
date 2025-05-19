@@ -31,7 +31,7 @@ export class PrismaAgenda implements AgendaRepo {
     return prismaClient.agenda.findUnique({ where: { id } })
   }
 
-  async update(id: string, agenda: Prisma.AgendaUpdateInput): Promise<Agenda> {
+  async update(id: string, agenda: Partial<Agenda>): Promise<Agenda> {
     return prismaClient.agenda.update({ where: { id }, data: agenda })
   }
 
@@ -41,5 +41,19 @@ export class PrismaAgenda implements AgendaRepo {
 
   async count(where?: Prisma.AgendaWhereInput): Promise<number> {
     return prismaClient.agenda.count({ where })
+  }
+
+  async createSession(session: {
+    agendaId: string
+    startTime: Date
+    endTime: Date
+  }): Promise<void> {
+    await prismaClient.session.create({
+      data: {
+        agendaId: session.agendaId,
+        startTime: session.startTime,
+        endTime: session.endTime,
+      },
+    })
   }
 }

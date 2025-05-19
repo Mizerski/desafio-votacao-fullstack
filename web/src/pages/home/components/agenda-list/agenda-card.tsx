@@ -1,4 +1,4 @@
-import { Clock, Tag } from 'lucide-react'
+import { Clock, Tag, Timer } from 'lucide-react'
 import { formatDistanceToNow } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import {
@@ -10,8 +10,10 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Agenda } from '@/shared/types/agenda'
+import { Agenda, AgendaStatus } from '@/shared/types/agenda'
 import { AgendaStatusBadge } from '../agenda-status-badge'
+import { useTimer } from '@/shared/hooks/use-timer'
+import { Progress } from '@/components/ui/progress'
 
 interface AgendaCardProps {
   agenda: Agenda
@@ -27,6 +29,17 @@ interface AgendaCardProps {
  */
 export function AgendaCard({ agenda, onOpenSession, onViewResults, onVote }: AgendaCardProps) {
   const isSessionEnded = agenda.endDate && new Date(agenda.endDate) < new Date()
+  const { isRunning, formatTime, remainingTime } = useTimer(agenda.endDate)
+
+  const calculateProgress = () => {
+    if (!agenda.startDate || !agenda.endDate || !isRunning) return 100
+
+    const startTime = new Date(agenda.startDate).getTime()
+    const endTime = new Date(agenda.endDate).getTime()
+    const totalDuration = (endTime - startTime) / 1000
+    
+    return 100 - (remainingTime / totalDuration) * 100
+  }
 
   return (
     <Card className="overflow-hidden">
@@ -45,7 +58,28 @@ export function AgendaCard({ agenda, onOpenSession, onViewResults, onVote }: Age
           <span className="mr-2">Categoria:</span>
           {agenda.category}
         </div>
-        {agenda.endDate ? (
+
+        {agenda.status === AgendaStatus.IN_PROGRESS && isRunning ? (
+          <div className="mt-2 space-y-1">
+            <div className="flex items-center justify-between text-sm">
+              <div className="flex items-center">
+                <Timer className="h-4 w-4 mr-1 text-orange-500" />
+                <span className="text-orange-500 font-medium">Votação em andamento</span>
+              </div>
+              <span className="font-mono font-bold">{formatTime()}</span>
+            </div>
+            <Progress value={calculateProgress()} className="h-1.5" />
+            {agenda.totalVotes !== undefined && (
+              <div className="flex justify-between text-xs text-muted-foreground mt-1">
+                <span>Total de votos: {agenda.totalVotes}</span>
+                <div className="flex gap-2">
+                  <span className="text-green-600">Sim: {agenda.yesVotes || 0}</span>
+                  <span className="text-red-600">Não: {agenda.noVotes || 0}</span>
+                </div>
+              </div>
+            )}
+          </div>
+        ) : agenda.endDate ? (
           <div className="flex items-center text-sm text-muted-foreground">
             <Clock className="h-4 w-4 mr-1" />
             {isSessionEnded ? (

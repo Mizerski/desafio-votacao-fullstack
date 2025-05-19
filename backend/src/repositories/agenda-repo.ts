@@ -38,7 +38,7 @@ export interface AgendaRepo {
    * @param id ID da agenda a ser atualizada
    * @param agenda Agenda com os dados atualizados
    */
-  update(id: string, agenda: Agenda): Promise<Agenda>
+  update(id: string, agenda: Partial<Agenda>): Promise<Agenda>
 
   /**
    * Deleta uma agenda existente
@@ -52,4 +52,14 @@ export interface AgendaRepo {
    * @returns Número de agendas
    */
   count(where?: Prisma.AgendaWhereInput): Promise<number>
+
+  /**
+   * Cria uma nova sessão para uma agenda
+   * @param session Dados da sessão
+   */
+  createSession(session: {
+    agendaId: string
+    startTime: Date
+    endTime: Date
+  }): Promise<void>
 }
