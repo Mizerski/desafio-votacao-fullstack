@@ -34,7 +34,7 @@ O sistema segue uma arquitetura cliente-servidor com comunicação via API REST:
 
 ```
 ┌─────────────┐      HTTP/REST      ┌─────────────┐
-│             │ <----------------> │             │
+│             │ <---------------->  │             │
 │  Frontend   │                     │  Backend    │
 │  (React)    │ ------------------> │  (Fastify)  │
 │             │    JSON/JWT Auth    │             │
