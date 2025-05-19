@@ -1,14 +1,14 @@
 import { useEffect } from 'react'
 import { AgendaCard } from './agenda-card'
-import { AgendaFilters } from './agenda-filters'
 import {
   AgendaLoadingState,
   AgendaErrorState,
   AgendaEmptyState,
-} from './agenda-states'
-import { useAgendaFilters } from '../hooks/use-agenda-filters'
-import { useAgendaLoading } from '../hooks/use-agenda-loading'
-import { useAgenda } from '@/hooks/useAgenda'
+} from '../agenda-states'
+import { useAgenda } from '@/shared/hooks/use-agenda'
+import { useAgendaLoading } from '../../hooks/use-agenda-loading'
+import { useAgendaFilters } from '../../hooks/use-agenda-filters'
+import { AgendaFilters } from './agenda-filters'
 
 /**
  * Componente principal que exibe a lista de agendas

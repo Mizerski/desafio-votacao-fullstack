@@ -25,7 +25,7 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Loader2, CheckCircle } from 'lucide-react'
 import { toast, Toaster } from 'sonner'
-import { useAgenda } from '@/hooks/useAgenda'
+import { useAgenda } from '@/shared/hooks/use-agenda'
 import {
   AgendaResult,
   AgendaStatus,

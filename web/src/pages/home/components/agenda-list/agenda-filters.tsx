@@ -94,7 +94,7 @@ export function AgendaFilters({
           {totalAgendas} {totalAgendas === 1 ? "pauta encontrada" : "pautas encontradas"}
         </p>
 
-        {(statusFilter !== "ALL" || categoryFilter !== "ALL" || searchTerm !== "") && (
+        {(statusFilter !== AgendaStatus.ALL || categoryFilter !== AgendaCategory.ALL || searchTerm !== "") && (
           <Button
             variant="ghost"
             size="sm"

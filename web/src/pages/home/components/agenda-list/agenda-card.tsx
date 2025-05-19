@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Agenda } from '@/shared/types/agenda'
-import { AgendaStatusBadge } from './agenda-status-badge'
+import { AgendaStatusBadge } from '../agenda-status-badge'
 
 interface AgendaCardProps {
   agenda: Agenda

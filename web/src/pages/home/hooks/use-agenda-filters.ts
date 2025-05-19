@@ -22,14 +22,14 @@ interface UseAgendaFiltersReturn {
  * @returns Funções e estados para filtragem
  */
 export function useAgendaFilters({ agendas }: UseAgendaFiltersProps): UseAgendaFiltersReturn {
-  const [statusFilter, setStatusFilter] = useState<AgendaStatus>('ALL')
-  const [categoryFilter, setCategoryFilter] = useState<AgendaCategory>('ALL')
+  const [statusFilter, setStatusFilter] = useState<AgendaStatus>(AgendaStatus.ALL)
+  const [categoryFilter, setCategoryFilter] = useState<AgendaCategory>(AgendaCategory.ALL)
   const [searchTerm, setSearchTerm] = useState<string>('')
 
   const filteredAgendas = useMemo(() => {
     return agendas.filter((agenda) => {
-      const matchesStatus = statusFilter === 'ALL' || agenda.status === statusFilter
-      const matchesCategory = categoryFilter === 'ALL' || agenda.category === categoryFilter
+      const matchesStatus = statusFilter === AgendaStatus.ALL || agenda.status === statusFilter
+      const matchesCategory = categoryFilter === AgendaCategory.ALL || agenda.category === categoryFilter
       const matchesSearch = searchTerm === '' || 
         agenda.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         agenda.description.toLowerCase().includes(searchTerm.toLowerCase())
@@ -39,8 +39,8 @@ export function useAgendaFilters({ agendas }: UseAgendaFiltersProps): UseAgendaF
   }, [agendas, statusFilter, categoryFilter, searchTerm])
 
   const clearFilters = () => {
-    setStatusFilter('ALL')
-    setCategoryFilter('ALL')
+    setStatusFilter(AgendaStatus.ALL)
+    setCategoryFilter(AgendaCategory.ALL)
     setSearchTerm('')
   }
 

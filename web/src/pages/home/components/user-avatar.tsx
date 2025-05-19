@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Button } from '@/components/ui/button'
 import { LogOut, MailIcon, User2Icon } from 'lucide-react'
-import { useAuth } from '@/hooks/useAuth'
+import { useAuth } from '@/shared/hooks/use-auth'
 
 export function UserAvatar() {
   const { user, logout } = useAuth()

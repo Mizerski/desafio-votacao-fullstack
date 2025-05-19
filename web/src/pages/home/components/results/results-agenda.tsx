@@ -14,7 +14,7 @@ import { Separator } from '@/components/ui/separator'
 import { Loader2, AlertCircle, Tag } from 'lucide-react'
 import { EmptyResult } from './empty-result'
 import { AgendaResult } from '@/shared/types/agenda'
-import { useAgenda } from '@/hooks/useAgenda'
+import { useAgenda } from '@/shared/hooks/use-agenda'
 
 export function AgendaResults() {
   const [selectedAgendaId, setSelectedAgendaId] = useState<string | null>(null)

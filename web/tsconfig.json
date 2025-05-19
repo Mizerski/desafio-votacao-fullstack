@@ -17,7 +17,7 @@
       "@/utils/*": ["./src/utils/*"],
       "@/styles/*": ["./src/styles/*"],
       "@/assets/*": ["./src/assets/*"],
-      "@/hooks/*": ["./src/hooks/*"],
+      "@/hooks/*": ["src/shared/hooks/*"],
       "@/types/*": ["./src/types/*"],
       "@/vetores/*": ["./src/assets/vetores/*"],
       "@/shared/*": ["./src/shared/*"]

@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { cn } from '@/components/lib/utils'
 import { Label } from '@/components/ui/label'
-import { useAuth } from '@/hooks/useAuth'
+import { useAuth } from '@/shared/hooks/use-auth'
 
 export function LoginForm({
   className,

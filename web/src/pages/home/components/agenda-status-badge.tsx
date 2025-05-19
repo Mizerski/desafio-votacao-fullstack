@@ -11,7 +11,7 @@ interface AgendaStatusBadgeProps {
  * @returns Badge com o status da agenda
  */
 export function AgendaStatusBadge({ status }: AgendaStatusBadgeProps) {
-  if (status === 'OPEN') {
+  if (status === AgendaStatus.OPEN) {
     return (
       <Badge variant="outline">
         Não iniciada
@@ -19,7 +19,7 @@ export function AgendaStatusBadge({ status }: AgendaStatusBadgeProps) {
     )
   }
 
-  if (status === 'FINISHED') {
+  if (status === AgendaStatus.FINISHED) {
     return (
       <Badge className="bg-orange-100 text-orange-600 border-orange-400">
         Encerrada
@@ -27,7 +27,7 @@ export function AgendaStatusBadge({ status }: AgendaStatusBadgeProps) {
     )
   }
 
-  if (status === 'IN_PROGRESS') {
+  if (status === AgendaStatus.IN_PROGRESS) {
     return (
       <Badge className="bg-green-100 text-green-600 border-green-400">
         Em andamento
@@ -35,7 +35,7 @@ export function AgendaStatusBadge({ status }: AgendaStatusBadgeProps) {
     )
   }
 
-  if (status === 'CANCELLED') {
+  if (status === AgendaStatus.CANCELLED) {
     return (
       <Badge variant="destructive">
         Cancelada
