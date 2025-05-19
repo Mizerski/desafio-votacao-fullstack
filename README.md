@@ -1,86 +1,85 @@
-# Votação
+# Desafio Votação Fullstack
 
-## Objetivo
+Sistema completo de votação digital com backend robusto e frontend moderno. Ideal para assembleias, conselhos ou qualquer processo de votação estruturado.
 
-No cooperativismo, cada associado possui um voto e as decisões são tomadas em assembleias, por votação. Imagine que você deve criar uma solução web para gerenciar e participar dessas sessões de votação.
-Essa solução deve ser executada na nuvem e promover as seguintes funcionalidades através de uma API REST / Front:
+## O que temos por aqui?
 
-- Cadastrar uma nova pauta
-- Abrir uma sessão de votação em uma pauta (a sessão de votação deve ficar aberta por
-  um tempo determinado na chamada de abertura ou 1 minuto por default)
-- Receber votos dos associados em pautas (os votos são apenas 'Sim'/'Não'. Cada associado
-  é identificado por um id único e pode votar apenas uma vez por pauta)
-- Contabilizar os votos e dar o resultado da votação na pauta
+Este projeto é dividido em duas partes principais:
 
-Para fins de exercício, a segurança das interfaces pode ser abstraída e qualquer chamada para as interfaces pode ser considerada como autorizada. A solução deve ser construída em java com Spring-boot e Angular/React conforme orientação, mas os frameworks e bibliotecas são de livre escolha (desde que não infrinja direitos de uso).
+### [Backend](/backend)
 
-É importante que as pautas e os votos sejam persistidos e que não sejam perdidos com o restart da aplicação.
+API completa construída com:
+- **Fastify** para rotas rápidas e eficientes
+- **Prisma** como ORM para PostgreSQL
+- **JWT** para autenticação segura
+- **Zod** para validação de dados
+- **TypeScript** para tipagem forte
 
-## Como proceder
+[Ver detalhes completos do Backend →](/backend/README.md)
 
-Por favor, realize o FORK desse repositório e implemente sua solução no FORK em seu repositório GItHub, ao final, notifique da conclusão para que possamos analisar o código implementado.
+### [Frontend](/web)
 
-Lembre de deixar todas as orientações necessárias para executar o seu código.
+Interface web moderna desenvolvida com:
+- **React 19** com hooks customizados
+- **TypeScript** para desenvolvimento seguro
+- **React Hook Form + Zod** para validação de formulários
+- **TailwindCSS** para UI responsiva
+- **React Router** para navegação fluida
 
-### Tarefas bônus
+[Ver detalhes completos do Frontend →](/web/README.md)
 
-- Tarefa Bônus 1 - Integração com sistemas externos
-  - Criar uma Facade/Client Fake que retorna aleatoriamente se um CPF recebido é válido ou não.
-  - Caso o CPF seja inválido, a API retornará o HTTP Status 404 (Not found). Você pode usar geradores de CPF para gerar CPFs válidos
-  - Caso o CPF seja válido, a API retornará se o usuário pode (ABLE_TO_VOTE) ou não pode (UNABLE_TO_VOTE) executar a operação. Essa operação retorna resultados aleatórios, portanto um mesmo CPF pode funcionar em um teste e não funcionar no outro.
+## Arquitetura geral
+
+O sistema segue uma arquitetura cliente-servidor com comunicação via API REST:
 
 ```
-// CPF Ok para votar
-{
-    "status": "ABLE_TO_VOTE
-}
-// CPF Nao Ok para votar - retornar 404 no client tb
-{
-    "status": "UNABLE_TO_VOTE
-}
+┌─────────────┐      HTTP/REST      ┌─────────────┐
+│             │ <----------------> │             │
+│  Frontend   │                     │  Backend    │
+│  (React)    │ ------------------> │  (Fastify)  │
+│             │    JSON/JWT Auth    │             │
+└─────────────┘                     └─────────────┘
+                                          │
+                                          │ Prisma ORM
+                                          ▼
+                                    ┌─────────────┐
+                                    │             │
+                                    │ PostgreSQL  │
+                                    │             │
+                                    └─────────────┘
 ```
 
-Exemplos de retorno do serviço
+## Fluxos principais
 
-### Tarefa Bônus 2 - Performance
+1. **Autenticação:** Cadastro e login de usuários com JWT
+2. **Gestão de pautas:** Criação e visualização de pautas para votação
+3. **Processo de votação:** Abertura de sessão, votação (SIM/NÃO) e contabilização
+4. **Resultados:** Visualização de resultados em tempo real e histórico
 
-- Imagine que sua aplicação possa ser usada em cenários que existam centenas de
-  milhares de votos. Ela deve se comportar de maneira performática nesses
-  cenários
-- Testes de performance são uma boa maneira de garantir e observar como sua
-  aplicação se comporta
+## Começando
 
-### Tarefa Bônus 3 - Versionamento da API
+Cada projeto (backend e frontend) tem seu próprio guia de instalação e execução.
 
-○ Como você versionaria a API da sua aplicação? Que estratégia usar?
+Para rodar o projeto completo:
 
-## O que será analisado
+1. Primeiro, configure e inicie o [backend](/backend/README.md)
+2. Em seguida, configure e inicie o [frontend](/web/README.md)
 
-- Simplicidade no design da solução (evitar over engineering)
-- Organização do código
-- Arquitetura do projeto
-- Boas práticas de programação (manutenibilidade, legibilidade etc)
-- Possíveis bugs
-- Tratamento de erros e exceções
-- Explicação breve do porquê das escolhas tomadas durante o desenvolvimento da solução
-- Uso de testes automatizados e ferramentas de qualidade
-- Limpeza do código
-- Documentação do código e da API
-- Logs da aplicação
-- Mensagens e organização dos commits
-- Testes
-- Layout responsivo
+## Tecnologias
 
-## Dicas
+O stack completo usa tecnologias modernas e bem estabelecidas:
 
-- Teste bem sua solução, evite bugs
+- Node.js v18+
+- PostgreSQL (via Docker)
+- React 19
+- TypeScript
+- TailwindCSS
+- Vários utilitários de qualidade de código (ESLint, etc)
 
-  Observações importantes
-- Não inicie o teste sem sanar todas as dúvidas
-- Iremos executar a aplicação para testá-la, cuide com qualquer dependência externa e
-  deixe claro caso haja instruções especiais para execução do mesmo
-  Classificação da informação: Uso Interno
+## Contribuindo
 
+Sinta-se à vontade para abrir issues, propor melhorias ou enviar pull requests. Todo código novo deve seguir os padrões de estilo estabelecidos e incluir testes quando apropriado.
 
+---
 
-# desafio-votacao
+Desenvolvido com 💙 por mizerski
