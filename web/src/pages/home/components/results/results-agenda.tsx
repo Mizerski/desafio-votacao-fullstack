@@ -11,19 +11,20 @@ import {
 } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
-import { Loader2, AlertCircle, BarChart2, Tag } from 'lucide-react'
-import { Agenda } from '../../../shared/types/agenda'
-import { mockAgendas } from './mock'
+import { Loader2, AlertCircle, Tag } from 'lucide-react'
+import { EmptyResult } from './empty-result'
+import { AgendaResult } from '@/shared/types/agenda'
+import { useAgenda } from '@/hooks/useAgenda'
 
 export function AgendaResults() {
-  const [agendas, setAgendas] = useState<Agenda[]>([])
   const [selectedAgendaId, setSelectedAgendaId] = useState<string | null>(null)
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState<boolean>(true)
   const [error, setError] = useState<string | null>(null)
+  const { finishedAgendas, getAllFinishedAgenda } = useAgenda()
 
   useEffect(() => {
     const loadingTimeout = setTimeout(() => {
-      setAgendas(mockAgendas)
+      getAllFinishedAgenda()
       setLoading(false)
     }, 1000)
 
@@ -58,35 +59,13 @@ export function AgendaResults() {
     )
   }
 
-  if (agendas.length === 0) {
-    return (
-      <Card className="max-w-2xl mx-auto">
-        <CardHeader>
-          <CardTitle>Nenhuma Votação Encerrada</CardTitle>
-          <CardDescription>
-            Não há pautas com votações encerradas para exibir resultados
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-col items-center justify-center py-8">
-            <BarChart2 className="h-16 w-16 text-muted-foreground mb-4" />
-            <p className="text-center text-muted-foreground">
-              Os resultados serão exibidos aqui quando houver votações
-              encerradas.
-            </p>
-          </div>
-        </CardContent>
-        <CardFooter>
-          <Button variant="default" className="w-full" onClick={() => {}}>
-            Ver Pautas Disponíveis
-          </Button>
-        </CardFooter>
-      </Card>
-    )
+  if (finishedAgendas.length === 0) {
+    return <EmptyResult />
   }
 
-  const selectedAgenda =
-    agendas.find((agenda) => agenda.id === selectedAgendaId) || agendas[0]
+  const selectedAgenda = finishedAgendas.find(
+    (agenda) => agenda.id === selectedAgendaId,
+  )
 
   return (
     <Card className="max-w-2xl mx-auto">
@@ -107,7 +86,7 @@ export function AgendaResults() {
             value={selectedAgendaId || ''}
             onChange={(e) => setSelectedAgendaId(e.target.value)}
           >
-            {agendas.map((agenda) => (
+            {finishedAgendas.map((agenda) => (
               <option key={agenda.id} value={agenda.id}>
                 {agenda.title}
               </option>
@@ -138,7 +117,7 @@ export function AgendaResults() {
             <Loader2 className="h-6 w-6 animate-spin text-primary" />
             <span className="ml-2">Carregando resultados...</span>
           </div>
-        ) : selectedAgenda.result ? (
+        ) : selectedAgenda?.result ? (
           <div className="space-y-6">
             <div className="grid grid-cols-2 gap-4">
               <Card className="">
@@ -182,9 +161,9 @@ export function AgendaResults() {
               <h4 className="font-medium">Resultado Final</h4>
               <div className="p-4 rounded-md">
                 <div className="text-lg font-medium">
-                  {selectedAgenda.result === 'Aprovado'
+                  {selectedAgenda.result === AgendaResult.APPROVED
                     ? 'Pauta APROVADA'
-                    : selectedAgenda.result === 'Reprovado'
+                    : selectedAgenda.result === AgendaResult.REJECTED
                       ? 'Pauta REJEITADA'
                       : 'EMPATE'}
                 </div>

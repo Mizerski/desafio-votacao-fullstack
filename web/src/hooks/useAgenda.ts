@@ -7,7 +7,8 @@ type CreateAgendaInput = Omit<Agenda, 'id' | 'votes'>
 export function useAgenda() {
   const [agendas, setAgendas] = useState<Agenda[]>([])
   const [totalOnList, setTotalOnList] = useState<number>(0)
-
+  const [finishedAgendas, setFinishedAgendas] = useState<Agenda[]>([])
+  const [openAgendas, setOpenAgendas] = useState<Agenda[]>([])
   async function getAllAgenda() {
     try {
       const response = await api.get<{
@@ -24,6 +25,38 @@ export function useAgenda() {
     } catch (error) {
       console.error('Erro ao buscar agendas:', error)
       return { agendas: [], totalOnList: 0 }
+    }
+  }
+
+  async function getAllFinishedAgenda() {
+    try {
+      const response = await api.get<{
+        agendas: Agenda[]
+        totalOnList: number
+      }>('/agenda/finished')
+
+      const { agendas, totalOnList } = response.data
+
+      setFinishedAgendas(agendas)
+      setTotalOnList(totalOnList)
+    } catch (error) {
+      console.error('Erro ao buscar agendas encerradas:', error)
+    }
+  }
+
+  async function getAllOpenAgenda() {
+    try {
+      const response = await api.get<{
+        agendas: Agenda[]
+        totalOnList: number
+      }>('/agenda/open')
+
+      const { agendas, totalOnList } = response.data
+
+      setOpenAgendas(agendas)
+      setTotalOnList(totalOnList)
+    } catch (error) {
+      console.error('Erro ao buscar agendas abertas:', error)
     }
   }
 
@@ -45,5 +78,9 @@ export function useAgenda() {
     createAgenda,
     agendas,
     totalOnList,
+    getAllFinishedAgenda,
+    finishedAgendas,
+    getAllOpenAgenda,
+    openAgendas,
   }
 }

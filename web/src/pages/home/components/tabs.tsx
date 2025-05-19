@@ -1,7 +1,7 @@
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { CreateAgenda } from './create-agenda'
 import { AgendaList } from './agenda-list'
-import { AgendaResults } from './results-agenda'
+import { AgendaResults } from './results/results-agenda'
 import { AgendaVoting } from './voting-agenda'
 
 export function HomeTabs() {

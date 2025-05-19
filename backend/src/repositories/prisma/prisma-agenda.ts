@@ -1,4 +1,4 @@
-import { Agenda, Prisma } from '@prisma/client'
+import { Agenda, AgendaStatus, Prisma } from '@prisma/client'
 import { AgendaRepo } from '../agenda-repo'
 import { prismaClient } from '@prisma/index'
 
@@ -9,6 +9,22 @@ export class PrismaAgenda implements AgendaRepo {
 
   async findAll(): Promise<Agenda[]> {
     return prismaClient.agenda.findMany()
+  }
+
+  async findAllFinished(): Promise<Agenda[]> {
+    return prismaClient.agenda.findMany({
+      where: {
+        status: { in: [AgendaStatus.FINISHED, AgendaStatus.CANCELLED] },
+      },
+    })
+  }
+
+  async findAllOpen(): Promise<Agenda[]> {
+    return prismaClient.agenda.findMany({
+      where: {
+        status: { in: [AgendaStatus.OPEN, AgendaStatus.IN_PROGRESS] },
+      },
+    })
   }
 
   async findById(id: string): Promise<Agenda | null> {

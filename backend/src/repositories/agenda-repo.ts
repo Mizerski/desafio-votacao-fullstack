@@ -15,6 +15,18 @@ export interface AgendaRepo {
   findAll(): Promise<Agenda[]>
 
   /**
+   * Busca todas as agendas encerradas
+   * @returns Todas as agendas encerradas
+   */
+  findAllFinished(): Promise<Agenda[]>
+
+  /**
+   * Busca todas as agendas abertas
+   * @returns Todas as agendas abertas
+   */
+  findAllOpen(): Promise<Agenda[]>
+
+  /**
    * Busca uma agenda pelo ID
    * @param id ID da agenda
    * @returns Agenda encontrada ou null se não encontrada

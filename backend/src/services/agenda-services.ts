@@ -17,6 +17,22 @@ export class AgendaService {
     return { agendas, totalOnList }
   }
 
+  async findAllFinished() {
+    const agendas = await this.agendaRepo.findAllFinished()
+
+    const totalOnList = await this.agendaRepo.count()
+
+    return { agendas, totalOnList }
+  }
+
+  async findAllOpen() {
+    const agendas = await this.agendaRepo.findAllOpen()
+
+    const totalOnList = await this.agendaRepo.count()
+
+    return { agendas, totalOnList }
+  }
+
   async findById(id: string) {
     const agenda = await this.agendaRepo.findById(id)
     if (!agenda) {

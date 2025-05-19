@@ -26,7 +26,7 @@ interface AgendaCardProps {
  * @returns Card com as informações da agenda
  */
 export function AgendaCard({ agenda, onOpenSession, onViewResults, onVote }: AgendaCardProps) {
-  const isSessionEnded = agenda.session?.endTime && new Date(agenda.session.endTime) < new Date()
+  const isSessionEnded = agenda.endDate && new Date(agenda.endDate) < new Date()
 
   return (
     <Card className="overflow-hidden">
@@ -45,13 +45,13 @@ export function AgendaCard({ agenda, onOpenSession, onViewResults, onVote }: Age
           <span className="mr-2">Categoria:</span>
           {agenda.category}
         </div>
-        {agenda.session ? (
+        {agenda.endDate ? (
           <div className="flex items-center text-sm text-muted-foreground">
             <Clock className="h-4 w-4 mr-1" />
             {isSessionEnded ? (
-              <span>Encerrada há {formatDistanceToNow(new Date(agenda.session.endTime), { locale: ptBR, addSuffix: true })}</span>
+              <span>Encerrada há {formatDistanceToNow(new Date(agenda.endDate), { locale: ptBR, addSuffix: true })}</span>
             ) : (
-              <span>Encerra em {formatDistanceToNow(new Date(agenda.session.endTime), { locale: ptBR, addSuffix: true })}</span>
+              <span>Encerra em {formatDistanceToNow(new Date(agenda.endDate), { locale: ptBR, addSuffix: true })}</span>
             )}
           </div>
         ) : (
@@ -62,7 +62,7 @@ export function AgendaCard({ agenda, onOpenSession, onViewResults, onVote }: Age
         )}
       </CardContent>
       <CardFooter className="pt-2">
-        {!agenda.session ? (
+        {!agenda.endDate ? (
           <div className="flex gap-2 w-full">
             <Button
               variant="default"
