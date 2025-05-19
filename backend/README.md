@@ -16,9 +16,39 @@
 
 ## Como rodar este projeto
 
-Primeiro, instale as dependências do projeto:
+1 - Instale as dependências do projeto:
 
 ```bash
 bun install
 ```
+
+2 - Crie o banco de dados:
+
+```bash
+docker compose up -d
+```
+
+3 - Rode as migrations:
+
+```bash
+bun prisma migrate dev
+```
+
+4 - Rode o seed:
+
+```bash
+bun prisma db seed
+```
+
+4 - Rode o projeto:
+
+```bash
+bun run dev
+```
+
+
+
+
+
+
 

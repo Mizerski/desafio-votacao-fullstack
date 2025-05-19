@@ -3,6 +3,9 @@ import { UserRepo } from '@repositories/user-repo'
 import { AlreadyExistsError } from '@shared/errors/already-exists'
 import bcrypt from 'bcrypt'
 
+/**
+ * Serviço de usuário
+ */
 export class UserService {
   constructor(private readonly userRepo: UserRepo) {}
 

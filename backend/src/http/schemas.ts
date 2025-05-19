@@ -6,6 +6,8 @@ import {
 } from '@prisma/client'
 import { z } from 'zod'
 
+// ======================== AUTHENTICATION =========================
+
 export const registerBodySchema = z.object({
   name: z.string().min(3, 'Nome inválido!').max(30),
   email: z.string().email('Email inválido!').toLowerCase(),
@@ -42,8 +44,18 @@ export const agendaBodySchema = z.object({
 
 // ======================== VOTES =========================
 
-export const createVoteBodySchema = z.object({
-  userId: z.string().min(1, 'Usuário inválido!'),
+export const voteBodySchema = z.object({
+  agendaId: z.string().min(1, 'ID da pauta é obrigatório'),
+  userId: z.string().min(1, 'ID do usuário é obrigatório'),
+  vote: z.enum(['YES', 'NO'], {
+    required_error: 'Voto é obrigatório',
+    invalid_type_error: 'Voto deve ser YES ou NO',
+  }),
+})
+
+// ======================== SESSION =========================
+
+export const startSessionBodySchema = z.object({
   agendaId: z.string().min(1, 'Pauta inválida!'),
-  vote: z.nativeEnum(VoteType),
+  durationInMinutes: z.number().min(1, 'Duração inválida!'),
 })

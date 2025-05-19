@@ -53,7 +53,6 @@ export async function getAllFinishedAgenda(
 
     const { agendas, totalOnList } = await agendaService.findAllFinished()
 
-    // Busca as sessões de cada agenda
     const agendasWithSessions = await Promise.all(
       agendas.map(async (agenda) => {
         const sessions = await agendaRepository.getSessionsByAgendaId(agenda.id)
@@ -91,7 +90,6 @@ export async function getAllOpenAgenda(
 
     const { agendas, totalOnList } = await agendaService.findAllOpen()
 
-    // Busca as sessões de cada agenda
     const agendasWithSessions = await Promise.all(
       agendas.map(async (agenda) => {
         const sessions = await agendaRepository.getSessionsByAgendaId(agenda.id)

@@ -4,6 +4,9 @@ import { AgendaRepo } from '@repositories/agenda-repo'
 import { PrismaAgenda } from '@repositories/prisma/prisma-agenda'
 import { AgendaTimerService } from './agenda-timer-service'
 
+/**
+ * Serviço de votos
+ */
 export class VotesService {
   private agendaRepo: AgendaRepo
   private agendaTimerService: AgendaTimerService
@@ -13,6 +16,11 @@ export class VotesService {
     this.agendaTimerService = new AgendaTimerService(this.agendaRepo)
   }
 
+  /**
+   * Cria um novo voto
+   * @param votes Dados do voto
+   * @returns Voto criado
+   */
   async create(votes: Prisma.VotesCreateInput) {
     const userId = votes.user.connect?.id
     const agendaId = votes.agenda.connect?.id
@@ -54,6 +62,10 @@ export class VotesService {
     return { vote }
   }
 
+  /**
+   * Busca todos os votos
+   * @returns Todos os votos
+   */
   async findAll(): Promise<Votes[]> {
     const votes = await this.votesRepo.findAll()
     return votes

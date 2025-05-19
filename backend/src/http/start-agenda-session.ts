@@ -3,17 +3,7 @@ import { z } from 'zod'
 import { AgendaService } from '@services/agenda-services'
 import { PrismaAgenda } from '@repositories/prisma/prisma-agenda'
 import { AgendaTimerService } from '@services/agenda-timer-service'
-
-/**
- * Schema de validação para iniciar sessão
- */
-const startSessionSchema = z.object({
-  agendaId: z.string().min(1, 'ID da pauta é obrigatório'),
-  durationInMinutes: z
-    .number()
-    .int()
-    .positive('Duração deve ser um número positivo'),
-})
+import { startSessionBodySchema } from './schemas'
 
 /**
  * Controlador para iniciar uma sessão de votação
@@ -23,7 +13,7 @@ export async function startAgendaSession(
   reply: FastifyReply,
 ) {
   try {
-    const { agendaId, durationInMinutes } = startSessionSchema.parse(
+    const { agendaId, durationInMinutes } = startSessionBodySchema.parse(
       request.body,
     )
 
@@ -31,13 +21,10 @@ export async function startAgendaSession(
     const agendaService = new AgendaService(agendaRepo)
     const agendaTimerService = new AgendaTimerService(agendaRepo)
 
-    // Verifica se a agenda existe
     const { agenda } = await agendaService.findById(agendaId)
 
-    // Inicia o timer
     await agendaTimerService.startTimer(agendaId, durationInMinutes)
 
-    // Busca a sessão criada para retornar dados atualizados
     const sessions = await agendaRepo.getSessionsByAgendaId(agendaId)
     const latestSession =
       sessions.length > 0 ? sessions[sessions.length - 1] : null
