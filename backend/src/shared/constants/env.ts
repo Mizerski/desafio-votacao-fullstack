@@ -1,7 +1,9 @@
 import { z } from 'zod'
 import 'dotenv/config'
 
-// Teste de integração do Git - backend agora está integrado ao repositório principal
+/**
+ * Schema de validação das variáveis de ambiente
+ */
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'production']).default('development'),
   PORT: z.coerce.number().default(8080),
