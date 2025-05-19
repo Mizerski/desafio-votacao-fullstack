@@ -12,7 +12,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Button } from '@/components/ui/button'
-import { LogIn, LogOut, Calendar, Shield } from 'lucide-react'
+import { LogIn, LogOut, Calendar } from 'lucide-react'
 import { format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 
@@ -50,10 +50,6 @@ export  function UserAvatar() {
 
     checkLoginStatus()
 
-    // Verificar status de login a cada 2 segundos (para detectar mudanças)
-    const loginInterval = setInterval(checkLoginStatus, 2000)
-
-    return () => clearInterval(loginInterval)
   }, [])
 
   const handleLogin = () => {

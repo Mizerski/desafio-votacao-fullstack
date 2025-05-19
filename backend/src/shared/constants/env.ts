@@ -11,6 +11,7 @@ const envSchema = z.object({
   POSTGRES_PASSWORD: z.string(),
   POSTGRES_DB: z.string(),
   POSTGRES_USER: z.string(),
+  JWT_SECRET: z.string().default('default'),
 })
 
 const _env = envSchema.safeParse(process.env)

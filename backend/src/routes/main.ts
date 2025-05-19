@@ -1,7 +1,10 @@
 import { FastifyInstance } from 'fastify'
+import { userRoutes } from './user-route'
 
-export async function mainRoutes(app: FastifyInstance) {
-  app.get('/', async (_request, reply) => {
+export async function mainRoutes(server: FastifyInstance) {
+  server.get('/', async (_request, reply) => {
     return reply.status(200).send({ message: 'Servidor rodando normalmente' })
   })
+
+  await userRoutes(server)
 }

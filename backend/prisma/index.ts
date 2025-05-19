@@ -1,7 +1,8 @@
 import { PrismaClient } from '@prisma/client'
-import { env } from '../src/env'
+import { ConstantsEnv } from '@shared/constants/env'
+
 const prismaClient = new PrismaClient({
-  log: env.NODE_ENV === 'development' ? ['error'] : [],
+  log: ConstantsEnv.NODE_ENV === 'development' ? ['error'] : [],
 })
 
 export { prismaClient }

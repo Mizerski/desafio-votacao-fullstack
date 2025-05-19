@@ -8,8 +8,11 @@ import {
 } from 'fastify-type-provider-zod'
 import { ConstantsEnv } from '@shared/constants/env'
 import { mainRoutes } from '@routes/main'
+import authJwt from './plugins/auth-jwt'
 
 const server = fastify().withTypeProvider<ZodTypeProvider>()
+
+server.register(authJwt)
 
 // ============================== CORS ==============================
 server.register(fastifyCors, {
