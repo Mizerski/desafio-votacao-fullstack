@@ -12,14 +12,15 @@ import { AgendaFilters } from './agenda-filters'
 import { toast } from 'sonner'
 import { useTabsContext } from '../../contexts/tabs-context'
 import { useSelectedAgenda } from '../../contexts/selected-agenda-context'
-import { Agenda } from '@/shared/types/agenda'
+import { Agenda, AgendaCategory, AgendaStatus } from '@/shared/types/agenda'
+import { Button } from '@/components/ui/button'
 
 /**
  * Componente principal que exibe a lista de agendas
  * @returns Lista de agendas com filtros e estados
  */
 export function AgendaList() {
-  const { loading, error, setLoading, retry } = useAgendaLoading()
+  const { loading, error, setLoading, setError, retry } = useAgendaLoading()
   const { getAllAgenda, agendas, startAgendaSession } = useAgenda()
   const [processing, setProcessing] = useState<string | null>(null)
   const { setActiveTab } = useTabsContext()
@@ -37,13 +38,27 @@ export function AgendaList() {
   } = useAgendaFilters({ agendas })
 
   useEffect(() => {
+    async function loadAgendas() {
+      try {
+        const result = await getAllAgenda()
+
+        if (result.agendas.length === 0) {
+          console.log('Nenhuma agenda encontrada na API')
+        }
+      } catch (err) {
+        console.error('Erro ao carregar agendas:', err)
+        setError('Erro ao carregar pautas. Tente novamente.')
+      } finally {
+        setLoading(false)
+      }
+    }
+
     const loadingTimeout = setTimeout(() => {
-      getAllAgenda()
-      setLoading(false)
+      loadAgendas()
     }, 1000)
 
     return () => clearTimeout(loadingTimeout)
-  }, [setLoading])
+  }, [])
 
   async function handleOpenSession(agendaId: string, duration: number) {
     try {
@@ -61,13 +76,11 @@ export function AgendaList() {
   }
 
   function handleViewResults(agenda: Agenda) {
-    // Definir a agenda selecionada e navegar para resultados
     setSelectedAgenda(agenda)
     setActiveTab('results')
   }
 
   function handleVote(agenda: Agenda) {
-    // Definir a agenda selecionada e navegar para votação
     setSelectedAgenda(agenda)
     setActiveTab('voting')
   }
@@ -84,7 +97,44 @@ export function AgendaList() {
     return <AgendaErrorState error={error} onRetry={retry} />
   }
 
+  if (agendas.length === 0) {
+    return <AgendaEmptyState onCreateAgenda={handleCreateAgenda} />
+  }
+
   if (filteredAgendas.length === 0) {
+    if (
+      statusFilter !== AgendaStatus.ALL ||
+      categoryFilter !== AgendaCategory.ALL ||
+      searchTerm !== ''
+    ) {
+      console.log('Filtros ativos, mas nenhuma agenda corresponde')
+      return (
+        <div className="space-y-4">
+          <AgendaFilters
+            statusFilter={statusFilter}
+            categoryFilter={categoryFilter}
+            searchTerm={searchTerm}
+            totalAgendas={filteredAgendas.length}
+            onStatusChange={setStatusFilter}
+            onCategoryChange={setCategoryFilter}
+            onSearchChange={setSearchTerm}
+            onClearFilters={clearFilters}
+          />
+          <div className="text-center p-8">
+            <h3 className="text-lg font-medium mb-2">
+              Nenhuma pauta encontrada
+            </h3>
+            <p className="text-muted-foreground mb-4">
+              Nenhuma pauta corresponde aos filtros selecionados
+            </p>
+            <Button variant="default" onClick={clearFilters}>
+              Limpar Filtros
+            </Button>
+          </div>
+        </div>
+      )
+    }
+
     return <AgendaEmptyState onCreateAgenda={handleCreateAgenda} />
   }
 

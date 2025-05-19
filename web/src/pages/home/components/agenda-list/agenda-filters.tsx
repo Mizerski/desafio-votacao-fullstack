@@ -42,16 +42,16 @@ export function AgendaFilters({
         {/* Filtro por status */}
         <div className="w-full space-y-2">
           <Label className="text-sm text-gray-400">Status</Label>
-          <Select value={statusFilter} onValueChange={onStatusChange}>
+          <Select value={statusFilter} onValueChange={(value) => onStatusChange(value as AgendaStatus)}>
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Todos os status" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="ALL">Todos os status</SelectItem>
-              <SelectItem value="não_iniciada">Não iniciadas</SelectItem>
-              <SelectItem value="em_andamento">Em andamento</SelectItem>
-              <SelectItem value="encerrada">Encerradas</SelectItem>
-              <SelectItem value="cancelada">Canceladas</SelectItem>
+              <SelectItem value={AgendaStatus.ALL}>Todos os status</SelectItem>
+              <SelectItem value={AgendaStatus.OPEN}>Não iniciadas</SelectItem>
+              <SelectItem value={AgendaStatus.IN_PROGRESS}>Em andamento</SelectItem>
+              <SelectItem value={AgendaStatus.FINISHED}>Encerradas</SelectItem>
+              <SelectItem value={AgendaStatus.CANCELLED}>Canceladas</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -59,16 +59,18 @@ export function AgendaFilters({
         {/* Filtro por categoria */}
         <div className="space-y-2 w-full">
           <Label className="text-sm text-gray-400">Categoria</Label>
-          <Select value={categoryFilter} onValueChange={onCategoryChange} >
+          <Select value={categoryFilter} onValueChange={(value) => onCategoryChange(value as AgendaCategory)}>
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Todas as categorias" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="ALL">Todas as categorias</SelectItem>
-              <SelectItem value="Projetos">Projetos</SelectItem>
-              <SelectItem value="Administrativo">Administrativo</SelectItem>
-              <SelectItem value="Eleições">Eleições</SelectItem>
-              <SelectItem value="Estatutário">Estatutário</SelectItem>
+              <SelectItem value={AgendaCategory.ALL}>Todas as categorias</SelectItem>
+              <SelectItem value={AgendaCategory.PROJETOS}>Projetos</SelectItem>
+              <SelectItem value={AgendaCategory.ADMINISTRATIVO}>Administrativo</SelectItem>
+              <SelectItem value={AgendaCategory.ELEICOES}>Eleições</SelectItem>
+              <SelectItem value={AgendaCategory.ESTATUTARIO}>Estatutário</SelectItem>
+              <SelectItem value={AgendaCategory.FINANCEIRO}>Financeiro</SelectItem>
+              <SelectItem value={AgendaCategory.OUTROS}>Outros</SelectItem>
             </SelectContent>
           </Select>
         </div>

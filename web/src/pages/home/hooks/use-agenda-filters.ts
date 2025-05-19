@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { Agenda, AgendaCategory, AgendaStatus } from '../../../shared/types/agenda'
 
 interface UseAgendaFiltersProps {
@@ -25,18 +25,41 @@ export function useAgendaFilters({ agendas }: UseAgendaFiltersProps): UseAgendaF
   const [statusFilter, setStatusFilter] = useState<AgendaStatus>(AgendaStatus.ALL)
   const [categoryFilter, setCategoryFilter] = useState<AgendaCategory>(AgendaCategory.ALL)
   const [searchTerm, setSearchTerm] = useState<string>('')
+  
+  // Debug para ajudar a entender os dados
+  useEffect(() => {
+    console.log('Agendas disponíveis:', agendas.length)
+    console.log('Status filter:', statusFilter)
+    console.log('Category filter:', categoryFilter)
+  }, [agendas, statusFilter, categoryFilter])
 
   const filteredAgendas = useMemo(() => {
     return agendas.filter((agenda) => {
-      const matchesStatus = statusFilter === AgendaStatus.ALL || agenda.status === statusFilter
-      const matchesCategory = categoryFilter === AgendaCategory.ALL || agenda.category === categoryFilter
-      const matchesSearch = searchTerm === '' || 
+      // Verificar status
+      const matchesStatus = 
+        statusFilter === AgendaStatus.ALL || 
+        agenda.status === statusFilter
+      
+      // Verificar categoria
+      const matchesCategory = 
+        categoryFilter === AgendaCategory.ALL || 
+        agenda.category === categoryFilter
+      
+      // Verificar termo de busca
+      const matchesSearch = 
+        searchTerm === '' || 
         agenda.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         agenda.description.toLowerCase().includes(searchTerm.toLowerCase())
 
-      return matchesStatus && matchesCategory && matchesSearch
+      const result = matchesStatus && matchesCategory && matchesSearch
+      return result
     })
   }, [agendas, statusFilter, categoryFilter, searchTerm])
+
+  // Debug para ajudar a entender o resultado da filtragem
+  useEffect(() => {
+    console.log('Agendas filtradas:', filteredAgendas.length)
+  }, [filteredAgendas])
 
   const clearFilters = () => {
     setStatusFilter(AgendaStatus.ALL)
