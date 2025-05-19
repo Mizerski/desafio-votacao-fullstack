@@ -1,5 +1,7 @@
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { CreateAgenda } from './create-agenda'
+import { AgendaList } from './agenda-list'
+
 export function HomeTabs() {
   return (
     <Tabs defaultValue="agendas" className="w-full">
@@ -12,6 +14,10 @@ export function HomeTabs() {
 
       <TabsContent value="create">
         <CreateAgenda />
+      </TabsContent>
+
+      <TabsContent value="agendas">
+        <AgendaList />
       </TabsContent>
     </Tabs>
   )
