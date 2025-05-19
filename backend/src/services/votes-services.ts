@@ -38,6 +38,7 @@ export class VotesService {
     }
 
     const vote = await this.votesRepo.create(votes)
+
     return { vote }
   }
 

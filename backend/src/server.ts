@@ -10,7 +10,7 @@ import { ConstantsEnv } from '@shared/constants/env'
 import { mainRoutes } from '@routes/main'
 import authJwt from './plugins/auth-jwt'
 
-const server = fastify().withTypeProvider<ZodTypeProvider>()
+const server = fastify({ logger: true }).withTypeProvider<ZodTypeProvider>()
 
 server.register(authJwt)
 

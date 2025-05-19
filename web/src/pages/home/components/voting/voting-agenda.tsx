@@ -13,7 +13,6 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import { Separator } from '@/components/ui/separator'
 import { Loader2, AlertCircle, Tag } from 'lucide-react'
 import { Agenda, AgendaVote } from '@/shared/types/agenda'
 import { toast, Toaster } from 'sonner'
@@ -26,17 +25,45 @@ import {
 } from '@/components/ui/select'
 import { EmptyVoting } from './empty-voting'
 import { useAgenda } from '@/shared/hooks/use-agenda'
+import { storage } from '@/lib/storage'
+import { useVote } from '@/shared/hooks/use-vote'
 
 export function AgendaVoting() {
   const [loading, setLoading] = useState<boolean>(true)
   const [error, setError] = useState<string | null>(null)
   const [selectedAgenda, setSelectedAgenda] = useState<Agenda | null>(null)
-  const [memberId, setMemberId] = useState<string>('')
-  const [cpf, setCpf] = useState<string>('')
-  const [voteOption, setVoteOption] = useState<AgendaVote | null>(null)
+  const [userId, setUserId] = useState<string>('')
+  const [voteOption, setVoteOption] = useState<AgendaVote>()
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
 
   const { getAllOpenAgenda, openAgendas } = useAgenda()
+  const { createVote } = useVote()
+
+  async function handleSubmitVote() {
+    if (!selectedAgenda || !voteOption || !userId) {
+      toast.error('Preencha todos os campos para votar.')
+      return
+    }
+
+    try {
+      setIsSubmitting(true)
+
+      await createVote({
+        userId,
+        agendaId: selectedAgenda.id,
+        vote: voteOption,
+      })
+
+      toast.success('Voto registrado com sucesso!')
+
+      setVoteOption(undefined)
+    } catch (error) {
+      console.error('Erro ao registrar voto:', error)
+      toast.error('Erro ao registrar voto!')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
 
   useEffect(() => {
     const loadingTimeout = setTimeout(() => {
@@ -48,24 +75,10 @@ export function AgendaVoting() {
     return () => clearTimeout(loadingTimeout)
   }, [])
 
-  function handleSubmitVote() {
-    if (!selectedAgenda || !voteOption || !memberId) {
-      toast.error('Preencha todos os campos para votar.')
-      return
-    }
-
-    try {
-      setIsSubmitting(true)
-
-      toast.success('Voto registrado com sucesso!')
-
-      setVoteOption(null)
-    } catch (error) {
-      console.error('Erro ao registrar voto:', error)
-    } finally {
-      setIsSubmitting(false)
-    }
-  }
+  useEffect(() => {
+    const user = storage.getUser()
+    if (user) setUserId(user.id)
+  }, [])
 
   if (loading) {
     return (
@@ -151,30 +164,15 @@ export function AgendaVoting() {
               </div>
             </div>
 
-            <Separator />
-
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="member-id">ID do Associado</Label>
+                <Label htmlFor="userId">ID do Usuário</Label>
                 <Input
-                  id="member-id"
-                  placeholder="Digite seu ID de associado"
-                  value={memberId}
-                  onChange={(e) => setMemberId(e.target.value)}
+                  id="userId"
+                  placeholder="Digite seu ID de usuário"
+                  value={userId}
+                  disabled
                 />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="cpf">CPF (opcional)</Label>
-                <Input
-                  id="cpf"
-                  placeholder="Digite seu CPF para validação"
-                  value={cpf}
-                  onChange={(e) => setCpf(e.target.value)}
-                />
-                <p className="text-xs text-muted-foreground">
-                  O CPF é opcional e será usado para validação adicional.
-                </p>
               </div>
 
               <div className="space-y-2">
@@ -184,11 +182,11 @@ export function AgendaVoting() {
                   onValueChange={(value) => setVoteOption(value as AgendaVote)}
                 >
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="YES" id="vote-yes" />
+                    <RadioGroupItem value={AgendaVote.YES} id="vote-yes" />
                     <Label htmlFor="vote-yes">Sim</Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="NO" id="vote-no" />
+                    <RadioGroupItem value={AgendaVote.NO} id="vote-no" />
                     <Label htmlFor="vote-no">Não</Label>
                   </div>
                 </RadioGroup>
@@ -205,7 +203,7 @@ export function AgendaVoting() {
           <Button
             variant="default"
             className="flex-1"
-            disabled={isSubmitting || !voteOption || !memberId}
+            disabled={isSubmitting || !voteOption || !userId}
             onClick={handleSubmitVote}
           >
             {isSubmitting ? (

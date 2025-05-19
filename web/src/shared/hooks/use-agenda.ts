@@ -52,7 +52,6 @@ export function useAgenda() {
       }>('/agenda/open')
 
       const { agendas, totalOnList } = response.data
-
       setOpenAgendas(agendas)
       setTotalOnList(totalOnList)
     } catch (error) {
