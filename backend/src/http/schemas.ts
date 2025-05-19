@@ -1,4 +1,9 @@
-import { AgendaResult, AgendaStatus, AgendaCategory } from '@prisma/client'
+import {
+  AgendaResult,
+  AgendaStatus,
+  AgendaCategory,
+  VoteType,
+} from '@prisma/client'
 import { z } from 'zod'
 
 export const registerBodySchema = z.object({
@@ -33,4 +38,12 @@ export const agendaBodySchema = z.object({
     .default(AgendaCategory.OUTROS),
   status: z.nativeEnum(AgendaStatus).optional().default(AgendaStatus.OPEN),
   result: z.nativeEnum(AgendaResult).optional().default(AgendaResult.UNVOTED),
+})
+
+// ======================== VOTES =========================
+
+export const createVoteBodySchema = z.object({
+  userId: z.string().min(1, 'Usuário inválido!'),
+  agendaId: z.string().min(1, 'Pauta inválida!'),
+  vote: z.nativeEnum(VoteType),
 })
