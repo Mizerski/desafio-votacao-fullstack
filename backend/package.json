@@ -5,7 +5,8 @@
   "scripts": {
     "dev": " tsx watch src/server.ts",
     "lint": "eslint src -e .ts",
-    "build": "tsup src --out-dir build"
+    "build": "tsup src --out-dir build",
+    "seed": "ts-node prisma/seed.ts"
   },
   "keywords": [],
   "author": "",
