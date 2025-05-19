@@ -12,7 +12,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { Loader2, AlertCircle, BarChart2, Tag } from 'lucide-react'
-import { Agenda } from '../types/agenda'
+import { Agenda } from '../../../shared/types/agenda'
 import { mockAgendas } from './mock'
 
 export function AgendaResults() {

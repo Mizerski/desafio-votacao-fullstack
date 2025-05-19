@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import { Agenda, AgendaCategory, AgendaStatus } from '../types/agenda'
+import { Agenda, AgendaCategory, AgendaStatus } from '../../../shared/types/agenda'
 
 interface UseAgendaFiltersProps {
   agendas: Agenda[]

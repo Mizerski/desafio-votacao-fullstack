@@ -8,7 +8,7 @@ CREATE TYPE "AgendaStatus" AS ENUM ('OPEN', 'IN_PROGRESS', 'FINISHED', 'CANCELLE
 CREATE TYPE "AgendaCategory" AS ENUM ('PROJETOS', 'ADMINISTRATIVO', 'ELEICOES', 'ESTATUTARIO', 'FINANCEIRO', 'OUTROS', 'ALL');
 
 -- CreateEnum
-CREATE TYPE "AgendaResult" AS ENUM ('APPROVED', 'REJECTED', 'TIE', 'ALL');
+CREATE TYPE "AgendaResult" AS ENUM ('APPROVED', 'REJECTED', 'TIE', 'UNVOTED', 'ALL');
 
 -- CreateTable
 CREATE TABLE "User" (
@@ -16,7 +16,7 @@ CREATE TABLE "User" (
     "name" TEXT NOT NULL,
     "email" TEXT NOT NULL,
     "password" TEXT NOT NULL,
-    "document" TEXT NOT NULL,
+    "document" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")

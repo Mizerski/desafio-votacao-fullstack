@@ -10,7 +10,7 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Agenda } from '../types/agenda'
+import { Agenda } from '@/shared/types/agenda'
 import { AgendaStatusBadge } from './agenda-status-badge'
 
 interface AgendaCardProps {

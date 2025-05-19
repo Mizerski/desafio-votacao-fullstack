@@ -17,7 +17,7 @@ import { Separator } from '@/components/ui/separator'
 import { Loader2, Clock, AlertCircle, Tag } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
-import { Agenda } from '../types/agenda'
+import { Agenda } from '../../../shared/types/agenda'
 import { toast, Toaster } from 'sonner'
 import { mockAgendas } from './mock'
 import {

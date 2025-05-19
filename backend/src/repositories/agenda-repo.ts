@@ -1,0 +1,43 @@
+import { Agenda, Prisma } from '@prisma/client'
+
+export interface AgendaRepo {
+  /**
+   * Cria uma nova agenda
+   * @param agenda Agenda a ser criada
+   * @returns Agenda criada
+   */
+  create(agenda: Prisma.AgendaCreateInput): Promise<Agenda>
+
+  /**
+   * Busca todas as agendas
+   * @returns Todas as agendas
+   */
+  findAll(): Promise<Agenda[]>
+
+  /**
+   * Busca uma agenda pelo ID
+   * @param id ID da agenda
+   * @returns Agenda encontrada ou null se não encontrada
+   */
+  findById(id: string): Promise<Agenda | null>
+
+  /**
+   * Atualiza uma agenda existente
+   * @param id ID da agenda a ser atualizada
+   * @param agenda Agenda com os dados atualizados
+   */
+  update(id: string, agenda: Agenda): Promise<Agenda>
+
+  /**
+   * Deleta uma agenda existente
+   * @param id ID da agenda a ser deletada
+   */
+  delete(id: string): Promise<void>
+
+  /**
+   * Conta o número de agendas
+   * @param where Condições de contagem
+   * @returns Número de agendas
+   */
+  count(where?: Prisma.AgendaWhereInput): Promise<number>
+}

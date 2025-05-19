@@ -2,8 +2,8 @@ import { Filter, Search } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { AgendaCategory, AgendaStatus } from '../types/agenda'
 import { Label } from '@/components/ui/label'
+import { AgendaStatus, AgendaCategory } from '@/shared/types/agenda'
 
 interface AgendaFiltersProps {
   statusFilter: AgendaStatus

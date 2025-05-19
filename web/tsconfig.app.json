@@ -33,7 +33,9 @@
         "@/assets/*": ["./src/assets/*"],
         "@/hooks/*": ["./src/hooks/*"],
         "@/types/*": ["./src/types/*"],
-        "@/vetores/*": ["./src/assets/vetores/*"]
+        "@/vetores/*": ["./src/assets/vetores/*"],
+        "@/shared/*": ["./src/shared/*"]
+        
     }
   },
   "include": ["src"]

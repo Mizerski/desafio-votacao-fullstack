@@ -1,5 +1,4 @@
-import { useEffect, useState } from 'react'
-import { Agenda } from '../types/agenda'
+import { useEffect } from 'react'
 import { AgendaCard } from './agenda-card'
 import { AgendaFilters } from './agenda-filters'
 import {
@@ -9,7 +8,7 @@ import {
 } from './agenda-states'
 import { useAgendaFilters } from '../hooks/use-agenda-filters'
 import { useAgendaLoading } from '../hooks/use-agenda-loading'
-import { mockAgendas } from './mock'
+import { useAgenda } from '@/hooks/useAgenda'
 
 /**
  * Componente principal que exibe a lista de agendas
@@ -17,7 +16,7 @@ import { mockAgendas } from './mock'
  */
 export function AgendaList() {
   const { loading, error, setLoading, retry } = useAgendaLoading()
-  const [agendas, setAgendas] = useState<Agenda[]>([])
+  const { getAllAgenda, agendas } = useAgenda()
 
   const {
     filteredAgendas,
@@ -32,7 +31,7 @@ export function AgendaList() {
 
   useEffect(() => {
     const loadingTimeout = setTimeout(() => {
-      setAgendas(mockAgendas)
+      getAllAgenda()
       setLoading(false)
     }, 1000)
 

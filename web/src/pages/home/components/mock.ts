@@ -1,4 +1,4 @@
-import { Agenda } from '../types/agenda'
+import { Agenda } from '../../../shared/types/agenda'
 
 export const mockAgendas: Agenda[] = [
   {

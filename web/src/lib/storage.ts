@@ -1,4 +1,4 @@
-import { User } from '@/types/user'
+import { User } from '@/shared/types/user'
 
 /**
  * Constantes para as chaves de storage

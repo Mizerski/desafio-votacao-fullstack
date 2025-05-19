@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { api } from '@/lib/axios'
-import { User, AuthResponse } from '@/types/user'
+import { User, AuthResponse } from '@/shared/types/user'
 import { storage } from '@/lib/storage'
 
 /**
