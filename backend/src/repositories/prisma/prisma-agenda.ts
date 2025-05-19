@@ -1,4 +1,4 @@
-import { Agenda, AgendaStatus, Prisma } from '@prisma/client'
+import { Agenda, AgendaStatus, Prisma, Session } from '@prisma/client'
 import { AgendaRepo } from '../agenda-repo'
 import { prismaClient } from '@prisma/index'
 
@@ -54,6 +54,13 @@ export class PrismaAgenda implements AgendaRepo {
         startTime: session.startTime,
         endTime: session.endTime,
       },
+    })
+  }
+
+  async getSessionsByAgendaId(agendaId: string): Promise<Session[]> {
+    return prismaClient.session.findMany({
+      where: { agendaId },
+      orderBy: { startTime: 'desc' },
     })
   }
 }

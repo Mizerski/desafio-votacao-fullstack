@@ -1,5 +1,5 @@
 import { api } from '@/lib/axios'
-import { Agenda } from '@/shared/types/agenda'
+import { Agenda, AgendaVote } from '@/shared/types/agenda'
 import { useState } from 'react'
 
 type CreateAgendaInput = Omit<Agenda, 'id' | 'votes'>
@@ -9,6 +9,7 @@ export function useAgenda() {
   const [totalOnList, setTotalOnList] = useState<number>(0)
   const [finishedAgendas, setFinishedAgendas] = useState<Agenda[]>([])
   const [openAgendas, setOpenAgendas] = useState<Agenda[]>([])
+
   async function getAllAgenda() {
     try {
       const response = await api.get<{
@@ -72,6 +73,65 @@ export function useAgenda() {
     }
   }
 
+  /**
+   * Inicia uma sessão de votação
+   * @param agendaId ID da pauta
+   * @param durationInMinutes Duração em minutos
+   * @returns Dados da agenda atualizada
+   */
+  async function startAgendaSession(
+    agendaId: string,
+    durationInMinutes: number,
+  ) {
+    try {
+      const { data } = await api.post('/agenda/start-session', {
+        agendaId,
+        durationInMinutes,
+      })
+
+      // Atualiza as agendas no estado
+      setAgendas((prev) =>
+        prev.map((agenda) => (agenda.id === agendaId ? data.agenda : agenda)),
+      )
+
+      return data.agenda
+    } catch (error) {
+      console.error('Erro ao iniciar sessão de votação:', error)
+      throw error
+    }
+  }
+
+  /**
+   * Registra um voto em uma pauta
+   * @param agendaId ID da pauta
+   * @param userId ID do usuário
+   * @param vote Tipo de voto (YES/NO)
+   * @returns Dados da agenda atualizada
+   */
+  async function voteOnAgenda(
+    agendaId: string,
+    userId: string,
+    vote: AgendaVote,
+  ) {
+    try {
+      const { data } = await api.post('/votes', {
+        agendaId,
+        userId,
+        vote,
+      })
+
+      // Atualiza as agendas no estado
+      setAgendas((prev) =>
+        prev.map((agenda) => (agenda.id === agendaId ? data.agenda : agenda)),
+      )
+
+      return data.agenda
+    } catch (error) {
+      console.error('Erro ao votar na pauta:', error)
+      throw error
+    }
+  }
+
   return {
     getAllAgenda,
     createAgenda,
@@ -81,5 +141,7 @@ export function useAgenda() {
     finishedAgendas,
     getAllOpenAgenda,
     openAgendas,
+    startAgendaSession,
+    voteOnAgenda,
   }
 }

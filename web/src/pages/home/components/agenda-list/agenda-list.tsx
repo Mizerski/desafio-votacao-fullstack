@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { AgendaCard } from './agenda-card'
 import {
   AgendaLoadingState,
@@ -9,6 +9,7 @@ import { useAgenda } from '@/shared/hooks/use-agenda'
 import { useAgendaLoading } from '../../hooks/use-agenda-loading'
 import { useAgendaFilters } from '../../hooks/use-agenda-filters'
 import { AgendaFilters } from './agenda-filters'
+import { toast } from 'sonner'
 
 /**
  * Componente principal que exibe a lista de agendas
@@ -16,7 +17,8 @@ import { AgendaFilters } from './agenda-filters'
  */
 export function AgendaList() {
   const { loading, error, setLoading, retry } = useAgendaLoading()
-  const { getAllAgenda, agendas } = useAgenda()
+  const { getAllAgenda, agendas, startAgendaSession } = useAgenda()
+  const [processing, setProcessing] = useState<string | null>(null)
 
   const {
     filteredAgendas,
@@ -38,9 +40,19 @@ export function AgendaList() {
     return () => clearTimeout(loadingTimeout)
   }, [setLoading])
 
-  function handleOpenSession(duration: number) {
-    // Implementar lógica para abrir sessão
-    console.log('Abrir sessão por', duration, 'minutos')
+  async function handleOpenSession(agendaId: string, duration: number) {
+    try {
+      setProcessing(agendaId)
+      await startAgendaSession(agendaId, duration)
+      toast.success(
+        `Sessão iniciada por ${duration} ${duration === 1 ? 'minuto' : 'minutos'}`,
+      )
+    } catch (error) {
+      console.error('Erro ao iniciar sessão:', error)
+      toast.error('Erro ao iniciar sessão de votação')
+    } finally {
+      setProcessing(null)
+    }
   }
 
   function handleViewResults() {
@@ -87,7 +99,8 @@ export function AgendaList() {
           <AgendaCard
             key={agenda.id}
             agenda={agenda}
-            onOpenSession={handleOpenSession}
+            isProcessing={processing === agenda.id}
+            onOpenSession={(duration) => handleOpenSession(agenda.id, duration)}
             onViewResults={handleViewResults}
             onVote={handleVote}
           />

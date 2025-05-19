@@ -17,6 +17,7 @@ import { Progress } from '@/components/ui/progress'
 
 interface AgendaCardProps {
   agenda: Agenda
+  isProcessing?: boolean
   onOpenSession: (duration: number) => void
   onViewResults: () => void
   onVote: () => void
@@ -27,7 +28,13 @@ interface AgendaCardProps {
  * @param props - Propriedades do componente
  * @returns Card com as informações da agenda
  */
-export function AgendaCard({ agenda, onOpenSession, onViewResults, onVote }: AgendaCardProps) {
+export function AgendaCard({ 
+  agenda, 
+  isProcessing = false, 
+  onOpenSession, 
+  onViewResults, 
+  onVote 
+}: AgendaCardProps) {
   const isSessionEnded = agenda.endDate && new Date(agenda.endDate) < new Date()
   const { isRunning, formatTime, remainingTime } = useTimer(agenda.endDate)
 
@@ -58,7 +65,7 @@ export function AgendaCard({ agenda, onOpenSession, onViewResults, onVote }: Age
           <span className="mr-2">Categoria:</span>
           {agenda.category}
         </div>
-
+        
         {agenda.status === AgendaStatus.IN_PROGRESS && isRunning ? (
           <div className="mt-2 space-y-1">
             <div className="flex items-center justify-between text-sm">
@@ -83,7 +90,7 @@ export function AgendaCard({ agenda, onOpenSession, onViewResults, onVote }: Age
           <div className="flex items-center text-sm text-muted-foreground">
             <Clock className="h-4 w-4 mr-1" />
             {isSessionEnded ? (
-              <span>Encerrada há {formatDistanceToNow(new Date(agenda.endDate), { locale: ptBR, addSuffix: true })}</span>
+              <span>Encerrada  {formatDistanceToNow(new Date(agenda.endDate), { locale: ptBR, addSuffix: true })}</span>
             ) : (
               <span>Encerra em {formatDistanceToNow(new Date(agenda.endDate), { locale: ptBR, addSuffix: true })}</span>
             )}
@@ -101,16 +108,18 @@ export function AgendaCard({ agenda, onOpenSession, onViewResults, onVote }: Age
             <Button
               variant="default"
               className="flex-1"
+              disabled={isProcessing}
               onClick={() => onOpenSession(1)}
             >
-              Abrir Sessão (1 min)
+              {isProcessing ? 'Iniciando...' : 'Abrir Sessão (1 min)'}
             </Button>
             <Button
               variant="outline"
               className="flex-1"
+              disabled={isProcessing}
               onClick={() => onOpenSession(5)}
             >
-              Abrir (5 min)
+              {isProcessing ? 'Iniciando...' : 'Abrir (5 min)'}
             </Button>
           </div>
         ) : isSessionEnded ? (

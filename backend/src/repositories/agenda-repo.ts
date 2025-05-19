@@ -1,4 +1,4 @@
-import { Agenda, Prisma } from '@prisma/client'
+import { Agenda, Prisma, Session } from '@prisma/client'
 
 export interface AgendaRepo {
   /**
@@ -62,4 +62,11 @@ export interface AgendaRepo {
     startTime: Date
     endTime: Date
   }): Promise<void>
+
+  /**
+   * Busca todas as sessões de uma agenda
+   * @param agendaId ID da agenda
+   * @returns Lista de sessões
+   */
+  getSessionsByAgendaId(agendaId: string): Promise<Session[]>
 }
