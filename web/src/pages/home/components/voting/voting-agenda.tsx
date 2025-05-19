@@ -14,12 +14,9 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Separator } from '@/components/ui/separator'
-import { Loader2, Clock, AlertCircle, Tag } from 'lucide-react'
-import { formatDistanceToNow } from 'date-fns'
-import { ptBR } from 'date-fns/locale'
-import { Agenda } from '../../../shared/types/agenda'
+import { Loader2, AlertCircle, Tag } from 'lucide-react'
+import { Agenda, AgendaVote } from '@/shared/types/agenda'
 import { toast, Toaster } from 'sonner'
-import { mockAgendas } from './mock'
 import {
   Select,
   SelectContent,
@@ -27,6 +24,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { EmptyVoting } from './empty-voting'
+import { useAgenda } from '@/shared/hooks/use-agenda'
 
 export function AgendaVoting() {
   const [loading, setLoading] = useState<boolean>(true)
@@ -34,54 +33,22 @@ export function AgendaVoting() {
   const [selectedAgenda, setSelectedAgenda] = useState<Agenda | null>(null)
   const [memberId, setMemberId] = useState<string>('')
   const [cpf, setCpf] = useState<string>('')
-  const [voteOption, setVoteOption] = useState<'SIM' | 'NAO' | null>(null)
+  const [voteOption, setVoteOption] = useState<AgendaVote | null>(null)
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
-  const [timeLeft, setTimeLeft] = useState<string | null>(null)
-  const [activeAgendas, setActiveAgendas] = useState<Agenda[]>([])
-  useEffect(() => {
-    if (
-      !selectedAgenda ||
-      !selectedAgenda.session ||
-      !selectedAgenda.session.endTime
-    )
-      return
 
-    const updateTimeLeft = () => {
-      if (
-        !selectedAgenda ||
-        !selectedAgenda.session ||
-        !selectedAgenda.session.endTime
-      )
-        return
-
-      const endTime = new Date(selectedAgenda.session.endTime)
-      const now = new Date()
-
-      if (now >= endTime) {
-        setTimeLeft('Sessão encerrada')
-        return
-      }
-
-      setTimeLeft(
-        formatDistanceToNow(endTime, { addSuffix: false, locale: ptBR }),
-      )
-    }
-
-    updateTimeLeft()
-    const interval = setInterval(updateTimeLeft, 1000)
-    return () => clearInterval(interval)
-  }, [selectedAgenda])
+  const { getAllOpenAgenda, openAgendas } = useAgenda()
 
   useEffect(() => {
     const loadingTimeout = setTimeout(() => {
-      setActiveAgendas(mockAgendas)
+      setLoading(true)
+      getAllOpenAgenda()
       setLoading(false)
     }, 1000)
 
     return () => clearTimeout(loadingTimeout)
-  }, [setLoading])
+  }, [])
 
-  const handleSubmitVote = async () => {
+  function handleSubmitVote() {
     if (!selectedAgenda || !voteOption || !memberId) {
       toast.error('Preencha todos os campos para votar.')
       return
@@ -128,23 +95,8 @@ export function AgendaVoting() {
     )
   }
 
-  if (activeAgendas.length === 0) {
-    return (
-      <Card className="max-w-2xl mx-auto">
-        <CardHeader>
-          <CardTitle>Nenhuma Sessão Ativa</CardTitle>
-          <CardDescription>
-            Não há pautas com sessões de votação abertas no momento
-          </CardDescription>
-        </CardHeader>
-
-        <CardFooter>
-          <Button variant="default" className="w-full" onClick={() => {}}>
-            Ver Pautas Disponíveis
-          </Button>
-        </CardFooter>
-      </Card>
-    )
+  if (openAgendas.length === 0) {
+    return <EmptyVoting />
   }
 
   return (
@@ -157,13 +109,13 @@ export function AgendaVoting() {
       </CardHeader>
 
       <CardContent className="space-y-6">
-        {activeAgendas.length > 1 && (
+        {openAgendas.length > 1 && (
           <div className="space-y-2">
             <Label htmlFor="agenda-select">Selecione a Pauta</Label>
             <Select
               value={selectedAgenda?.id || ''}
               onValueChange={(value) => {
-                const selected = activeAgendas.find(
+                const selected = openAgendas.find(
                   (agenda) => agenda.id === value,
                 )
                 if (selected) setSelectedAgenda(selected)
@@ -173,7 +125,7 @@ export function AgendaVoting() {
                 <SelectValue placeholder="Selecione uma pauta" />
               </SelectTrigger>
               <SelectContent>
-                {activeAgendas.map((agenda) => (
+                {openAgendas.map((agenda) => (
                   <SelectItem key={agenda.id} value={agenda.id}>
                     {agenda.title}
                   </SelectItem>
@@ -197,13 +149,6 @@ export function AgendaVoting() {
                 <span className="mr-2">Categoria:</span>
                 {selectedAgenda.category}
               </div>
-
-              {timeLeft && (
-                <div className="flex items-center mt-2 text-sm font-medium">
-                  <Clock className="h-4 w-4 mr-1 text-amber-500" />
-                  <span>Tempo restante: {timeLeft}</span>
-                </div>
-              )}
             </div>
 
             <Separator />
@@ -236,16 +181,14 @@ export function AgendaVoting() {
                 <Label>Seu Voto</Label>
                 <RadioGroup
                   value={voteOption || ''}
-                  onValueChange={(value) =>
-                    setVoteOption(value as 'SIM' | 'NAO')
-                  }
+                  onValueChange={(value) => setVoteOption(value as AgendaVote)}
                 >
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="SIM" id="vote-yes" />
+                    <RadioGroupItem value="YES" id="vote-yes" />
                     <Label htmlFor="vote-yes">Sim</Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="NAO" id="vote-no" />
+                    <RadioGroupItem value="NO" id="vote-no" />
                     <Label htmlFor="vote-no">Não</Label>
                   </div>
                 </RadioGroup>

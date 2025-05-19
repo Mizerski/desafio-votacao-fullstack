@@ -128,11 +128,11 @@ export function AgendaResults() {
                 </CardHeader>
                 <CardContent>
                   <div className="text-4xl font-bold text-green-600">
-                    {selectedAgenda.votes.yes}
+                    {selectedAgenda.votes.YES}
                   </div>
                   <div className="text-sm text-green-700">
-                    {selectedAgenda.votes.yes > 0
-                      ? `${Math.round((selectedAgenda.votes.yes / (selectedAgenda.votes.yes + selectedAgenda.votes.no)) * 100)}%`
+                    {selectedAgenda.votes.YES > 0
+                      ? `${Math.round((selectedAgenda.votes.YES / (selectedAgenda.votes.YES + selectedAgenda.votes.NO)) * 100)}%`
                       : '0%'}
                   </div>
                 </CardContent>
@@ -146,11 +146,11 @@ export function AgendaResults() {
                 </CardHeader>
                 <CardContent>
                   <div className="text-4xl font-bold text-red-600">
-                    {selectedAgenda.votes.no}
+                    {selectedAgenda.votes.NO}
                   </div>
                   <div className="text-sm text-red-700">
-                    {selectedAgenda.votes.no > 0
-                      ? `${Math.round((selectedAgenda.votes.no / (selectedAgenda.votes.yes + selectedAgenda.votes.no)) * 100)}%`
+                    {selectedAgenda.votes.NO > 0
+                      ? `${Math.round((selectedAgenda.votes.NO / (selectedAgenda.votes.YES + selectedAgenda.votes.NO)) * 100)}%`
                       : '0%'}
                   </div>
                 </CardContent>
@@ -169,7 +169,7 @@ export function AgendaResults() {
                 </div>
                 <div className="text-sm text-muted-foreground mt-1">
                   Total de votos:{' '}
-                  {selectedAgenda.votes.yes + selectedAgenda.votes.no}
+                  {selectedAgenda.votes.YES + selectedAgenda.votes.NO}
                 </div>
               </div>
             </div>
@@ -191,8 +191,8 @@ export function AgendaResults() {
                 <div
                   style={{
                     width:
-                      selectedAgenda.votes.yes + selectedAgenda.votes.no > 0
-                        ? `${(selectedAgenda.votes.yes / (selectedAgenda.votes.yes + selectedAgenda.votes.no)) * 100}%`
+                      selectedAgenda.votes.YES + selectedAgenda.votes.NO > 0
+                        ? `${(selectedAgenda.votes.YES / (selectedAgenda.votes.YES + selectedAgenda.votes.NO)) * 100}%`
                         : '0%',
                   }}
                   className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-green-500"
@@ -200,8 +200,8 @@ export function AgendaResults() {
                 <div
                   style={{
                     width:
-                      selectedAgenda.votes.yes + selectedAgenda.votes.no > 0
-                        ? `${(selectedAgenda.votes.no / (selectedAgenda.votes.yes + selectedAgenda.votes.no)) * 100}%`
+                      selectedAgenda.votes.YES + selectedAgenda.votes.NO > 0
+                        ? `${(selectedAgenda.votes.NO / (selectedAgenda.votes.YES + selectedAgenda.votes.NO)) * 100}%`
                         : '0%',
                   }}
                   className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-red-500"

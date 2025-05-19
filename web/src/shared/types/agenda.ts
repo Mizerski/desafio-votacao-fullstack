@@ -8,8 +8,7 @@ export interface Agenda {
   category: AgendaCategory
   result: AgendaResult
   votes: {
-    yes: number
-    no: number
+    [key in AgendaVote]: number
   }
   startDate: string
   endDate: string
@@ -41,4 +40,10 @@ export enum AgendaResult {
   REJECTED = 'REJECTED',
   TIE = 'TIE',
   UNVOTED = 'UNVOTED',
+}
+
+
+export enum AgendaVote {
+  YES = 'YES',
+  NO = 'NO',
 }
