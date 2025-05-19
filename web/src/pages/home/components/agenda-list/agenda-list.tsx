@@ -10,6 +10,9 @@ import { useAgendaLoading } from '../../hooks/use-agenda-loading'
 import { useAgendaFilters } from '../../hooks/use-agenda-filters'
 import { AgendaFilters } from './agenda-filters'
 import { toast } from 'sonner'
+import { useTabsContext } from '../../contexts/tabs-context'
+import { useSelectedAgenda } from '../../contexts/selected-agenda-context'
+import { Agenda } from '@/shared/types/agenda'
 
 /**
  * Componente principal que exibe a lista de agendas
@@ -19,6 +22,8 @@ export function AgendaList() {
   const { loading, error, setLoading, retry } = useAgendaLoading()
   const { getAllAgenda, agendas, startAgendaSession } = useAgenda()
   const [processing, setProcessing] = useState<string | null>(null)
+  const { setActiveTab } = useTabsContext()
+  const { setSelectedAgenda } = useSelectedAgenda()
 
   const {
     filteredAgendas,
@@ -55,19 +60,20 @@ export function AgendaList() {
     }
   }
 
-  function handleViewResults() {
-    // Implementar lógica para ver resultados
-    console.log('Ver resultados')
+  function handleViewResults(agenda: Agenda) {
+    // Definir a agenda selecionada e navegar para resultados
+    setSelectedAgenda(agenda)
+    setActiveTab('results')
   }
 
-  function handleVote() {
-    // Implementar lógica para votar
-    console.log('Votar agora')
+  function handleVote(agenda: Agenda) {
+    // Definir a agenda selecionada e navegar para votação
+    setSelectedAgenda(agenda)
+    setActiveTab('voting')
   }
 
   function handleCreateAgenda() {
-    // Implementar lógica para criar agenda
-    console.log('Criar nova agenda')
+    setActiveTab('create')
   }
 
   if (loading) {
@@ -101,8 +107,8 @@ export function AgendaList() {
             agenda={agenda}
             isProcessing={processing === agenda.id}
             onOpenSession={(duration) => handleOpenSession(agenda.id, duration)}
-            onViewResults={handleViewResults}
-            onVote={handleVote}
+            onViewResults={() => handleViewResults(agenda)}
+            onVote={() => handleVote(agenda)}
           />
         ))}
       </div>

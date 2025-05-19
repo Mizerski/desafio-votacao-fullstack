@@ -1,5 +1,7 @@
 import { HomeTabs } from './components/tabs'
 import { UserAvatar } from './components/user-avatar'
+import { TabsProvider } from './contexts/tabs-context'
+import { SelectedAgendaProvider } from './contexts/selected-agenda-context'
 
 export function HomePage() {
   return (
@@ -15,7 +17,11 @@ export function HomePage() {
         </p>
       </header>
 
-      <HomeTabs />
+      <TabsProvider>
+        <SelectedAgendaProvider>
+          <HomeTabs />
+        </SelectedAgendaProvider>
+      </TabsProvider>
     </div>
   )
 }

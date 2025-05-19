@@ -27,6 +27,8 @@ import { EmptyVoting } from './empty-voting'
 import { useAgenda } from '@/shared/hooks/use-agenda'
 import { storage } from '@/lib/storage'
 import { useVote } from '@/shared/hooks/use-vote'
+import { useTabsContext } from '../../contexts/tabs-context'
+import { useSelectedAgenda } from '../../contexts/selected-agenda-context'
 
 export function AgendaVoting() {
   const [loading, setLoading] = useState<boolean>(true)
@@ -38,6 +40,40 @@ export function AgendaVoting() {
 
   const { getAllOpenAgenda, openAgendas } = useAgenda()
   const { createVote } = useVote()
+  const { setActiveTab } = useTabsContext()
+  const { selectedAgenda: contextSelectedAgenda } = useSelectedAgenda()
+
+  useEffect(() => {
+    if (contextSelectedAgenda) {
+      const agendaInOpenList = openAgendas.find(
+        (a) => a.id === contextSelectedAgenda.id,
+      )
+      if (agendaInOpenList) {
+        setSelectedAgenda(agendaInOpenList)
+      }
+    }
+  }, [contextSelectedAgenda, openAgendas])
+
+  useEffect(() => {
+    if (openAgendas.length === 1 && !selectedAgenda) {
+      setSelectedAgenda(openAgendas[0])
+    }
+  }, [openAgendas, selectedAgenda])
+
+  useEffect(() => {
+    const loadingTimeout = setTimeout(() => {
+      setLoading(true)
+      getAllOpenAgenda()
+      setLoading(false)
+    }, 1000)
+
+    return () => clearTimeout(loadingTimeout)
+  }, [])
+
+  useEffect(() => {
+    const user = storage.getUser()
+    if (user) setUserId(user.id)
+  }, [])
 
   async function handleSubmitVote() {
     if (!selectedAgenda || !voteOption || !userId) {
@@ -64,21 +100,6 @@ export function AgendaVoting() {
       setIsSubmitting(false)
     }
   }
-
-  useEffect(() => {
-    const loadingTimeout = setTimeout(() => {
-      setLoading(true)
-      getAllOpenAgenda()
-      setLoading(false)
-    }, 1000)
-
-    return () => clearTimeout(loadingTimeout)
-  }, [])
-
-  useEffect(() => {
-    const user = storage.getUser()
-    if (user) setUserId(user.id)
-  }, [])
 
   if (loading) {
     return (
@@ -197,7 +218,11 @@ export function AgendaVoting() {
       </CardContent>
       <CardFooter className="flex flex-col gap-4">
         <div className="flex gap-4 w-full">
-          <Button variant="outline" className="flex-1">
+          <Button
+            variant="outline"
+            className="flex-1"
+            onClick={() => setActiveTab('agendas')}
+          >
             Voltar
           </Button>
           <Button

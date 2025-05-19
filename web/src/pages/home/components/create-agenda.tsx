@@ -38,6 +38,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { useTabsContext } from '../contexts/tabs-context'
 
 const formSchema = z.object({
   title: z.string().min(3, 'Título inválido!').max(100),
@@ -69,6 +70,7 @@ export function CreateAgenda() {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
   const [isSuccess, setIsSuccess] = useState<boolean>(false)
   const { createAgenda } = useAgenda()
+  const { setActiveTab } = useTabsContext()
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -107,6 +109,11 @@ export function CreateAgenda() {
         description:
           'Você já pode abrir uma sessão de votação para esta pauta.',
       })
+
+      // Navegar para a aba de pautas após 1,5 segundos
+      setTimeout(() => {
+        setActiveTab('agendas')
+      }, 1500)
     } catch (error) {
       console.error('Erro ao criar pauta:', error)
       toast.error('Erro ao criar pauta', {
@@ -207,10 +214,13 @@ export function CreateAgenda() {
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => form.reset()}
+                onClick={() => {
+                  form.reset()
+                  setActiveTab('agendas')
+                }}
                 disabled={isSubmitting}
               >
-                Limpar
+                Cancelar
               </Button>
               <Button type="submit" disabled={isSubmitting || isSuccess}>
                 {isSubmitting ? (

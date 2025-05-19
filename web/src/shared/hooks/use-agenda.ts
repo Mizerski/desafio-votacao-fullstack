@@ -40,8 +40,11 @@ export function useAgenda() {
 
       setFinishedAgendas(agendas)
       setTotalOnList(totalOnList)
+
+      return { agendas, totalOnList }
     } catch (error) {
       console.error('Erro ao buscar agendas encerradas:', error)
+      return { agendas: [], totalOnList: 0 }
     }
   }
 
