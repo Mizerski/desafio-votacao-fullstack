@@ -30,3 +30,5 @@ Padrões e Convenções Spring Boot:
 - DTOs: UsuarioDto.java ou CreateUsuarioRequest.java
 
 Spring é code-first, então as entidades são criadas primeiro e depois as migrations são geradas, diferente do Prisma que é schema-first.
+
+jpa, lombok, hibernate, annotations, jakarta,

@@ -11,9 +11,6 @@ import jakarta.persistence.FetchType;
 
 import java.util.List;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
-
 import com.mizerski.backend.models.enums.AgendaStatus;
 import com.mizerski.backend.models.enums.AgendaCategory;
 import com.mizerski.backend.models.enums.AgendaResult;
@@ -22,13 +19,9 @@ import com.mizerski.backend.models.enums.AgendaResult;
 @Table(name = "agendas")
 public class Agenda extends BaseEntity {
 
-    @Size(min = 10, max = 100, message = "O título deve ter pelo menos 10 caracteres")
-    @NotBlank(message = "O título é obrigatório")
     @Column(name = "title", nullable = false)
     private String title;
 
-    @Size(min = 20, max = 500, message = "A descrição deve ter pelo menos 20 caracteres")
-    @NotBlank(message = "A descrição é obrigatória")
     @Column(name = "description", nullable = false)
     private String description;
 
