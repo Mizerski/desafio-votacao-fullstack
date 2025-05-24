@@ -6,7 +6,7 @@ import 'dotenv/config'
  */
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'production']).default('development'),
-  PORT: z.coerce.number().default(8080),
+  PORT: z.coerce.number().default(8181),
   DATABASE_URL: z.string(),
   POSTGRES_PASSWORD: z.string(),
   POSTGRES_DB: z.string(),

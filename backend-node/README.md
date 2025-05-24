@@ -144,3 +144,6 @@ bun run dev
 ---
 
 Pronto. Se tudo deu certo, você já tem o backend rodando localmente e pronto pra ser testado, integrado e melhorado. Qualquer erro nesse caminho provavelmente vai estar relacionado a variáveis de ambiente ou dependências — então vale revisar isso primeiro.
+
+
+

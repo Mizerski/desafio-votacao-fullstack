@@ -1,0 +1,10 @@
+spring.application.name=backend
+
+# Configuração do banco de dados
+spring.datasource.url=jdbc:postgresql://localhost:5433/backend_postgres
+spring.datasource.username=
+spring.datasource.password=
+
+
+spring.datasource.driver-class-name=org.postgresql.Driver
+
