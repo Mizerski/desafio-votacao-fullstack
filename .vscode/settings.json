@@ -1,6 +1,9 @@
 {
     "cSpell.words": [
+        "appender",
+        "Appender",
         "ELEICOES",
+        "logback",
         "mizerski"
     ],
     "java.configuration.updateBuildConfiguration": "automatic",

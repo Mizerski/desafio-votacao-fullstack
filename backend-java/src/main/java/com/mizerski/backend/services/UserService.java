@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.mizerski.backend.dtos.request.CreateUserRequest;
+import com.mizerski.backend.exceptions.ConflictException;
 import com.mizerski.backend.exceptions.NotFoundException;
 import com.mizerski.backend.dtos.response.UserListResponse;
 import com.mizerski.backend.dtos.response.UserResponse;
@@ -41,7 +42,7 @@ public class UserService {
 
         // Valida se o email já está cadastrado
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
-            throw new RuntimeException("Email já cadastrado" + request.getEmail());
+            throw new ConflictException("Email já cadastrado" + request.getEmail());
         }
 
         User user = new User();
@@ -121,5 +122,40 @@ public class UserService {
                 .hasPrevious(users.hasPrevious())
                 .build();
 
+    }
+
+    /**
+     * Verifica se o usuário existe
+     * 
+     * @param id ID do usuário
+     * @return boolean
+     */
+    @Transactional(readOnly = true)
+    public boolean existsById(String id) {
+        log.debug("Verificando se o usuário existe: {}", id);
+        return userRepository.existsById(id);
+    }
+
+    /**
+     * Verifica se o email já está cadastrado
+     * 
+     * @param email Email do usuário
+     * @return boolean
+     */
+    @Transactional(readOnly = true)
+    public boolean existsByEmail(CreateUserRequest request) {
+        log.debug("Verificando se o email já está cadastrado: {}", request.getEmail());
+        return userRepository.findByEmail(request.getEmail()).isPresent();
+    }
+
+    /**
+     * Contabiliza o total de usuários
+     * 
+     * @return long
+     */
+    @Transactional(readOnly = true)
+    public long count() {
+        log.debug("Contabilizando total de usuários");
+        return userRepository.count();
     }
 }
