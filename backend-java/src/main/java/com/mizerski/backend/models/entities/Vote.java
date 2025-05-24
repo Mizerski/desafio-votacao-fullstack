@@ -11,6 +11,9 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.ManyToOne;
 import com.mizerski.backend.models.enums.VoteType;
 
+/**
+ * Entidade que representa um voto
+ */
 @Entity
 @Table(name = "votes")
 public class Vote extends BaseEntity {

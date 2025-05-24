@@ -15,6 +15,9 @@ import com.mizerski.backend.models.enums.AgendaStatus;
 import com.mizerski.backend.models.enums.AgendaCategory;
 import com.mizerski.backend.models.enums.AgendaResult;
 
+/**
+ * Entidade que representa uma agenda de votação
+ */
 @Entity
 @Table(name = "agendas")
 public class Agenda extends BaseEntity {

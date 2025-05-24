@@ -7,6 +7,9 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * Entidade que representa um usuário
+ */
 @Entity
 @Getter
 @Setter
