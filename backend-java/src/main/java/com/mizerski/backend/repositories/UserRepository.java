@@ -19,12 +19,4 @@ public interface UserRepository extends JpaRepository<User, String> {
      */
     Optional<User> findByEmail(String email);
 
-    /**
-     * Busca um usuário pelo ID
-     * 
-     * @param id ID do usuário
-     * @return Optional<User>
-     */
-    Optional<User> findById(String id);
-
 }

@@ -21,21 +21,6 @@ public interface AgendaRepository extends JpaRepository<Agenda, String> {
     Optional<Agenda> findByTitle(String title);
 
     /**
-     * Busca uma agenda pelo ID
-     * 
-     * @param id ID da agenda
-     * @return Optional<Agenda>
-     */
-    Optional<Agenda> findById(String id);
-
-    /**
-     * Busca todas as agendas
-     * 
-     * @return List<Agenda>
-     */
-    List<Agenda> findAll();
-
-    /**
      * Busca todas as agendas encerradas
      * 
      * @return List<Agenda>

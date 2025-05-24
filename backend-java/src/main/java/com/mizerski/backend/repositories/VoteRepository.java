@@ -23,13 +23,6 @@ public interface VoteRepository extends JpaRepository<Vote, String> {
     Optional<Vote> findByUserIdAndAgendaId(String userId, String agendaId);
 
     /**
-     * Busca todos os votos
-     * 
-     * @return List<Vote>
-     */
-    List<Vote> findAll();
-
-    /**
      * Conta o número de votos por agenda
      * 
      * @param agendaId ID da agenda
