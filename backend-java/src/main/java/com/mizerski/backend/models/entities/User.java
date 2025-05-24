@@ -25,7 +25,7 @@ public class User extends BaseEntity {
     @Column(name = "password", nullable = false)
     private String password;
 
-    @Column(unique = true)
+    @Column(name = "document", nullable = true, unique = true)
     private String document;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)

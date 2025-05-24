@@ -33,7 +33,6 @@ public class UserResponse {
                 .email(user.getEmail())
                 .document(user.getDocument())
                 .createdAt(user.getCreatedAt())
-                .updatedAt(user.getUpdatedAt())
                 .totalVotes(user.getVotes() != null ? user.getVotes().size() : 0)
                 .build();
     }

@@ -15,10 +15,15 @@ import com.mizerski.backend.models.enums.AgendaStatus;
 import com.mizerski.backend.models.enums.AgendaCategory;
 import com.mizerski.backend.models.enums.AgendaResult;
 
+import lombok.Getter;
+import lombok.Setter;
+
 /**
  * Entidade que representa uma agenda de votação
  */
 @Entity
+@Getter
+@Setter
 @Table(name = "agendas")
 public class Agenda extends BaseEntity {
 

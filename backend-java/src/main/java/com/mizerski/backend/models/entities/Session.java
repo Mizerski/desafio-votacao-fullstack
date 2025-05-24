@@ -10,10 +10,15 @@ import jakarta.persistence.JoinColumn;
 
 import java.time.LocalDateTime;
 
+import lombok.Getter;
+import lombok.Setter;
+
 /**
  * Entidade que representa uma sessão de votação
  */
 @Entity
+@Getter
+@Setter
 @Table(name = "sessions")
 public class Session extends BaseEntity {
 
