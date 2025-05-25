@@ -29,7 +29,6 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * Controller responsável por gerenciar operações relacionadas a votos.
- * Implementa idempotência para evitar votos duplicados.
  */
 @RestController
 @RequestMapping("/api/v1/votes")

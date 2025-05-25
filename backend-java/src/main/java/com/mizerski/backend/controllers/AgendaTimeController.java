@@ -22,8 +22,6 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * Controller responsável por gerenciar operações de tempo das pautas.
- * Não implementa idempotência pois as operações são naturalmente idempotentes
- * ou devem sempre executar (como cálculo de resultados).
  */
 @RestController
 @RequestMapping("/api/v1/agendas")
