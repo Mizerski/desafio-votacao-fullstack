@@ -13,7 +13,7 @@ import com.mizerski.backend.models.entities.UserEntity;
  * Mapper para conversão entre UserEntity, Users (domínio) e DTOs
  * Utiliza MapStruct para gerar implementações automáticas.
  */
-@Mapper(componentModel = "spring", uses = { VoteMapper.class })
+@Mapper(componentModel = "spring")
 public interface UserMapper {
 
     /**

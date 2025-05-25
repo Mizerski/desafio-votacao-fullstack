@@ -1,0 +1,92 @@
+package com.mizerski.backend.exceptions;
+
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+/**
+ * Manipulador global de exceções para a API
+ * Centraliza o tratamento de erros e padroniza as respostas
+ */
+@RestControllerAdvice
+public class GlobalExceptionHandler {
+
+    /**
+     * Modelo padrão para respostas de erro
+     */
+    private record ApiError(
+            String message,
+            int statusCode,
+            String statusName,
+            LocalDateTime timestamp,
+            String path) {
+    }
+
+    /**
+     * Trata exceções de validação de campos
+     */
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        Map<String, String> errors = new HashMap<>();
+        ex.getBindingResult().getAllErrors().forEach((error) -> {
+            String fieldName = ((FieldError) error).getField();
+            String errorMessage = error.getDefaultMessage();
+            errors.put(fieldName, errorMessage);
+        });
+        return ResponseEntity.badRequest().body(errors);
+    }
+
+    /**
+     * Trata exceções de conflito (ex: email já cadastrado)
+     */
+    @ExceptionHandler(ConflictException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ResponseEntity<ApiError> handleConflictException(ConflictException ex) {
+        ApiError error = new ApiError(
+                ex.getMessage(),
+                HttpStatus.CONFLICT.value(),
+                HttpStatus.CONFLICT.name(),
+                LocalDateTime.now(),
+                "/api/v1/users");
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+    }
+
+    /**
+     * Trata exceções de recurso não encontrado
+     */
+    @ExceptionHandler(NotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ResponseEntity<ApiError> handleNotFoundException(NotFoundException ex) {
+        ApiError error = new ApiError(
+                ex.getMessage(),
+                HttpStatus.NOT_FOUND.value(),
+                HttpStatus.NOT_FOUND.name(),
+                LocalDateTime.now(),
+                "/api/v1/users");
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+    }
+
+    /**
+     * Trata exceções gerais não mapeadas
+     */
+    @ExceptionHandler(Exception.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ResponseEntity<ApiError> handleGlobalException(Exception ex) {
+        ApiError error = new ApiError(
+                "Ocorreu um erro interno no servidor",
+                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                HttpStatus.INTERNAL_SERVER_ERROR.name(),
+                LocalDateTime.now(),
+                "/api/v1/users");
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+    }
+}

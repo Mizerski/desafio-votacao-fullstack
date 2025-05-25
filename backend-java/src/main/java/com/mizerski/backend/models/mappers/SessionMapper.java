@@ -12,7 +12,7 @@ import com.mizerski.backend.models.entities.SessionEntity;
  * Mapper para conversão entre SessionEntity e Sessions (domínio)
  * Utiliza MapStruct para gerar implementações automáticas.
  */
-@Mapper(componentModel = "spring", uses = { AgendaMapper.class })
+@Mapper(componentModel = "spring")
 public interface SessionMapper {
 
     /**
