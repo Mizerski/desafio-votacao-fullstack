@@ -393,32 +393,38 @@ logging.level.org.springframework.transaction=DEBUG
 
 #### Agendas
 ```http
-POST   /api/v1/agendas           # Criar pauta (com idempotência)
-GET    /api/v1/agendas           # Listar todas as pautas
-GET    /api/v1/agendas/{id}      # Buscar pauta por ID
-GET    /api/v1/agendas/open      # Listar pautas abertas
-GET    /api/v1/agendas/finished  # Listar pautas finalizadas
+POST   /api/v1/agendas                    # Criar pauta (com idempotência)
+GET    /api/v1/agendas                    # Listar todas as pautas (paginado)
+GET    /api/v1/agendas/{id}               # Buscar pauta por ID (UUID)
+GET    /api/v1/agendas/open               # Listar pautas abertas (paginado)
+GET    /api/v1/agendas/finished           # Listar pautas finalizadas (paginado)
+POST   /api/v1/agendas/{id}/start         # Iniciar pauta
+POST   /api/v1/agendas/{id}/finalize      # Finalizar pauta
+PUT    /api/v1/agendas/{id}/votes         # Atualizar contadores de votos
 ```
 
 #### Usuários
 ```http
-POST   /api/v1/users             # Criar usuário
-GET    /api/v1/users             # Listar usuários
-GET    /api/v1/users/{id}        # Buscar usuário por ID
+POST   /api/v1/users                      # Criar usuário
+GET    /api/v1/users                      # Listar usuários (paginado)
+GET    /api/v1/users/{id}                 # Buscar usuário por ID (UUID)
+GET    /api/v1/users/search               # Buscar usuários por email
 ```
 
 #### Votos
 ```http
-POST   /api/v1/votes             # Registrar voto
-GET    /api/v1/votes             # Listar votos
-GET    /api/v1/votes/agenda/{id} # Votos por agenda
+POST   /api/v1/votes                      # Registrar voto (com idempotência)
+GET    /api/v1/votes/agenda/{id}          # Votos por agenda (paginado)
+GET    /api/v1/votes/user/{id}            # Votos por usuário (paginado)
+GET    /api/v1/votes/user/{userId}/agenda/{agendaId} # Voto específico
 ```
 
-#### Sessões
+#### Parâmetros de Paginação
 ```http
-POST   /api/v1/sessions          # Criar sessão de votação
-GET    /api/v1/sessions          # Listar sessões
-PUT    /api/v1/sessions/{id}/close # Encerrar sessão
+?page=0                                   # Número da página (padrão: 0)
+?size=20                                  # Tamanho da página (padrão: 20, máx: 100)
+?sort=createdAt                           # Campo de ordenação
+?direction=desc                           # Direção (asc/desc)
 ```
 
 ---
