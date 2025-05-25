@@ -1,27 +1,25 @@
 package com.mizerski.backend.services;
 
-
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.mizerski.backend.dtos.request.CreateUserRequest;
+import com.mizerski.backend.dtos.response.UserResponse;
 import com.mizerski.backend.exceptions.ConflictException;
 import com.mizerski.backend.exceptions.NotFoundException;
-import com.mizerski.backend.dtos.response.UserListResponse;
-import com.mizerski.backend.dtos.response.UserResponse;
+import com.mizerski.backend.models.domains.Users;
 import com.mizerski.backend.models.entities.UserEntity;
+import com.mizerski.backend.models.mappers.UserMapper;
 import com.mizerski.backend.repositories.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * Serviço para gerenciar usuários
+ * Serviço para gerenciar operações relacionadas a usuários
  */
 @Service
 @Slf4j
@@ -30,121 +28,61 @@ import lombok.extern.slf4j.Slf4j;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final UserMapper userMapper;
 
     /**
      * Cria um novo usuário
      * 
-     * @param request DTO de criação de usuário
-     * @return UserResponse
+     * @param request Dados do usuário a ser criado
+     * @return Dados do usuário criado
      */
     public UserResponse createUser(CreateUserRequest request) {
 
-
-        // Valida se o email já está cadastrado
+        // Validação de email já cadastrado
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
-            throw new ConflictException("Email já cadastrado" + request.getEmail());
+            throw new ConflictException("Email já cadastrado: " + request.getEmail());
         }
 
-        UserEntity user = new UserEntity();
-        user.setName(request.getName());
-        user.setEmail(request.getEmail());
-        user.setPassword(request.getPassword()); // TODO: Encriptar a senha
-        user.setDocument(request.getDocument());
+        // Converte DTO para Domínio
+        Users userDomain = userMapper.fromCreateRequest(request);
 
-        userRepository.save(user);
+        if (!userDomain.isValidEmail()) {
+            throw new IllegalArgumentException("Email inválido");
+        }
 
+        // Converte Domínio para Entity para persistir
+        UserEntity userEntity = userMapper.toEntity(userDomain);
 
-        return UserResponse.fromEntity(user);
+        // Salva no banco
+        userRepository.save(userEntity);
 
+        return userMapper.toResponse(userEntity); // Entidade -> Domínio -> DTO
     }
 
     /**
      * Busca um usuário pelo ID
      * 
      * @param id ID do usuário
-     * @return UserResponse
+     * @return Dados do usuário encontrado
      */
-    @Transactional(readOnly = true)
-    public UserResponse findById(String id) {
+    public UserResponse getUserById(String id) {
+        UserEntity userEntity = userRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Usuário não encontrado com ID: " + id));
 
-        UserEntity user = userRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Usuário não encontrado"));
-
-
-        return UserResponse.fromEntity(user);
+        return userMapper.toResponse(userEntity); // Entidade -> Domínio -> DTO
     }
 
     /**
-     * Busca usuário por email
+     * Busca todos os usuários
      * 
-     * @param email Email do usuário
-     * @return UserResponse
+     * @return Lista de usuários
      */
-    @Transactional(readOnly = true)
-    public UserResponse findByEmail(String email) {
+    public List<UserResponse> getAllUsers() {
+        List<UserEntity> userEntities = userRepository.findAll();
 
-        UserEntity user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new NotFoundException("Usuário não encontrado"));
+        return userEntities.stream()
+                .map(userMapper::toResponse)
+                .collect(Collectors.toList()); // Entidade -> DTO
 
-
-        return UserResponse.fromEntity(user);
-    }
-
-    /**
-     * Lista todos os usuários com paginação
-     * 
-     * @param pageable Pageable
-     * @return UserResponse
-     */
-    @Transactional(readOnly = true)
-    public UserListResponse findAll(Pageable pageable) {
-
-        Page<UserEntity> users = userRepository.findAll(pageable);
-
-        List<UserResponse> userResponses = users.getContent().stream()
-                .map(UserResponse::fromEntity)
-                .collect(Collectors.toList());
-
-        return UserListResponse.builder()
-                .users(userResponses)
-                .totalItems(users.getTotalElements())
-                .totalPages(users.getTotalPages())
-                .currentPage(pageable.getPageNumber())
-                .hasNext(users.hasNext())
-                .hasPrevious(users.hasPrevious())
-                .build();
-
-    }
-
-    /**
-     * Verifica se o usuário existe
-     * 
-     * @param id ID do usuário
-     * @return boolean
-     */
-    @Transactional(readOnly = true)
-    public boolean existsById(String id) {
-        return userRepository.existsById(id);
-    }
-
-    /**
-     * Verifica se o email já está cadastrado
-     * 
-     * @param email Email do usuário
-     * @return boolean
-     */
-    @Transactional(readOnly = true)
-    public boolean existsByEmail(CreateUserRequest request) {
-        return userRepository.findByEmail(request.getEmail()).isPresent();
-    }
-
-    /**
-     * Contabiliza o total de usuários
-     * 
-     * @return long
-     */
-    @Transactional(readOnly = true)
-    public long count() {
-        return userRepository.count();
     }
 }

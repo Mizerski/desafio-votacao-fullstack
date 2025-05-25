@@ -21,5 +21,7 @@ public class Sessions {
     private String id;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
     private Agendas agenda;
 }
