@@ -1,10 +1,10 @@
 # Sistema de Votação - Backend Java
 
-## 📋 Visão Geral
+## Visão Geral
 
 Sistema backend robusto para gerenciamento de votações desenvolvido como teste técnico. Implementa arquitetura limpa, padrões de design modernos e otimizações de performance avançadas.
 
-### 🎯 Características Principais
+### Características Principais
 
 - **Arquitetura Hexagonal** com separação clara de responsabilidades
 - **Sistema de Idempotência** customizado para evitar operações duplicadas
@@ -16,7 +16,7 @@ Sistema backend robusto para gerenciamento de votações desenvolvido como teste
 
 ---
 
-## 🏗️ Arquitetura Técnica
+## Arquitetura Técnica
 
 ### Padrão Arquitetural: Hexagonal (Ports & Adapters)
 
@@ -24,7 +24,7 @@ Sistema backend robusto para gerenciamento de votações desenvolvido como teste
 ┌─────────────────────────────────────────────────────────────┐
 │                    CAMADA DE APRESENTAÇÃO                   │
 ├─────────────────────────────────────────────────────────────┤
-│  Controllers (REST API)  │  DTOs (Request/Response)        │
+│  Controllers (REST API)   │  DTOs (Request/Response)        │
 │  - AgendaController       │  - CreateAgendaRequest          │
 │  - UserController         │  - AgendaResponse               │
 │  - VoteController         │  - UserResponse                 │
@@ -35,7 +35,7 @@ Sistema backend robusto para gerenciamento de votações desenvolvido como teste
 ┌─────────────────────────────────────────────────────────────┐
 │                    CAMADA DE APLICAÇÃO                      │
 ├─────────────────────────────────────────────────────────────┤
-│  Services (Regras de Negócio)  │  Mappers (Conversão)      │
+│  Services (Regras de Negócio)  │  Mappers (Conversão)       │
 │  - AgendaService               │  - AgendaMapper            │
 │  - UserService                 │  - UserMapper              │
 │  - VoteService                 │  - VoteMapper              │
@@ -85,7 +85,7 @@ HTTP Response ← Mapper ← Domain ← Entity ← Database
 
 ---
 
-## 🛠️ Stack Tecnológica
+## Stack Tecnológica
 
 ### Core Framework
 ```json
@@ -138,7 +138,7 @@ HTTP Response ← Mapper ← Domain ← Entity ← Database
 
 ---
 
-## 🗄️ Modelo de Dados
+## Modelo de Dados
 
 ### Diagrama Entidade-Relacionamento
 
@@ -196,7 +196,7 @@ U{VERSION}__{DESCRIPTION}.sql    # Migrações de rollback
 
 ---
 
-## ⚡ Sistema de Performance
+##  Sistema de Performance
 
 ### 1. Idempotência Customizada
 
@@ -221,10 +221,10 @@ ScheduledExecutorService scheduler // Limpeza automática a cada 5min
 
 #### Evita Stack Traces Custosos
 ```java
-// ❌ Caro - cria stack trace completo
+// x Caro - cria stack trace completo
 throw new ConflictException("Email já cadastrado");
 
-// ✅ Barato - apenas retorna objeto
+// ✔ Barato - apenas retorna objeto
 return Result.error("EMAIL_EXISTS", "Email já cadastrado");
 ```
 
@@ -256,7 +256,7 @@ return result
 
 ---
 
-## 🔄 Fluxos de Negócio
+## Fluxos de Negócio
 
 ### 1. Fluxo de Criação de Pauta
 
@@ -314,7 +314,7 @@ graph LR
 
 ---
 
-## 🔧 Configuração e Setup
+## Configuração e Setup
 
 ### 1. Pré-requisitos
 
@@ -383,7 +383,7 @@ logging.level.org.springframework.transaction=DEBUG
 
 ---
 
-## 📚 Endpoints da API
+## Endpoints da API
 
 ### Documentação Interativa
 - **Swagger UI**: http://localhost:8080/swagger-ui.html
@@ -423,7 +423,7 @@ PUT    /api/v1/sessions/{id}/close # Encerrar sessão
 
 ---
 
-## 🧪 Testes e Qualidade
+## Testes e Qualidade
 
 ### Estrutura de Testes
 
@@ -460,7 +460,7 @@ src/test/java/com/mizerski/backend/
 
 ---
 
-## 🚀 Deploy e Produção
+## Deploy e Produção
 
 ### 1. Profile de Produção
 
@@ -502,7 +502,7 @@ management.endpoint.health.show-details=always
 
 ---
 
-## 📊 Métricas e Observabilidade
+## Métricas e Observabilidade
 
 ### Logs Estruturados
 
@@ -534,7 +534,7 @@ GET /actuator/health
 
 ---
 
-## 🔒 Segurança
+## Segurança
 
 ### Validações Implementadas
 
@@ -569,7 +569,7 @@ public class GlobalExceptionHandler {
 
 ---
 
-## 📈 Roadmap e Melhorias
+## Roadmap e Melhorias
 
 ### Próximas Implementações
 
@@ -612,7 +612,7 @@ public class GlobalExceptionHandler {
 
 ---
 
-## 🤝 Contribuição
+## Contribuição
 
 ### Padrões de Código
 
@@ -642,7 +642,7 @@ test: adicionar testes de integração para VoteService
 
 ---
 
-## 📞 Suporte
+## Suporte
 
 ### Documentação Adicional
 
