@@ -12,7 +12,7 @@ import com.mizerski.backend.models.entities.AgendaEntity;
  * Mapper para conversão entre AgendaEntity e Agendas (domínio)
  * Utiliza MapStruct para gerar implementações automáticas.
  */
-@Mapper(componentModel = "spring", uses = { VoteMapper.class })
+@Mapper(componentModel = "spring")
 public interface AgendaMapper {
 
     /**

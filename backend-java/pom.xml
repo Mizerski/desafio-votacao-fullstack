@@ -79,7 +79,7 @@
 		<dependency>
 			<groupId>org.mapstruct</groupId>
 			<artifactId>mapstruct</artifactId>
-			<version>1.6.0.Beta1</version> 
+			<version>1.5.5.Final</version> 
 		</dependency>
 
 	<!-- ################### Documentação da API ################### -->
@@ -93,8 +93,21 @@
 		<dependency>
 			<groupId>org.flywaydb</groupId>
 			<artifactId>flyway-core</artifactId>
+			<version>11.7.2</version>
 		</dependency>
-	
+		
+		<dependency>
+			<groupId>org.flywaydb</groupId>
+			<artifactId>flyway-database-postgresql</artifactId>
+			<version>11.7.2</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+		</dependency>
+
+		
 	</dependencies>
 
 	<build>
@@ -102,6 +115,31 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+
+			<plugin>
+				<groupId>org.flywaydb</groupId>
+				<artifactId>flyway-maven-plugin</artifactId>
+				<configuration>
+					<url>jdbc:postgresql://localhost:5433/backend_postgres</url>
+					<user>backend_user</user>
+					<password>backend123</password>
+					<schemas>
+						<schema>public</schema>
+					</schemas>
+				</configuration>
+				<dependencies>
+					<dependency>
+						<groupId>org.flywaydb</groupId>
+						<artifactId>flyway-database-postgresql</artifactId>
+						<version>11.7.2</version>
+					</dependency>
+					<dependency>
+						<groupId>org.postgresql</groupId>
+						<artifactId>postgresql</artifactId>
+						<version>42.7.5</version>
+					</dependency>
+				</dependencies>
 			</plugin>
 
 			
@@ -119,7 +157,7 @@
 					<path>
 						<groupId>org.mapstruct</groupId>
 						<artifactId>mapstruct-processor</artifactId>
-						<version>1.6.0.Beta1</version>
+						<version>1.5.5.Final</version>
 					</path>
 				</annotationProcessorPaths>
 			</configuration>

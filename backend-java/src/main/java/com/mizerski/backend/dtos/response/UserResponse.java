@@ -4,10 +4,10 @@ import java.time.LocalDateTime;
 
 import com.mizerski.backend.models.entities.UserEntity;
 
-import lombok.Data;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * DTO para resposta de usuário

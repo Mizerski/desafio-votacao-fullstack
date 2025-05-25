@@ -1,6 +1,5 @@
 package com.mizerski.backend.models.mappers;
 
-import org.mapstruct.InheritInverseConfiguration;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -13,7 +12,7 @@ import com.mizerski.backend.models.entities.VoteEntity;
  * Mapper para conversão entre VoteEntity e Votes (domínio)
  * Utiliza MapStruct para gerar implementações automáticas.
  */
-@Mapper(componentModel = "spring", uses = { UserMapper.class })
+@Mapper(componentModel = "spring")
 public interface VoteMapper {
 
     /**
@@ -24,14 +23,14 @@ public interface VoteMapper {
     /**
      * Converte Votes (domínio) para VoteEntity
      */
-    @Mapping(target = "createdAt")
-    @Mapping(target = "updatedAt")
-    @InheritInverseConfiguration
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
     VoteEntity toEntity(Votes domain);
 
     /**
-     * Converte VoteEntity para VoteResponse (DTO)
+     * Converte Votes (domínio) para VoteResponse (DTO)
      */
+    @Mapping(target = "user", ignore = true)
     VoteResponse toResponse(Votes domain);
 
     /**
@@ -40,15 +39,14 @@ public interface VoteMapper {
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "user", ignore = true) // TODO: Verificar se é necessário, possivelmente pode estourar erro de
-                                             // integridade
-    @Mapping(target = "agenda", ignore = true) // TODO: Verificar se é necessário, possivelmente pode estourar erro de
-                                               // integridade
+    @Mapping(target = "user", ignore = true)
+    @Mapping(target = "agenda", ignore = true)
     Votes fromCreateRequest(CreateVoteRequest request);
 
     /**
      * Converte VoteEntity diretamente para VoteResponse (DTO)
      */
+    @Mapping(target = "user", ignore = true)
     VoteResponse toResponse(VoteEntity entity);
 
 }

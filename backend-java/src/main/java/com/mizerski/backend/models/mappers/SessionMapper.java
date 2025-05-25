@@ -23,9 +23,10 @@ public interface SessionMapper {
     /**
      * Converte Sessions (domínio) para SessionEntity
      */
-    @Mapping(target = "startTime")
-    @Mapping(target = "endTime")
-    @Mapping(target = "createdAt")
+    @Mapping(target = "startTime", ignore = true)
+    @Mapping(target = "endTime", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
     SessionEntity toEntity(Sessions domain);
 
     /**

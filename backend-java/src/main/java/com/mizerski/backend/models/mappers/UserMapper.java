@@ -24,8 +24,8 @@ public interface UserMapper {
     /**
      * Converte Users (domínio) para UserEntity
      */
-    @Mapping(target = "createdAt")
-    @Mapping(target = "updatedAt")
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
     @InheritInverseConfiguration
     UserEntity toEntity(Users domain);
 
