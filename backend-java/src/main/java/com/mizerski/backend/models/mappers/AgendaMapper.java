@@ -39,6 +39,8 @@ public interface AgendaMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "sessions", ignore = true)
     @Mapping(target = "votes", ignore = true)
+    @Mapping(target = "status", ignore = true)
+    @Mapping(target = "result", ignore = true)
     Agendas fromCreateRequest(CreateAgendaRequest request);
 
     /**
