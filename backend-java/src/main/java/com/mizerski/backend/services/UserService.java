@@ -48,11 +48,27 @@ public class UserService {
                 return Result.error("DUPLICATE_EMAIL", "Email já cadastrado: " + request.getEmail());
             }
 
+            // Validação de documento já cadastrado (se fornecido)
+            if (request.getDocument() != null && !request.getDocument().trim().isEmpty()) {
+                if (userRepository.findByDocument(request.getDocument()).isPresent()) {
+                    return Result.error("DUPLICATE_DOCUMENT", "Documento já cadastrado: " + request.getDocument());
+                }
+            }
+
             // Converte DTO para Domínio
             Users userDomain = userMapper.fromCreateRequest(request);
 
+            // Validações de domínio
             if (!userDomain.isValidEmail()) {
                 return Result.error("INVALID_USER", "Email inválido");
+            }
+
+            if (!userDomain.isValidName()) {
+                return Result.error("INVALID_USER", "Nome inválido");
+            }
+
+            if (!userDomain.isValidPassword()) {
+                return Result.error("INVALID_USER", "Senha inválida");
             }
 
             // Converte Domínio para Entity para persistir

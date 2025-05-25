@@ -37,10 +37,12 @@ public class ExceptionMappingService {
         // Exceções de validação
         exceptionToErrorCodeMap.put("ValidationException", "INVALID_DATA");
         exceptionToErrorCodeMap.put("IllegalArgumentException", "INVALID_DATA");
+        exceptionToErrorCodeMap.put("ConstraintViolationException", "INVALID_DATA");
 
         // Exceções de conflito
         exceptionToErrorCodeMap.put("ConflictException", "DUPLICATE_RESOURCE");
         exceptionToErrorCodeMap.put("DuplicateKeyException", "DUPLICATE_RESOURCE");
+        exceptionToErrorCodeMap.put("DataIntegrityViolationException", "DUPLICATE_RESOURCE");
 
         // Exceções de regra de negócio
         exceptionToErrorCodeMap.put("BusinessRuleException", "OPERATION_NOT_ALLOWED");
@@ -74,6 +76,31 @@ public class ExceptionMappingService {
                 return "USER_ALREADY_VOTED";
             }
             return "AGENDA_NOT_OPEN";
+        }
+
+        // Tratamento específico para violações de constraint de banco
+        if ("DataIntegrityViolationException".equals(exceptionName) && message != null) {
+            if (message.contains("email") || message.contains("UK_") && message.contains("email")) {
+                return "DUPLICATE_EMAIL";
+            }
+            if (message.contains("document") || message.contains("UK_") && message.contains("document")) {
+                return "DUPLICATE_DOCUMENT";
+            }
+            return "DUPLICATE_RESOURCE";
+        }
+
+        // Tratamento para violações de constraint de validação
+        if ("ConstraintViolationException".equals(exceptionName) && message != null) {
+            if (message.contains("email")) {
+                return "INVALID_USER";
+            }
+            if (message.contains("name") || message.contains("nome")) {
+                return "INVALID_USER";
+            }
+            if (message.contains("password") || message.contains("senha")) {
+                return "INVALID_USER";
+            }
+            return "INVALID_DATA";
         }
 
         // Mapeamento padrão

@@ -1,6 +1,5 @@
 package com.mizerski.backend.models.mappers;
 
-import org.mapstruct.InheritInverseConfiguration;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -26,7 +25,7 @@ public interface UserMapper {
      */
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
-    @InheritInverseConfiguration
+    @Mapping(target = "votes", ignore = true)
     UserEntity toEntity(Users domain);
 
     /**

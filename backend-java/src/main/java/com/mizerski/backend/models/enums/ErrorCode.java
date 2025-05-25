@@ -23,6 +23,7 @@ public enum ErrorCode {
     // Erros de conflito (409 - Conflict)
     DUPLICATE_TITLE(HttpStatus.CONFLICT, "Título já existe"),
     DUPLICATE_EMAIL(HttpStatus.CONFLICT, "Email já cadastrado"),
+    DUPLICATE_DOCUMENT(HttpStatus.CONFLICT, "Documento já cadastrado"),
     USER_ALREADY_VOTED(HttpStatus.CONFLICT, "Usuário já votou nesta agenda"),
 
     // Erros de regra de negócio (422 - Unprocessable Entity)

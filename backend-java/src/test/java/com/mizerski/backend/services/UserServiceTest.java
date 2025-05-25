@@ -122,6 +122,7 @@ class UserServiceTest {
         void devecriarUsuarioComSucessoQuandoDadosValidos() {
             // Arrange
             when(userRepository.findByEmail(createUserRequest.getEmail())).thenReturn(Optional.empty());
+            when(userRepository.findByDocument(createUserRequest.getDocument())).thenReturn(Optional.empty());
             when(userMapper.fromCreateRequest(createUserRequest)).thenReturn(userDomainValid);
             when(userMapper.toEntity(userDomainValid)).thenReturn(userEntity);
             when(userRepository.save(userEntity)).thenReturn(userEntity);
@@ -139,6 +140,7 @@ class UserServiceTest {
 
             // Verificações de interação
             verify(userRepository).findByEmail(createUserRequest.getEmail());
+            verify(userRepository).findByDocument(createUserRequest.getDocument());
             verify(userMapper).fromCreateRequest(createUserRequest);
             verify(userMapper).toEntity(userDomainValid);
             verify(userRepository).save(userEntity);
@@ -171,6 +173,7 @@ class UserServiceTest {
         void deveRetornarErroQuandoEmailInvalido() {
             // Arrange
             when(userRepository.findByEmail(createUserRequest.getEmail())).thenReturn(Optional.empty());
+            when(userRepository.findByDocument(createUserRequest.getDocument())).thenReturn(Optional.empty());
             when(userMapper.fromCreateRequest(createUserRequest)).thenReturn(userDomainInvalid);
 
             // Act
@@ -184,6 +187,144 @@ class UserServiceTest {
 
             // Verificações de interação
             verify(userRepository).findByEmail(createUserRequest.getEmail());
+            verify(userRepository).findByDocument(createUserRequest.getDocument());
+            verify(userMapper).fromCreateRequest(createUserRequest);
+            verify(userRepository, never()).save(any());
+        }
+
+        @Test
+        @DisplayName("Deve retornar erro quando documento já existe")
+        void deveRetornarErroQuandoDocumentoJaExiste() {
+            // Arrange
+            when(userRepository.findByEmail(createUserRequest.getEmail())).thenReturn(Optional.empty());
+            when(userRepository.findByDocument(createUserRequest.getDocument())).thenReturn(Optional.of(userEntity));
+
+            // Act
+            Result<UserResponse> result = userService.createUser(createUserRequest);
+
+            // Assert
+            assertTrue(result.isError());
+            assertTrue(result.getErrorCode().isPresent());
+            assertEquals("DUPLICATE_DOCUMENT", result.getErrorCode().get());
+            assertTrue(result.getErrorMessage().get().contains("Documento já cadastrado"));
+
+            // Verificações de interação
+            verify(userRepository).findByEmail(createUserRequest.getEmail());
+            verify(userRepository).findByDocument(createUserRequest.getDocument());
+            verify(userMapper, never()).fromCreateRequest(any());
+            verify(userRepository, never()).save(any());
+        }
+
+        @Test
+        @DisplayName("Deve criar usuário com sucesso quando documento é nulo")
+        void deveCriarUsuarioComSucessoQuandoDocumentoNulo() {
+            // Arrange
+            createUserRequest.setDocument(null);
+            when(userRepository.findByEmail(createUserRequest.getEmail())).thenReturn(Optional.empty());
+            when(userMapper.fromCreateRequest(createUserRequest)).thenReturn(userDomainValid);
+            when(userMapper.toEntity(userDomainValid)).thenReturn(userEntity);
+            when(userRepository.save(userEntity)).thenReturn(userEntity);
+            when(userMapper.toResponse(userEntity)).thenReturn(userResponse);
+
+            // Act
+            Result<UserResponse> result = userService.createUser(createUserRequest);
+
+            // Assert
+            assertTrue(result.isSuccess());
+            assertTrue(result.getValue().isPresent());
+
+            // Verificações de interação
+            verify(userRepository).findByEmail(createUserRequest.getEmail());
+            verify(userRepository, never()).findByDocument(any()); // Não deve verificar documento quando é nulo
+            verify(userMapper).fromCreateRequest(createUserRequest);
+            verify(userRepository).save(userEntity);
+        }
+
+        @Test
+        @DisplayName("Deve criar usuário com sucesso quando documento é vazio")
+        void deveCriarUsuarioComSucessoQuandoDocumentoVazio() {
+            // Arrange
+            createUserRequest.setDocument("   "); // String vazia com espaços
+            when(userRepository.findByEmail(createUserRequest.getEmail())).thenReturn(Optional.empty());
+            when(userMapper.fromCreateRequest(createUserRequest)).thenReturn(userDomainValid);
+            when(userMapper.toEntity(userDomainValid)).thenReturn(userEntity);
+            when(userRepository.save(userEntity)).thenReturn(userEntity);
+            when(userMapper.toResponse(userEntity)).thenReturn(userResponse);
+
+            // Act
+            Result<UserResponse> result = userService.createUser(createUserRequest);
+
+            // Assert
+            assertTrue(result.isSuccess());
+            assertTrue(result.getValue().isPresent());
+
+            // Verificações de interação
+            verify(userRepository).findByEmail(createUserRequest.getEmail());
+            verify(userRepository, never()).findByDocument(any()); // Não deve verificar documento quando é vazio
+            verify(userMapper).fromCreateRequest(createUserRequest);
+            verify(userRepository).save(userEntity);
+        }
+
+        @Test
+        @DisplayName("Deve retornar erro quando nome é inválido")
+        void deveRetornarErroQuandoNomeInvalido() {
+            // Arrange
+            Users userDomainInvalidName = Users.builder()
+                    .id("user-123")
+                    .name("") // Nome vazio
+                    .email("joao@email.com")
+                    .password("senha123456")
+                    .document("12345678901")
+                    .build();
+
+            when(userRepository.findByEmail(createUserRequest.getEmail())).thenReturn(Optional.empty());
+            when(userRepository.findByDocument(createUserRequest.getDocument())).thenReturn(Optional.empty());
+            when(userMapper.fromCreateRequest(createUserRequest)).thenReturn(userDomainInvalidName);
+
+            // Act
+            Result<UserResponse> result = userService.createUser(createUserRequest);
+
+            // Assert
+            assertTrue(result.isError());
+            assertTrue(result.getErrorCode().isPresent());
+            assertEquals("INVALID_USER", result.getErrorCode().get());
+            assertEquals("Nome inválido", result.getErrorMessage().get());
+
+            // Verificações de interação
+            verify(userRepository).findByEmail(createUserRequest.getEmail());
+            verify(userRepository).findByDocument(createUserRequest.getDocument());
+            verify(userMapper).fromCreateRequest(createUserRequest);
+            verify(userRepository, never()).save(any());
+        }
+
+        @Test
+        @DisplayName("Deve retornar erro quando senha é inválida")
+        void deveRetornarErroQuandoSenhaInvalida() {
+            // Arrange
+            Users userDomainInvalidPassword = Users.builder()
+                    .id("user-123")
+                    .name("João Silva")
+                    .email("joao@email.com")
+                    .password("") // Senha vazia
+                    .document("12345678901")
+                    .build();
+
+            when(userRepository.findByEmail(createUserRequest.getEmail())).thenReturn(Optional.empty());
+            when(userRepository.findByDocument(createUserRequest.getDocument())).thenReturn(Optional.empty());
+            when(userMapper.fromCreateRequest(createUserRequest)).thenReturn(userDomainInvalidPassword);
+
+            // Act
+            Result<UserResponse> result = userService.createUser(createUserRequest);
+
+            // Assert
+            assertTrue(result.isError());
+            assertTrue(result.getErrorCode().isPresent());
+            assertEquals("INVALID_USER", result.getErrorCode().get());
+            assertEquals("Senha inválida", result.getErrorMessage().get());
+
+            // Verificações de interação
+            verify(userRepository).findByEmail(createUserRequest.getEmail());
+            verify(userRepository).findByDocument(createUserRequest.getDocument());
             verify(userMapper).fromCreateRequest(createUserRequest);
             verify(userRepository, never()).save(any());
         }
@@ -194,6 +335,7 @@ class UserServiceTest {
             // Arrange
             RuntimeException exception = new RuntimeException("Erro de banco de dados");
             when(userRepository.findByEmail(createUserRequest.getEmail())).thenReturn(Optional.empty());
+            when(userRepository.findByDocument(createUserRequest.getDocument())).thenReturn(Optional.empty());
             when(userMapper.fromCreateRequest(createUserRequest)).thenReturn(userDomainValid);
             when(userMapper.toEntity(userDomainValid)).thenReturn(userEntity);
             when(userRepository.save(userEntity)).thenThrow(exception);
@@ -210,6 +352,56 @@ class UserServiceTest {
 
             // Verificações de interação
             verify(exceptionMappingService).mapExceptionToResult(exception);
+        }
+
+        @Test
+        @DisplayName("Deve validar na ordem correta: email duplicado antes de documento duplicado")
+        void deveValidarNaOrdemCorretaEmailDuplicadoAntesDeDocumentoDuplicado() {
+            // Arrange - Ambos email e documento já existem
+            when(userRepository.findByEmail(createUserRequest.getEmail())).thenReturn(Optional.of(userEntity));
+
+            // Act
+            Result<UserResponse> result = userService.createUser(createUserRequest);
+
+            // Assert
+            assertTrue(result.isError());
+            assertEquals("DUPLICATE_EMAIL", result.getErrorCode().get());
+
+            // Verificações de interação - deve parar na primeira validação
+            verify(userRepository).findByEmail(createUserRequest.getEmail());
+            verify(userRepository, never()).findByDocument(any()); // Não deve chegar a verificar documento
+            verify(userMapper, never()).fromCreateRequest(any());
+        }
+
+        @Test
+        @DisplayName("Deve executar todas as validações de domínio quando dados únicos")
+        void deveExecutarTodasValidacoesDeDominioQuandoDadosUnicos() {
+            // Arrange - Dados únicos mas domínio inválido (múltiplos campos)
+            Users userDomainMultipleInvalid = Users.builder()
+                    .id("user-123")
+                    .name("") // Nome inválido
+                    .email("email-invalido") // Email inválido
+                    .password("") // Senha inválida
+                    .document("12345678901")
+                    .build();
+
+            when(userRepository.findByEmail(createUserRequest.getEmail())).thenReturn(Optional.empty());
+            when(userRepository.findByDocument(createUserRequest.getDocument())).thenReturn(Optional.empty());
+            when(userMapper.fromCreateRequest(createUserRequest)).thenReturn(userDomainMultipleInvalid);
+
+            // Act
+            Result<UserResponse> result = userService.createUser(createUserRequest);
+
+            // Assert - deve parar na primeira validação de domínio que falhar (email)
+            assertTrue(result.isError());
+            assertEquals("INVALID_USER", result.getErrorCode().get());
+            assertEquals("Email inválido", result.getErrorMessage().get());
+
+            // Verificações de interação
+            verify(userRepository).findByEmail(createUserRequest.getEmail());
+            verify(userRepository).findByDocument(createUserRequest.getDocument());
+            verify(userMapper).fromCreateRequest(createUserRequest);
+            verify(userRepository, never()).save(any());
         }
     }
 

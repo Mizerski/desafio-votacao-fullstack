@@ -140,6 +140,42 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * Trata exceções de violação de constraint de banco de dados
+     * 
+     * @param ex      Exceção de violação de integridade
+     * @param request Informações da requisição
+     * @return ResponseEntity com erro de conflito
+     */
+    @ExceptionHandler(org.springframework.dao.DataIntegrityViolationException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ResponseEntity<ApiError> handleDataIntegrityViolationException(
+            org.springframework.dao.DataIntegrityViolationException ex, WebRequest request) {
+
+        String path = extractPath(request);
+        String message = "Violação de integridade de dados";
+
+        // Tenta identificar o tipo específico de violação
+        if (ex.getMessage() != null) {
+            if (ex.getMessage().contains("email")) {
+                message = "Email já cadastrado";
+            } else if (ex.getMessage().contains("document")) {
+                message = "Documento já cadastrado";
+            }
+        }
+
+        log.warn("Violação de integridade de dados na requisição {}: {}", path, ex.getMessage());
+
+        ApiError error = new ApiError(
+                message,
+                HttpStatus.CONFLICT.value(),
+                HttpStatus.CONFLICT.name(),
+                LocalDateTime.now(),
+                path);
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+    }
+
+    /**
      * Extrai o caminho da requisição das informações do WebRequest
      * 
      * @param request Informações da requisição
