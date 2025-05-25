@@ -37,4 +37,11 @@ public interface VoteRepository extends JpaRepository<VoteEntity, String> {
      */
     List<VoteEntity> findByAgendaId(String agendaId);
 
+    /**
+     * Busca todos os votos por usuário
+     * 
+     * @param userId ID do usuário
+     * @return List<Vote>
+     */
+    List<VoteEntity> findByUserId(String userId);
 }

@@ -46,4 +46,9 @@ public interface VoteMapper {
                                                // integridade
     Votes fromCreateRequest(CreateVoteRequest request);
 
+    /**
+     * Converte VoteEntity diretamente para VoteResponse (DTO)
+     */
+    VoteResponse toResponse(VoteEntity entity);
+
 }
