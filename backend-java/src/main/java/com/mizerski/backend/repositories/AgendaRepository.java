@@ -5,12 +5,12 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.mizerski.backend.models.entities.Agenda;
+import com.mizerski.backend.models.entities.AgendaEntity;
 
 /**
  * Interface que define os métodos para acessar os dados da agenda
  */
-public interface AgendaRepository extends JpaRepository<Agenda, String> {
+public interface AgendaRepository extends JpaRepository<AgendaEntity, String> {
 
     /**
      * Busca uma agenda pelo título
@@ -18,20 +18,20 @@ public interface AgendaRepository extends JpaRepository<Agenda, String> {
      * @param title Título da agenda
      * @return Optional<Agenda>
      */
-    Optional<Agenda> findByTitle(String title);
+    Optional<AgendaEntity> findByTitle(String title);
 
     /**
      * Busca todas as agendas encerradas
      * 
      * @return List<Agenda>
      */
-    List<Agenda> findAllFinished();
+    List<AgendaEntity> findAllFinished();
 
     /**
      * Busca todas as agendas abertas
      * 
      * @return List<Agenda>
      */
-    List<Agenda> findAllOpen();
+    List<AgendaEntity> findAllOpen();
 
 }

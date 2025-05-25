@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.mizerski.backend.models.entities.Agenda;
+import com.mizerski.backend.models.entities.AgendaEntity;
 import com.mizerski.backend.models.enums.AgendaStatus;
 import com.mizerski.backend.models.enums.AgendaCategory;
 import com.mizerski.backend.models.enums.AgendaResult;
@@ -41,7 +41,7 @@ public class AgendaResponse {
     /*
      * Converte um objeto Agenda para um objeto AgendaResponse
      */
-    public static AgendaResponse fromEntity(Agenda agenda) {
+    public static AgendaResponse fromEntity(AgendaEntity agenda) {
         return AgendaResponse.builder()
                 .id(agenda.getId())
                 .title(agenda.getTitle())

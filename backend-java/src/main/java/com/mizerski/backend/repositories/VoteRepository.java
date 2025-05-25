@@ -1,17 +1,16 @@
 package com.mizerski.backend.repositories;
 
 import java.util.List;
-
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.mizerski.backend.models.entities.Vote;
+import com.mizerski.backend.models.entities.VoteEntity;
 
 /**
  * Interface que define os métodos para acessar os dados do voto
  */
-public interface VoteRepository extends JpaRepository<Vote, String> {
+public interface VoteRepository extends JpaRepository<VoteEntity, String> {
 
     /**
      * Busca um voto pelo ID do usuário e da agenda
@@ -20,7 +19,7 @@ public interface VoteRepository extends JpaRepository<Vote, String> {
      * @param agendaId ID da agenda
      * @return Optional<Vote>
      */
-    Optional<Vote> findByUserIdAndAgendaId(String userId, String agendaId);
+    Optional<VoteEntity> findByUserIdAndAgendaId(String userId, String agendaId);
 
     /**
      * Conta o número de votos por agenda
@@ -36,6 +35,6 @@ public interface VoteRepository extends JpaRepository<Vote, String> {
      * @param agendaId ID da agenda
      * @return List<Vote>
      */
-    List<Vote> findByAgendaId(String agendaId);
+    List<VoteEntity> findByAgendaId(String agendaId);
 
 }

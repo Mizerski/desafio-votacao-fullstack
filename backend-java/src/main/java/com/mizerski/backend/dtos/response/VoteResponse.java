@@ -2,7 +2,7 @@ package com.mizerski.backend.dtos.response;
 
 import java.time.LocalDateTime;
 
-import com.mizerski.backend.models.entities.Vote;
+import com.mizerski.backend.models.entities.VoteEntity;
 import com.mizerski.backend.models.enums.VoteType;
 
 import lombok.Data;
@@ -28,7 +28,7 @@ public class VoteResponse {
     /*
      * Converte um objeto Vote para um objeto VoteResponse
      */
-    public static VoteResponse fromEntity(Vote vote) {
+    public static VoteResponse fromEntity(VoteEntity vote) {
         return VoteResponse.builder()
                 .id(vote.getId())
                 .voteType(vote.getVoteType())

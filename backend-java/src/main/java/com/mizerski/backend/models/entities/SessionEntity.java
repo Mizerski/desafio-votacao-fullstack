@@ -1,15 +1,14 @@
 package com.mizerski.backend.models.entities;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
-import jakarta.persistence.Column;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-
 import java.time.LocalDateTime;
 
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -20,7 +19,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Table(name = "sessions")
-public class Session extends BaseEntity {
+public class SessionEntity extends BaseEntity {
 
     @Column(name = "start_time", nullable = false)
     private LocalDateTime startTime;
@@ -30,5 +29,14 @@ public class Session extends BaseEntity {
 
     @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "agenda_id", nullable = false)
-    private Agenda agenda;
+    private AgendaEntity agenda;
+
+    public com.mizerski.backend.models.domains.Sessions toDomain() {
+        return com.mizerski.backend.models.domains.Sessions.builder()
+                .id(this.getId())
+                .startTime(this.getStartTime())
+                .endTime(this.getEndTime())
+                .agenda(this.getAgenda().toDomain())
+                .build();
+    }
 }

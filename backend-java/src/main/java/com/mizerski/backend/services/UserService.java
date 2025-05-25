@@ -1,5 +1,6 @@
 package com.mizerski.backend.services;
 
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -13,7 +14,7 @@ import com.mizerski.backend.exceptions.ConflictException;
 import com.mizerski.backend.exceptions.NotFoundException;
 import com.mizerski.backend.dtos.response.UserListResponse;
 import com.mizerski.backend.dtos.response.UserResponse;
-import com.mizerski.backend.models.entities.User;
+import com.mizerski.backend.models.entities.UserEntity;
 import com.mizerski.backend.repositories.UserRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -38,14 +39,13 @@ public class UserService {
      */
     public UserResponse createUser(CreateUserRequest request) {
 
-        log.info("Criando usuário: {}", request);
 
         // Valida se o email já está cadastrado
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
             throw new ConflictException("Email já cadastrado" + request.getEmail());
         }
 
-        User user = new User();
+        UserEntity user = new UserEntity();
         user.setName(request.getName());
         user.setEmail(request.getEmail());
         user.setPassword(request.getPassword()); // TODO: Encriptar a senha
@@ -53,7 +53,6 @@ public class UserService {
 
         userRepository.save(user);
 
-        log.info("Usuário criado com sucesso: {}", user);
 
         return UserResponse.fromEntity(user);
 
@@ -67,12 +66,10 @@ public class UserService {
      */
     @Transactional(readOnly = true)
     public UserResponse findById(String id) {
-        log.info("Buscando usuário pelo ID: {}", id);
 
-        User user = userRepository.findById(id)
+        UserEntity user = userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Usuário não encontrado"));
 
-        log.info("Usuário encontrado: {}", user);
 
         return UserResponse.fromEntity(user);
     }
@@ -85,12 +82,10 @@ public class UserService {
      */
     @Transactional(readOnly = true)
     public UserResponse findByEmail(String email) {
-        log.info("Buscando usuário pelo email: {}", email);
 
-        User user = userRepository.findByEmail(email)
+        UserEntity user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new NotFoundException("Usuário não encontrado"));
 
-        log.info("Usuário encontrado: {}", user);
 
         return UserResponse.fromEntity(user);
     }
@@ -104,10 +99,7 @@ public class UserService {
     @Transactional(readOnly = true)
     public UserListResponse findAll(Pageable pageable) {
 
-        log.debug("Listando usuários - Página: {}, Tamanho: {}",
-                pageable.getPageNumber(), pageable.getPageSize());
-
-        Page<User> users = userRepository.findAll(pageable);
+        Page<UserEntity> users = userRepository.findAll(pageable);
 
         List<UserResponse> userResponses = users.getContent().stream()
                 .map(UserResponse::fromEntity)
@@ -132,7 +124,6 @@ public class UserService {
      */
     @Transactional(readOnly = true)
     public boolean existsById(String id) {
-        log.debug("Verificando se o usuário existe: {}", id);
         return userRepository.existsById(id);
     }
 
@@ -144,7 +135,6 @@ public class UserService {
      */
     @Transactional(readOnly = true)
     public boolean existsByEmail(CreateUserRequest request) {
-        log.debug("Verificando se o email já está cadastrado: {}", request.getEmail());
         return userRepository.findByEmail(request.getEmail()).isPresent();
     }
 
@@ -155,7 +145,6 @@ public class UserService {
      */
     @Transactional(readOnly = true)
     public long count() {
-        log.debug("Contabilizando total de usuários");
         return userRepository.count();
     }
 }

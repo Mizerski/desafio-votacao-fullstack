@@ -2,12 +2,12 @@ package com.mizerski.backend.dtos.response;
 
 import java.time.LocalDateTime;
 
-import com.mizerski.backend.models.entities.Session;
+import com.mizerski.backend.models.entities.SessionEntity;
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * DTO para resposta de sessão
@@ -26,7 +26,7 @@ public class SessionResponse {
     /*
      * Converte um objeto Session para um objeto SessionResponse
      */
-    public static SessionResponse fromEntity(Session session) {
+    public static SessionResponse fromEntity(SessionEntity session) {
         return SessionResponse.builder()
                 .id(session.getId())
                 .startTime(session.getStartTime())
