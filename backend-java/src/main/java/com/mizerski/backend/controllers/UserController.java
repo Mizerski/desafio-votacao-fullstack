@@ -2,6 +2,9 @@ package com.mizerski.backend.controllers;
 
 import java.util.concurrent.TimeUnit;
 
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.CacheControl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -130,9 +133,8 @@ public class UserController extends BaseController {
 
         logQuery("getAllUsers", String.format("page=%d, size=%d", page, size));
 
-        // TODO: Implementar paginação no service
-        var userList = userService.getAllUsers();
-        PagedResponse<UserResponse> users = new PagedResponse<>(userList, page, size, userList.size());
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.valueOf(direction.toUpperCase()), sort));
+        PagedResponse<UserResponse> users = userService.getAllUsers(pageable);
 
         return ResponseEntity.ok()
                 .cacheControl(CacheControl.maxAge(2, TimeUnit.MINUTES))
@@ -158,12 +160,8 @@ public class UserController extends BaseController {
 
         logQuery("searchUsersByEmail", String.format("email=%s, page=%d, size=%d", email, page, size));
 
-        // TODO: Implementar busca por email no service
-        var userList = userService.getAllUsers().stream()
-                .filter(user -> user.getEmail().toLowerCase().contains(email.toLowerCase()))
-                .toList();
-
-        PagedResponse<UserResponse> users = new PagedResponse<>(userList, page, size, userList.size());
+        Pageable pageable = PageRequest.of(page, size);
+        PagedResponse<UserResponse> users = userService.searchUsersByEmail(email, pageable);
 
         return ResponseEntity.ok()
                 .cacheControl(CacheControl.maxAge(1, TimeUnit.MINUTES)) // Cache menor para buscas

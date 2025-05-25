@@ -97,9 +97,8 @@ public class VoteController extends BaseController {
             @RequestParam(defaultValue = "0") @Min(0) int page,
             @RequestParam(defaultValue = "20") @Min(1) @Max(100) int size) {
 
-        // TODO: Implementar paginação no service
-        var voteList = voteService.getAllVotesByAgendaId(agendaId);
-        PagedResponse<VoteResponse> votes = new PagedResponse<>(voteList, page, size, voteList.size());
+        PagedResponse<VoteResponse> votes = voteService.getAllVotesByAgendaId(agendaId,
+                org.springframework.data.domain.PageRequest.of(page, size));
 
         return ResponseEntity.ok(votes);
     }
@@ -115,9 +114,8 @@ public class VoteController extends BaseController {
             @RequestParam(defaultValue = "0") @Min(0) int page,
             @RequestParam(defaultValue = "20") @Min(1) @Max(100) int size) {
 
-        // TODO: Implementar paginação no service
-        var voteList = voteService.getAllVotesByUserId(userId);
-        PagedResponse<VoteResponse> votes = new PagedResponse<>(voteList, page, size, voteList.size());
+        PagedResponse<VoteResponse> votes = voteService.getAllVotesByUserId(userId,
+                org.springframework.data.domain.PageRequest.of(page, size));
 
         return ResponseEntity.ok(votes);
     }

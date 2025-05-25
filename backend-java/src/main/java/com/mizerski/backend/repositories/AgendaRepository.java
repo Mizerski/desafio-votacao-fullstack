@@ -3,6 +3,8 @@ package com.mizerski.backend.repositories;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.mizerski.backend.models.entities.AgendaEntity;
@@ -35,5 +37,14 @@ public interface AgendaRepository extends JpaRepository<AgendaEntity, String> {
      * @return List<Agenda>
      */
     List<AgendaEntity> findByStatusIn(List<AgendaStatus> statuses);
+
+    /**
+     * Busca todas as agendas abertas com paginação
+     * 
+     * @param statuses Lista de status
+     * @param pageable Configuração de paginação
+     * @return Page<AgendaEntity>
+     */
+    Page<AgendaEntity> findByStatusIn(List<AgendaStatus> statuses, Pageable pageable);
 
 }

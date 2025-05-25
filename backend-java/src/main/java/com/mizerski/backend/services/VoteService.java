@@ -3,10 +3,13 @@ package com.mizerski.backend.services;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.mizerski.backend.dtos.request.CreateVoteRequest;
+import com.mizerski.backend.dtos.response.PagedResponse;
 import com.mizerski.backend.dtos.response.VoteResponse;
 import com.mizerski.backend.exceptions.BadRequestException;
 import com.mizerski.backend.exceptions.NotFoundException;
@@ -99,6 +102,24 @@ public class VoteService {
     }
 
     /**
+     * Busca todos os votos por pauta com paginação
+     * 
+     * @param agendaId ID da pauta
+     * @param pageable Configuração de paginação
+     * @return Resposta paginada de votos
+     */
+    @Transactional(readOnly = true)
+    public PagedResponse<VoteResponse> getAllVotesByAgendaId(String agendaId, Pageable pageable) {
+        Page<VoteEntity> page = voteRepository.findByAgendaId(agendaId, pageable);
+
+        List<VoteResponse> content = page.getContent().stream()
+                .map(voteMapper::toResponse)
+                .collect(Collectors.toList());
+
+        return new PagedResponse<>(content, page.getNumber(), page.getSize(), page.getTotalElements());
+    }
+
+    /**
      * Busca todos os votos por usuário
      * 
      * @param userId ID do usuário
@@ -111,6 +132,24 @@ public class VoteService {
         return voteEntities.stream()
                 .map(voteMapper::toResponse)
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * Busca todos os votos por usuário com paginação
+     * 
+     * @param userId   ID do usuário
+     * @param pageable Configuração de paginação
+     * @return Resposta paginada de votos
+     */
+    @Transactional(readOnly = true)
+    public PagedResponse<VoteResponse> getAllVotesByUserId(String userId, Pageable pageable) {
+        Page<VoteEntity> page = voteRepository.findByUserId(userId, pageable);
+
+        List<VoteResponse> content = page.getContent().stream()
+                .map(voteMapper::toResponse)
+                .collect(Collectors.toList());
+
+        return new PagedResponse<>(content, page.getNumber(), page.getSize(), page.getTotalElements());
     }
 
     /**

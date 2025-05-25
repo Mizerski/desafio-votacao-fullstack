@@ -3,10 +3,13 @@ package com.mizerski.backend.services;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.mizerski.backend.dtos.request.CreateUserRequest;
+import com.mizerski.backend.dtos.response.PagedResponse;
 import com.mizerski.backend.dtos.response.UserResponse;
 import com.mizerski.backend.exceptions.ConflictException;
 import com.mizerski.backend.exceptions.NotFoundException;
@@ -85,6 +88,40 @@ public class UserService {
         return userEntities.stream()
                 .map(userMapper::toResponse)
                 .collect(Collectors.toList()); // Entidade -> DTO
+    }
 
+    /**
+     * Busca todos os usuários com paginação
+     * 
+     * @param pageable Configuração de paginação
+     * @return Resposta paginada de usuários
+     */
+    @Transactional(readOnly = true)
+    public PagedResponse<UserResponse> getAllUsers(Pageable pageable) {
+        Page<UserEntity> page = userRepository.findAll(pageable);
+
+        List<UserResponse> content = page.getContent().stream()
+                .map(userMapper::toResponse)
+                .collect(Collectors.toList());
+
+        return new PagedResponse<>(content, page.getNumber(), page.getSize(), page.getTotalElements());
+    }
+
+    /**
+     * Busca usuários por email com paginação
+     * 
+     * @param email    Email ou parte do email para busca
+     * @param pageable Configuração de paginação
+     * @return Resposta paginada de usuários encontrados
+     */
+    @Transactional(readOnly = true)
+    public PagedResponse<UserResponse> searchUsersByEmail(String email, Pageable pageable) {
+        Page<UserEntity> page = userRepository.findByEmailContainingIgnoreCase(email, pageable);
+
+        List<UserResponse> content = page.getContent().stream()
+                .map(userMapper::toResponse)
+                .collect(Collectors.toList());
+
+        return new PagedResponse<>(content, page.getNumber(), page.getSize(), page.getTotalElements());
     }
 }

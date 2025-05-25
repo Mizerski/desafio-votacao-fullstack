@@ -1,5 +1,8 @@
 package com.mizerski.backend.controllers;
 
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -85,9 +88,8 @@ public class AgendaController extends BaseController {
             @RequestParam(defaultValue = "0") @Min(0) int page,
             @RequestParam(defaultValue = "20") @Min(1) @Max(100) int size) {
 
-        // TODO: Implementar paginação no service
-        var agendaList = agendaService.getAllAgendas();
-        PagedResponse<AgendaResponse> agendas = new PagedResponse<>(agendaList, page, size, agendaList.size());
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        PagedResponse<AgendaResponse> agendas = agendaService.getAllAgendas(pageable);
 
         return ResponseEntity.ok(agendas);
     }
@@ -102,9 +104,8 @@ public class AgendaController extends BaseController {
             @RequestParam(defaultValue = "0") @Min(0) int page,
             @RequestParam(defaultValue = "20") @Min(1) @Max(100) int size) {
 
-        // TODO: Implementar paginação no service
-        var agendaList = agendaService.getAllAgendasWithOpenSessions();
-        PagedResponse<AgendaResponse> agendas = new PagedResponse<>(agendaList, page, size, agendaList.size());
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        PagedResponse<AgendaResponse> agendas = agendaService.getAllAgendasWithOpenSessions(pageable);
 
         return ResponseEntity.ok(agendas);
     }
@@ -119,9 +120,8 @@ public class AgendaController extends BaseController {
             @RequestParam(defaultValue = "0") @Min(0) int page,
             @RequestParam(defaultValue = "20") @Min(1) @Max(100) int size) {
 
-        // TODO: Implementar paginação no service
-        var agendaList = agendaService.getAllAgendasFinished();
-        PagedResponse<AgendaResponse> agendas = new PagedResponse<>(agendaList, page, size, agendaList.size());
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "updatedAt"));
+        PagedResponse<AgendaResponse> agendas = agendaService.getAllAgendasFinished(pageable);
 
         return ResponseEntity.ok(agendas);
     }

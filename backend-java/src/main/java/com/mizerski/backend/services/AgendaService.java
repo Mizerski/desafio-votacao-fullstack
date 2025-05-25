@@ -3,12 +3,15 @@ package com.mizerski.backend.services;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.mizerski.backend.annotations.Idempotent;
 import com.mizerski.backend.dtos.request.CreateAgendaRequest;
 import com.mizerski.backend.dtos.response.AgendaResponse;
+import com.mizerski.backend.dtos.response.PagedResponse;
 import com.mizerski.backend.exceptions.NotFoundException;
 import com.mizerski.backend.models.domains.Agendas;
 import com.mizerski.backend.models.domains.Result;
@@ -129,6 +132,23 @@ public class AgendaService {
     }
 
     /**
+     * Busca todas as pautas com paginação
+     * 
+     * @param pageable Configuração de paginação
+     * @return Resposta paginada de pautas
+     */
+    @Transactional(readOnly = true)
+    public PagedResponse<AgendaResponse> getAllAgendas(Pageable pageable) {
+        Page<AgendaEntity> page = agendaRepository.findAll(pageable);
+
+        List<AgendaResponse> content = page.getContent().stream()
+                .map(agendaMapper::toResponse)
+                .collect(Collectors.toList());
+
+        return new PagedResponse<>(content, page.getNumber(), page.getSize(), page.getTotalElements());
+    }
+
+    /**
      * Busca todas as pautas com sessões abertas
      * 
      * @return Lista de pautas com sessões abertas
@@ -144,6 +164,24 @@ public class AgendaService {
     }
 
     /**
+     * Busca todas as pautas com sessões abertas com paginação
+     * 
+     * @param pageable Configuração de paginação
+     * @return Resposta paginada de pautas abertas
+     */
+    @Transactional(readOnly = true)
+    public PagedResponse<AgendaResponse> getAllAgendasWithOpenSessions(Pageable pageable) {
+        Page<AgendaEntity> page = agendaRepository.findByStatusIn(
+                List.of(AgendaStatus.OPEN, AgendaStatus.IN_PROGRESS), pageable);
+
+        List<AgendaResponse> content = page.getContent().stream()
+                .map(agendaMapper::toResponse)
+                .collect(Collectors.toList());
+
+        return new PagedResponse<>(content, page.getNumber(), page.getSize(), page.getTotalElements());
+    }
+
+    /**
      * Busca todas as pautas encerradas
      * 
      * @return Lista de pautas encerradas
@@ -156,5 +194,23 @@ public class AgendaService {
         return agendaEntities.stream()
                 .map(agendaMapper::toResponse)
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * Busca todas as pautas encerradas com paginação
+     * 
+     * @param pageable Configuração de paginação
+     * @return Resposta paginada de pautas encerradas
+     */
+    @Transactional(readOnly = true)
+    public PagedResponse<AgendaResponse> getAllAgendasFinished(Pageable pageable) {
+        Page<AgendaEntity> page = agendaRepository.findByStatusIn(
+                List.of(AgendaStatus.FINISHED, AgendaStatus.CANCELLED), pageable);
+
+        List<AgendaResponse> content = page.getContent().stream()
+                .map(agendaMapper::toResponse)
+                .collect(Collectors.toList());
+
+        return new PagedResponse<>(content, page.getNumber(), page.getSize(), page.getTotalElements());
     }
 }

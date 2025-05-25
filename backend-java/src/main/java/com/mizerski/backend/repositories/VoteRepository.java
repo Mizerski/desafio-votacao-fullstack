@@ -3,6 +3,8 @@ package com.mizerski.backend.repositories;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.mizerski.backend.models.entities.VoteEntity;
@@ -44,4 +46,22 @@ public interface VoteRepository extends JpaRepository<VoteEntity, String> {
      * @return List<Vote>
      */
     List<VoteEntity> findByUserId(String userId);
+
+    /**
+     * Busca todos os votos por agenda com paginação
+     * 
+     * @param agendaId ID da agenda
+     * @param pageable Configuração de paginação
+     * @return Page<VoteEntity>
+     */
+    Page<VoteEntity> findByAgendaId(String agendaId, Pageable pageable);
+
+    /**
+     * Busca todos os votos por usuário com paginação
+     * 
+     * @param userId   ID do usuário
+     * @param pageable Configuração de paginação
+     * @return Page<VoteEntity>
+     */
+    Page<VoteEntity> findByUserId(String userId, Pageable pageable);
 }
