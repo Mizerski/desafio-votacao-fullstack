@@ -19,6 +19,7 @@ import com.mizerski.backend.dtos.response.AgendaResponse;
 import com.mizerski.backend.dtos.response.PagedResponse;
 import com.mizerski.backend.models.domains.Result;
 import com.mizerski.backend.services.AgendaService;
+import com.mizerski.backend.services.ErrorMappingService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -27,19 +28,28 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
-import lombok.RequiredArgsConstructor;
 
 /**
  * Controller para gerenciar operações relacionadas a pautas.
  */
 @RestController
 @RequestMapping("/api/v1/agendas")
-@RequiredArgsConstructor
 @Validated
 @Tag(name = "Agendas", description = "Operações relacionadas a pautas de votação")
 public class AgendaController extends BaseController {
 
     private final AgendaService agendaService;
+
+    /**
+     * Construtor para injeção de dependência via construtor
+     * 
+     * @param errorMappingService Serviço de mapeamento de erros
+     * @param agendaService       Serviço de pautas
+     */
+    public AgendaController(ErrorMappingService errorMappingService, AgendaService agendaService) {
+        super(errorMappingService);
+        this.agendaService = agendaService;
+    }
 
     /**
      * Cria uma nova pauta com tratamento de idempotência

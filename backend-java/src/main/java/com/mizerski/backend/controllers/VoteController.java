@@ -16,6 +16,7 @@ import com.mizerski.backend.dtos.request.CreateVoteRequest;
 import com.mizerski.backend.dtos.response.PagedResponse;
 import com.mizerski.backend.dtos.response.VoteResponse;
 import com.mizerski.backend.models.domains.Result;
+import com.mizerski.backend.services.ErrorMappingService;
 import com.mizerski.backend.services.IdempotencyService;
 import com.mizerski.backend.services.VoteService;
 
@@ -26,20 +27,32 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
-import lombok.RequiredArgsConstructor;
 
 /**
  * Controller para gerenciar operações relacionadas a votos.
  */
 @RestController
 @RequestMapping("/api/v1/votes")
-@RequiredArgsConstructor
 @Validated
 @Tag(name = "Votos", description = "Operações relacionadas ao sistema de votação")
 public class VoteController extends BaseController {
 
     private final VoteService voteService;
     private final IdempotencyService idempotencyService;
+
+    /**
+     * Construtor para injeção de dependência via construtor
+     * 
+     * @param errorMappingService Serviço de mapeamento de erros
+     * @param voteService         Serviço de votos
+     * @param idempotencyService  Serviço de idempotência
+     */
+    public VoteController(ErrorMappingService errorMappingService, VoteService voteService,
+            IdempotencyService idempotencyService) {
+        super(errorMappingService);
+        this.voteService = voteService;
+        this.idempotencyService = idempotencyService;
+    }
 
     /**
      * Registra um novo voto com tratamento de idempotência

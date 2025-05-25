@@ -884,11 +884,11 @@ public Result<AgendaResponse> createAgenda(CreateAgendaRequest request) {
 ┌─────────────────────────────────────────────────────────────┐
 │ ADAPTERS (Controllers, DTOs)                                │
 │ ↓ Dependency Inversion                                      │
-│ PORTS (Services, Interfaces)                               │
+│ PORTS (Services, Interfaces)                                │
 │ ↓ Business Logic                                            │
-│ DOMAIN (Entities, Value Objects, Business Rules)           │
-│ ↓ Infrastructure Abstraction                               │
-│ INFRASTRUCTURE (Repositories, Database, External APIs)     │
+│ DOMAIN (Entities, Value Objects, Business Rules)            │
+│ ↓ Infrastructure Abstraction                                │
+│ INFRASTRUCTURE (Repositories, Database, External APIs)      │
 └─────────────────────────────────────────────────────────────┘
 ```
 

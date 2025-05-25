@@ -17,6 +17,7 @@ import com.mizerski.backend.dtos.response.AgendaResponse;
 import com.mizerski.backend.models.domains.Result;
 import com.mizerski.backend.models.enums.VoteType;
 import com.mizerski.backend.services.AgendaTimeService;
+import com.mizerski.backend.services.ErrorMappingService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -25,7 +26,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -33,13 +33,17 @@ import lombok.extern.slf4j.Slf4j;
  */
 @RestController
 @RequestMapping("/api/v1/agendas")
-@RequiredArgsConstructor
 @Validated
 @Slf4j
 @Tag(name = "Gestão de Tempo de Pautas", description = "Operações para controle de tempo e status das pautas")
 public class AgendaTimeController extends BaseController {
 
         private final AgendaTimeService agendaTimeService;
+
+        public AgendaTimeController(AgendaTimeService agendaTimeService, ErrorMappingService errorMappingService) {
+                super(errorMappingService);
+                this.agendaTimeService = agendaTimeService;
+        }
 
         /**
          * Inicia o timer de uma pauta

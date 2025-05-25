@@ -2,23 +2,23 @@ package com.mizerski.backend.controllers;
 
 import java.net.URI;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.mizerski.backend.models.domains.Result;
 import com.mizerski.backend.services.ErrorMappingService;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
  * Classe base para controllers que padroniza tratamento de erros.
  */
 @Slf4j
+@RequiredArgsConstructor
 public abstract class BaseController {
 
-    @Autowired
-    protected ErrorMappingService errorMappingService;
+    protected final ErrorMappingService errorMappingService;
 
     /**
      * Cria ResponseEntity para operações de criação com Result pattern

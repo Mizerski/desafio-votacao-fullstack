@@ -21,6 +21,7 @@ import com.mizerski.backend.dtos.request.CreateUserRequest;
 import com.mizerski.backend.dtos.response.PagedResponse;
 import com.mizerski.backend.dtos.response.UserResponse;
 import com.mizerski.backend.models.domains.Result;
+import com.mizerski.backend.services.ErrorMappingService;
 import com.mizerski.backend.services.UserService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -32,7 +33,6 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Pattern;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -41,12 +41,22 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 @RequestMapping("/api/v1/users")
 @Tag(name = "Usuários", description = "API para gerenciamento de usuários")
-@RequiredArgsConstructor
 @Validated
 @Slf4j
 public class UserController extends BaseController {
 
     private final UserService userService;
+
+    /**
+     * Construtor para injeção de dependência via construtor
+     * 
+     * @param errorMappingService Serviço de mapeamento de erros
+     * @param userService         Serviço de usuários
+     */
+    public UserController(ErrorMappingService errorMappingService, UserService userService) {
+        super(errorMappingService);
+        this.userService = userService;
+    }
 
     /**
      * Cria um novo usuário
