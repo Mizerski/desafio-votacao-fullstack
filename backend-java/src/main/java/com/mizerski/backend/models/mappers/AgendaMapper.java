@@ -40,4 +40,9 @@ public interface AgendaMapper {
     @Mapping(target = "votes", ignore = true)
     Agendas fromCreateRequest(CreateAgendaRequest request);
 
+    /**
+     * Converte AgendaEntity diretamente para AgendaResponse (DTO)
+     */
+    AgendaResponse toResponse(AgendaEntity entity);
+
 }

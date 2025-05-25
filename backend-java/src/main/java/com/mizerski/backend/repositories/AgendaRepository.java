@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.mizerski.backend.models.entities.AgendaEntity;
+import com.mizerski.backend.models.enums.AgendaStatus;
 
 /**
  * Interface que define os métodos para acessar os dados da agenda
@@ -21,17 +22,10 @@ public interface AgendaRepository extends JpaRepository<AgendaEntity, String> {
     Optional<AgendaEntity> findByTitle(String title);
 
     /**
-     * Busca todas as agendas encerradas
-     * 
-     * @return List<Agenda>
-     */
-    List<AgendaEntity> findAllFinished();
-
-    /**
      * Busca todas as agendas abertas
      * 
      * @return List<Agenda>
      */
-    List<AgendaEntity> findAllOpen();
+    List<AgendaEntity> findByStatusIn(List<AgendaStatus> statuses);
 
 }
