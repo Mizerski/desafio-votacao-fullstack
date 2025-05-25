@@ -47,7 +47,7 @@ public class AgendaService {
         // Salva no banco
         agendaRepository.save(agendaEntity);
 
-        return agendaMapper.toResponse(agendaEntity); // Entidade -> Domínio -> DTO
+        return agendaMapper.toResponse(agendaEntity);
     }
 
     /**
@@ -60,7 +60,7 @@ public class AgendaService {
         AgendaEntity agendaEntity = agendaRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Pauta não encontrada com ID: " + id));
 
-        return agendaMapper.toResponse(agendaEntity); // Entidade -> Domínio -> DTO
+        return agendaMapper.toResponse(agendaEntity);
     }
 
     /**
@@ -73,7 +73,7 @@ public class AgendaService {
 
         return agendaEntities.stream()
                 .map(agendaMapper::toResponse)
-                .collect(Collectors.toList()); // Entidade -> DTO
+                .collect(Collectors.toList());
     }
 
     /**
