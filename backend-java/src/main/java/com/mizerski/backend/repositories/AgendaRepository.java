@@ -22,6 +22,14 @@ public interface AgendaRepository extends JpaRepository<AgendaEntity, String> {
     Optional<AgendaEntity> findByTitle(String title);
 
     /**
+     * Verifica se existe uma agenda com o título especificado
+     * 
+     * @param title Título da agenda
+     * @return true se existir, false caso contrário
+     */
+    boolean existsByTitle(String title);
+
+    /**
      * Busca todas as agendas abertas
      * 
      * @return List<Agenda>

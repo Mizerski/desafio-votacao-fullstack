@@ -6,10 +6,12 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.mizerski.backend.annotations.Idempotent;
 import com.mizerski.backend.dtos.request.CreateAgendaRequest;
 import com.mizerski.backend.dtos.response.AgendaResponse;
 import com.mizerski.backend.exceptions.NotFoundException;
 import com.mizerski.backend.models.domains.Agendas;
+import com.mizerski.backend.models.domains.Result;
 import com.mizerski.backend.models.entities.AgendaEntity;
 import com.mizerski.backend.models.enums.AgendaStatus;
 import com.mizerski.backend.models.mappers.AgendaMapper;
@@ -28,26 +30,74 @@ public class AgendaService {
 
     private final AgendaRepository agendaRepository;
     private final AgendaMapper agendaMapper;
+    private final IdempotencyService idempotencyService;
 
     /**
-     * Cria uma nova pauta
+     * Cria uma nova pauta com tratamento de idempotência
      * 
      * @param request Dados da pauta a ser criada
-     * @return Dados da pauta criada
+     * @return Result com dados da pauta criada ou erro
      */
     @Transactional
-    public AgendaResponse createAgenda(CreateAgendaRequest request) {
+    @Idempotent(expireAfterSeconds = 600) // 10 minutos para criação de pauta
+    public Result<AgendaResponse> createAgenda(CreateAgendaRequest request) {
 
-        // Converte DTO para Domínio
-        Agendas agendaDomain = agendaMapper.fromCreateRequest(request);
+        // Gera chave de idempotência baseada no título e descrição
+        String idempotencyKey = idempotencyService.generateKey(
+                "createAgenda",
+                request.getTitle(),
+                request.getDescription());
 
-        // Converte Domínio para Entity para persistir
-        AgendaEntity agendaEntity = agendaMapper.toEntity(agendaDomain);
+        // Verifica se operação já foi executada
+        Result<AgendaResponse> cachedResult = idempotencyService.checkIdempotency(idempotencyKey);
+        if (cachedResult.isSuccess()) {
+            log.info("Pauta já criada anteriormente, retornando resultado do cache");
+            return cachedResult;
+        }
 
-        // Salva no banco
-        agendaRepository.save(agendaEntity);
+        try {
+            // Validações de negócio sem throws
+            if (request.getTitle() == null || request.getTitle().trim().isEmpty()) {
+                return Result.error("INVALID_TITLE", "Título da pauta é obrigatório");
+            }
 
-        return agendaMapper.toResponse(agendaEntity);
+            if (request.getDescription() == null || request.getDescription().trim().isEmpty()) {
+                return Result.error("INVALID_DESCRIPTION", "Descrição da pauta é obrigatória");
+            }
+
+            // Verifica se já existe pauta com mesmo título (evita duplicatas)
+            if (agendaRepository.existsByTitle(request.getTitle())) {
+                return Result.error("DUPLICATE_TITLE", "Já existe uma pauta com este título");
+            }
+
+            // Converte DTO para Domínio
+            Agendas agendaDomain = agendaMapper.fromCreateRequest(request);
+
+            // Converte Domínio para Entity para persistir
+            AgendaEntity agendaEntity = agendaMapper.toEntity(agendaDomain);
+
+            // Define valores padrão
+            agendaEntity.setStatus(AgendaStatus.DRAFT);
+            agendaEntity.setTotalVotes(0);
+            agendaEntity.setYesVotes(0);
+            agendaEntity.setNoVotes(0);
+            agendaEntity.setIsActive(false);
+
+            // Salva no banco
+            AgendaEntity savedEntity = agendaRepository.save(agendaEntity);
+            AgendaResponse response = agendaMapper.toResponse(savedEntity);
+
+            // Armazena resultado no cache de idempotência
+            Result<AgendaResponse> result = Result.success(response);
+            idempotencyService.storeResult(idempotencyKey, response, 600);
+
+            log.info("Pauta criada com sucesso: {}", savedEntity.getId());
+            return result;
+
+        } catch (Exception e) {
+            log.error("Erro ao criar pauta: {}", e.getMessage(), e);
+            return Result.error("CREATION_ERROR", "Erro interno ao criar pauta");
+        }
     }
 
     /**
