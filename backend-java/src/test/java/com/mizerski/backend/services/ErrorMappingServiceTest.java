@@ -33,7 +33,7 @@ class ErrorMappingServiceTest {
 
     @BeforeEach
     void setUp() {
-        errorMappingService = new ErrorMappingService();
+        errorMappingService = new ErrorMappingServiceImpl();
     }
 
     @Nested

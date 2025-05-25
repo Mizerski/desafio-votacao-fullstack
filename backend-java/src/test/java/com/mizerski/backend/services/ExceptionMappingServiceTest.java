@@ -29,7 +29,7 @@ class ExceptionMappingServiceTest {
 
     @BeforeEach
     void setUp() {
-        exceptionMappingService = new ExceptionMappingService();
+        exceptionMappingService = new ExceptionMappingServiceImpl();
     }
 
     @Nested

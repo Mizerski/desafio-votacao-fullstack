@@ -54,7 +54,7 @@ class UserServiceTest {
     private ExceptionMappingService exceptionMappingService;
 
     @InjectMocks
-    private UserService userService;
+    private UserServiceImpl userService;
 
     private CreateUserRequest createUserRequest;
     private UserEntity userEntity;

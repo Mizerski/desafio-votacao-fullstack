@@ -50,7 +50,7 @@ class AgendaTimeServiceTest {
     private ExceptionMappingService exceptionMappingService;
 
     @InjectMocks
-    private AgendaTimeService agendaTimeService;
+    private AgendaTimeServiceImpl agendaTimeService;
 
     private AgendaEntity agendaEntity;
     private AgendaResponse agendaResponse;

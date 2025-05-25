@@ -23,15 +23,15 @@ import com.mizerski.backend.models.domains.Result;
 @DisplayName("IdempotencyService - Testes Unitários")
 class IdempotencyServiceTest {
 
-    private IdempotencyService idempotencyService;
+    private IdempotencyServiceImpl idempotencyServiceImpl;
 
     /**
      * Configuração inicial dos dados de teste
      */
     @BeforeEach
     void setUp() {
-        idempotencyService = new IdempotencyService();
-        idempotencyService.init(); // Inicializa o serviço
+        idempotencyServiceImpl = new IdempotencyServiceImpl();
+        idempotencyServiceImpl.init(); // Inicializa o serviço
     }
 
     @Nested
@@ -47,7 +47,7 @@ class IdempotencyServiceTest {
             String param2 = "João Silva";
 
             // Act
-            String key = idempotencyService.generateKey(methodName, param1, param2);
+            String key = idempotencyServiceImpl.generateKey(methodName, param1, param2);
 
             // Assert
             assertNotNull(key);
@@ -63,7 +63,7 @@ class IdempotencyServiceTest {
             String param2 = null;
 
             // Act
-            String key = idempotencyService.generateKey(methodName, param1, param2);
+            String key = idempotencyServiceImpl.generateKey(methodName, param1, param2);
 
             // Assert
             assertNotNull(key);
@@ -77,7 +77,7 @@ class IdempotencyServiceTest {
             String methodName = "getStats";
 
             // Act
-            String key = idempotencyService.generateKey(methodName);
+            String key = idempotencyServiceImpl.generateKey(methodName);
 
             // Assert
             assertNotNull(key);
@@ -91,8 +91,8 @@ class IdempotencyServiceTest {
             String methodName = "createUser";
 
             // Act
-            String key1 = idempotencyService.generateKey(methodName, "user1@email.com");
-            String key2 = idempotencyService.generateKey(methodName, "user2@email.com");
+            String key1 = idempotencyServiceImpl.generateKey(methodName, "user1@email.com");
+            String key2 = idempotencyServiceImpl.generateKey(methodName, "user2@email.com");
 
             // Assert
             assertNotNull(key1);
@@ -109,8 +109,8 @@ class IdempotencyServiceTest {
             String name = "João Silva";
 
             // Act
-            String key1 = idempotencyService.generateKey(methodName, email, name);
-            String key2 = idempotencyService.generateKey(methodName, email, name);
+            String key1 = idempotencyServiceImpl.generateKey(methodName, email, name);
+            String key2 = idempotencyServiceImpl.generateKey(methodName, email, name);
 
             // Assert
             assertNotNull(key1);
@@ -132,8 +132,8 @@ class IdempotencyServiceTest {
             int expireAfterSeconds = 300;
 
             // Act
-            idempotencyService.storeResult(key, result, expireAfterSeconds);
-            Result<String> retrievedResult = idempotencyService.checkIdempotency(key);
+            idempotencyServiceImpl.storeResult(key, result, expireAfterSeconds);
+            Result<String> retrievedResult = idempotencyServiceImpl.checkIdempotency(key);
 
             // Assert
             assertTrue(retrievedResult.isSuccess());
@@ -148,7 +148,7 @@ class IdempotencyServiceTest {
             String key = "non-existent-key";
 
             // Act
-            Result<String> result = idempotencyService.checkIdempotency(key);
+            Result<String> result = idempotencyServiceImpl.checkIdempotency(key);
 
             // Assert
             assertTrue(result.isError());
@@ -171,13 +171,13 @@ class IdempotencyServiceTest {
             TestObject objectValue = new TestObject("test", 123);
 
             // Act
-            idempotencyService.storeResult(stringKey, stringValue, 300);
-            idempotencyService.storeResult(intKey, intValue, 300);
-            idempotencyService.storeResult(objectKey, objectValue, 300);
+            idempotencyServiceImpl.storeResult(stringKey, stringValue, 300);
+            idempotencyServiceImpl.storeResult(intKey, intValue, 300);
+            idempotencyServiceImpl.storeResult(objectKey, objectValue, 300);
 
-            Result<String> stringResult = idempotencyService.checkIdempotency(stringKey);
-            Result<Integer> intResult = idempotencyService.checkIdempotency(intKey);
-            Result<TestObject> objectResult = idempotencyService.checkIdempotency(objectKey);
+            Result<String> stringResult = idempotencyServiceImpl.checkIdempotency(stringKey);
+            Result<Integer> intResult = idempotencyServiceImpl.checkIdempotency(intKey);
+            Result<TestObject> objectResult = idempotencyServiceImpl.checkIdempotency(objectKey);
 
             // Assert
             assertTrue(stringResult.isSuccess());
@@ -200,10 +200,10 @@ class IdempotencyServiceTest {
             String secondValue = "second-value";
 
             // Act
-            idempotencyService.storeResult(key, firstValue, 300);
-            idempotencyService.storeResult(key, secondValue, 300);
+            idempotencyServiceImpl.storeResult(key, firstValue, 300);
+            idempotencyServiceImpl.storeResult(key, secondValue, 300);
 
-            Result<String> result = idempotencyService.checkIdempotency(key);
+            Result<String> result = idempotencyServiceImpl.checkIdempotency(key);
 
             // Assert
             assertTrue(result.isSuccess());
@@ -224,12 +224,12 @@ class IdempotencyServiceTest {
             int expireAfterSeconds = 5; // 5 segundos
 
             // Act
-            idempotencyService.storeResult(key, value, expireAfterSeconds);
+            idempotencyServiceImpl.storeResult(key, value, expireAfterSeconds);
 
             // Aguarda um pouco mas não o suficiente para expirar
             Thread.sleep(500); // 0.5 segundos
 
-            Result<String> result = idempotencyService.checkIdempotency(key);
+            Result<String> result = idempotencyServiceImpl.checkIdempotency(key);
 
             // Assert
             assertTrue(result.isSuccess());
@@ -245,8 +245,8 @@ class IdempotencyServiceTest {
             int expireAfterSeconds = 300; // 5 minutos
 
             // Act
-            idempotencyService.storeResult(key, value, expireAfterSeconds);
-            Result<String> result = idempotencyService.checkIdempotency(key);
+            idempotencyServiceImpl.storeResult(key, value, expireAfterSeconds);
+            Result<String> result = idempotencyServiceImpl.checkIdempotency(key);
 
             // Assert - não deve estar expirado imediatamente
             assertTrue(result.isSuccess());
@@ -262,12 +262,12 @@ class IdempotencyServiceTest {
             int expireAfterSeconds = 300; // 5 minutos
 
             // Act
-            idempotencyService.storeResult(key, value, expireAfterSeconds);
+            idempotencyServiceImpl.storeResult(key, value, expireAfterSeconds);
 
             // Aguarda um pouco
             Thread.sleep(100);
 
-            Result<String> result = idempotencyService.checkIdempotency(key);
+            Result<String> result = idempotencyServiceImpl.checkIdempotency(key);
 
             // Assert - não deve estar expirado
             assertTrue(result.isSuccess());
@@ -287,17 +287,17 @@ class IdempotencyServiceTest {
             String value = "test-value";
 
             // Act
-            idempotencyService.storeResult(key, value, 300);
+            idempotencyServiceImpl.storeResult(key, value, 300);
 
             // Verifica que está presente
-            Result<String> beforeRemoval = idempotencyService.checkIdempotency(key);
+            Result<String> beforeRemoval = idempotencyServiceImpl.checkIdempotency(key);
             assertTrue(beforeRemoval.isSuccess());
 
             // Remove do cache
-            idempotencyService.removeFromCache(key);
+            idempotencyServiceImpl.removeFromCache(key);
 
             // Verifica que foi removida
-            Result<String> afterRemoval = idempotencyService.checkIdempotency(key);
+            Result<String> afterRemoval = idempotencyServiceImpl.checkIdempotency(key);
             assertTrue(afterRemoval.isError());
             assertEquals("NOT_FOUND", afterRemoval.getErrorCode().get());
         }
@@ -309,10 +309,10 @@ class IdempotencyServiceTest {
             String key = "non-existent-key";
 
             // Act & Assert - não deve lançar exceção
-            idempotencyService.removeFromCache(key);
+            idempotencyServiceImpl.removeFromCache(key);
 
             // Verifica que continua inexistente
-            Result<String> result = idempotencyService.checkIdempotency(key);
+            Result<String> result = idempotencyServiceImpl.checkIdempotency(key);
             assertTrue(result.isError());
             assertEquals("NOT_FOUND", result.getErrorCode().get());
         }
@@ -326,15 +326,15 @@ class IdempotencyServiceTest {
         @DisplayName("Deve retornar estatísticas do cache")
         void deveRetornarEstatisticasDoCache() {
             // Arrange - cache vazio inicialmente
-            String initialStats = idempotencyService.getCacheStats();
+            String initialStats = idempotencyServiceImpl.getCacheStats();
             assertTrue(initialStats.contains("0 entradas ativas"));
 
             // Act - adiciona algumas entradas
-            idempotencyService.storeResult("key1", "value1", 300);
-            idempotencyService.storeResult("key2", "value2", 300);
-            idempotencyService.storeResult("key3", "value3", 300);
+            idempotencyServiceImpl.storeResult("key1", "value1", 300);
+            idempotencyServiceImpl.storeResult("key2", "value2", 300);
+            idempotencyServiceImpl.storeResult("key3", "value3", 300);
 
-            String statsWithEntries = idempotencyService.getCacheStats();
+            String statsWithEntries = idempotencyServiceImpl.getCacheStats();
 
             // Assert
             assertTrue(statsWithEntries.contains("3 entradas ativas"));
@@ -344,16 +344,16 @@ class IdempotencyServiceTest {
         @DisplayName("Deve atualizar estatísticas após remoções")
         void deveAtualizarEstatisticasAposRemocoes() {
             // Arrange
-            idempotencyService.storeResult("key1", "value1", 300);
-            idempotencyService.storeResult("key2", "value2", 300);
+            idempotencyServiceImpl.storeResult("key1", "value1", 300);
+            idempotencyServiceImpl.storeResult("key2", "value2", 300);
 
-            String beforeRemoval = idempotencyService.getCacheStats();
+            String beforeRemoval = idempotencyServiceImpl.getCacheStats();
             assertTrue(beforeRemoval.contains("2 entradas ativas"));
 
             // Act
-            idempotencyService.removeFromCache("key1");
+            idempotencyServiceImpl.removeFromCache("key1");
 
-            String afterRemoval = idempotencyService.getCacheStats();
+            String afterRemoval = idempotencyServiceImpl.getCacheStats();
 
             // Assert
             assertTrue(afterRemoval.contains("1 entradas ativas"));
@@ -371,8 +371,8 @@ class IdempotencyServiceTest {
             String key = "null-value-key";
 
             // Act
-            idempotencyService.storeResult(key, null, 300);
-            Result<String> result = idempotencyService.checkIdempotency(key);
+            idempotencyServiceImpl.storeResult(key, null, 300);
+            Result<String> result = idempotencyServiceImpl.checkIdempotency(key);
 
             // Assert
             assertTrue(result.isSuccess());
@@ -397,8 +397,8 @@ class IdempotencyServiceTest {
                         String key = keyPrefix + threadId + "-" + j;
                         String value = "value-" + threadId + "-" + j;
 
-                        idempotencyService.storeResult(key, value, 300);
-                        Result<String> result = idempotencyService.checkIdempotency(key);
+                        idempotencyServiceImpl.storeResult(key, value, 300);
+                        Result<String> result = idempotencyServiceImpl.checkIdempotency(key);
 
                         assertTrue(result.isSuccess());
                         assertEquals(value, result.getValue().get());
@@ -417,7 +417,7 @@ class IdempotencyServiceTest {
             }
 
             // Assert - verifica que todas as operações foram bem-sucedidas
-            String finalStats = idempotencyService.getCacheStats();
+            String finalStats = idempotencyServiceImpl.getCacheStats();
             assertTrue(finalStats.contains((numberOfThreads * operationsPerThread) + " entradas ativas"));
         }
 
@@ -430,21 +430,21 @@ class IdempotencyServiceTest {
             String name = "João Silva";
 
             // Act & Assert - Primeira operação
-            String key = idempotencyService.generateKey(methodName, email, name);
-            Result<String> firstCheck = idempotencyService.checkIdempotency(key);
+            String key = idempotencyServiceImpl.generateKey(methodName, email, name);
+            Result<String> firstCheck = idempotencyServiceImpl.checkIdempotency(key);
             assertTrue(firstCheck.isError()); // Não deve existir ainda
 
             // Simula execução da operação
             String operationResult = "User created with ID: user-123";
-            idempotencyService.storeResult(key, operationResult, 300);
+            idempotencyServiceImpl.storeResult(key, operationResult, 300);
 
             // Segunda tentativa da mesma operação
-            Result<String> secondCheck = idempotencyService.checkIdempotency(key);
+            Result<String> secondCheck = idempotencyServiceImpl.checkIdempotency(key);
             assertTrue(secondCheck.isSuccess());
             assertEquals(operationResult, secondCheck.getValue().get());
 
             // Terceira tentativa - deve retornar o mesmo resultado
-            Result<String> thirdCheck = idempotencyService.checkIdempotency(key);
+            Result<String> thirdCheck = idempotencyServiceImpl.checkIdempotency(key);
             assertTrue(thirdCheck.isSuccess());
             assertEquals(operationResult, thirdCheck.getValue().get());
         }
@@ -453,12 +453,12 @@ class IdempotencyServiceTest {
         @DisplayName("Deve finalizar serviço corretamente")
         void deveFinalizarServicoCorretamente() {
             // Act & Assert - não deve lançar exceção
-            idempotencyService.destroy();
+            idempotencyServiceImpl.destroy();
 
             // Verifica que ainda pode ser usado após destroy (para testes)
             String key = "after-destroy-key";
-            idempotencyService.storeResult(key, "test", 300);
-            Result<String> result = idempotencyService.checkIdempotency(key);
+            idempotencyServiceImpl.storeResult(key, "test", 300);
+            Result<String> result = idempotencyServiceImpl.checkIdempotency(key);
             assertTrue(result.isSuccess());
         }
     }

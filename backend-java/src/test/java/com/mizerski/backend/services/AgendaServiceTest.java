@@ -64,7 +64,7 @@ class AgendaServiceTest {
     private ExceptionMappingService exceptionMappingService;
 
     @InjectMocks
-    private AgendaService agendaService;
+    private AgendaServiceImpl agendaService;
 
     private CreateAgendaRequest createAgendaRequest;
     private AgendaEntity agendaEntity;
