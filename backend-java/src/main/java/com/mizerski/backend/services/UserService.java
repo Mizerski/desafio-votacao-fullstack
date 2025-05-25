@@ -23,7 +23,6 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Service
 @Slf4j
-@Transactional
 @RequiredArgsConstructor
 public class UserService {
 
@@ -36,6 +35,7 @@ public class UserService {
      * @param request Dados do usuário a ser criado
      * @return Dados do usuário criado
      */
+    @Transactional
     public UserResponse createUser(CreateUserRequest request) {
 
         // Validação de email já cadastrado
@@ -65,6 +65,7 @@ public class UserService {
      * @param id ID do usuário
      * @return Dados do usuário encontrado
      */
+    @Transactional(readOnly = true)
     public UserResponse getUserById(String id) {
         UserEntity userEntity = userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Usuário não encontrado com ID: " + id));
@@ -77,6 +78,7 @@ public class UserService {
      * 
      * @return Lista de usuários
      */
+    @Transactional(readOnly = true)
     public List<UserResponse> getAllUsers() {
         List<UserEntity> userEntities = userRepository.findAll();
 

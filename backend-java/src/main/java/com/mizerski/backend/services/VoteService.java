@@ -26,7 +26,6 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Service
 @Slf4j
-@Transactional
 @RequiredArgsConstructor
 public class VoteService {
 
@@ -40,6 +39,7 @@ public class VoteService {
      * @param request Dados do voto a ser criado
      * @return Dados do voto criado
      */
+    @Transactional
     public VoteResponse createVote(CreateVoteRequest request) {
 
         // Valida se a sessão está aberta
@@ -78,6 +78,7 @@ public class VoteService {
      * @param agendaId ID da pauta
      * @return Dados do voto encontrado
      */
+    @Transactional(readOnly = true)
     public VoteResponse getVoteByUserIdAndAgendaId(String userId, String agendaId) {
         VoteEntity voteEntity = voteRepository.findByUserIdAndAgendaId(userId, agendaId)
                 .orElseThrow(() -> new NotFoundException("Voto não encontrado para o usuário: " + userId
@@ -92,6 +93,7 @@ public class VoteService {
      * @param agendaId ID da pauta
      * @return Lista de votos encontrados
      */
+    @Transactional(readOnly = true)
     public List<VoteResponse> getAllVotesByAgendaId(String agendaId) {
         List<VoteEntity> voteEntities = voteRepository.findByAgendaId(agendaId);
 
@@ -106,6 +108,7 @@ public class VoteService {
      * @param userId ID do usuário
      * @return Lista de votos encontrados
      */
+    @Transactional(readOnly = true)
     public List<VoteResponse> getAllVotesByUserId(String userId) {
         List<VoteEntity> voteEntities = voteRepository.findByUserId(userId);
 
@@ -121,6 +124,7 @@ public class VoteService {
      * @param userId   ID do usuário
      * @return Dados do voto encontrado
      */
+    @Transactional(readOnly = true)
     public VoteResponse getVoteByAgendaIdAndUserId(String agendaId, String userId) {
         VoteEntity voteEntity = voteRepository.findByUserIdAndAgendaId(userId, agendaId)
                 .orElseThrow(() -> new NotFoundException("Voto não encontrado para o usuário: " + userId

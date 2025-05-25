@@ -21,7 +21,6 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Service
 @Slf4j
-@Transactional
 @RequiredArgsConstructor
 public class AgendaTimeService {
 
@@ -35,6 +34,7 @@ public class AgendaTimeService {
      * @param durationInMinutes Tempo de duração da pauta em minutos
      * @return Dados da pauta iniciada
      */
+    @Transactional
     public AgendaResponse startAgendaTimer(String agendaId, int durationInMinutes) {
         AgendaEntity agendaEntity = agendaRepository.findById(agendaId)
                 .orElseThrow(() -> new NotFoundException("Pauta não encontrada com ID: " + agendaId));
@@ -57,6 +57,7 @@ public class AgendaTimeService {
      * @param voteType Tipo de voto a ser atualizado (YES/NO)
      * @return Dados da pauta atualizada
      */
+    @Transactional
     public AgendaResponse updateAgendaVotes(String agendaId, VoteType voteType) {
         AgendaEntity agendaEntity = agendaRepository.findById(agendaId)
                 .orElseThrow(() -> new NotFoundException("Pauta não encontrada com ID: " + agendaId));
@@ -80,6 +81,7 @@ public class AgendaTimeService {
      * @param agendaId ID da pauta a ser calculada
      * @return Dados da pauta calculada
      */
+    @Transactional
     public AgendaResponse calculateAgendaResult(String agendaId) {
         AgendaEntity agendaEntity = agendaRepository.findById(agendaId)
                 .orElseThrow(() -> new NotFoundException("Pauta não encontrada com ID: " + agendaId));

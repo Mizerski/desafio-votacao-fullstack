@@ -23,7 +23,6 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Service
 @Slf4j
-@Transactional
 @RequiredArgsConstructor
 public class AgendaService {
 
@@ -36,6 +35,7 @@ public class AgendaService {
      * @param request Dados da pauta a ser criada
      * @return Dados da pauta criada
      */
+    @Transactional
     public AgendaResponse createAgenda(CreateAgendaRequest request) {
 
         // Converte DTO para Domínio
@@ -56,6 +56,7 @@ public class AgendaService {
      * @param id ID da pauta
      * @return Dados da pauta encontrada
      */
+    @Transactional(readOnly = true)
     public AgendaResponse getAgendaById(String id) {
         AgendaEntity agendaEntity = agendaRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Pauta não encontrada com ID: " + id));
@@ -68,6 +69,7 @@ public class AgendaService {
      * 
      * @return Lista de pautas
      */
+    @Transactional(readOnly = true)
     public List<AgendaResponse> getAllAgendas() {
         List<AgendaEntity> agendaEntities = agendaRepository.findAll();
 
@@ -81,6 +83,7 @@ public class AgendaService {
      * 
      * @return Lista de pautas com sessões abertas
      */
+    @Transactional(readOnly = true)
     public List<AgendaResponse> getAllAgendasWithOpenSessions() {
         List<AgendaEntity> agendaEntities = agendaRepository.findByStatusIn(
                 List.of(AgendaStatus.OPEN, AgendaStatus.IN_PROGRESS));
@@ -95,6 +98,7 @@ public class AgendaService {
      * 
      * @return Lista de pautas encerradas
      */
+    @Transactional(readOnly = true)
     public List<AgendaResponse> getAllAgendasFinished() {
         List<AgendaEntity> agendaEntities = agendaRepository
                 .findByStatusIn(List.of(AgendaStatus.FINISHED, AgendaStatus.CANCELLED));

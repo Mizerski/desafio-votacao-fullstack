@@ -28,6 +28,7 @@ public interface AgendaMapper {
     /**
      * Converte Agendas (domínio) para AgendaResponse (DTO)
      */
+    @Mapping(target = "votes", ignore = true)
     AgendaResponse toResponse(Agendas domain);
 
     /**
@@ -43,6 +44,7 @@ public interface AgendaMapper {
     /**
      * Converte AgendaEntity diretamente para AgendaResponse (DTO)
      */
+    @Mapping(target = "votes", ignore = true)
     AgendaResponse toResponse(AgendaEntity entity);
 
 }
