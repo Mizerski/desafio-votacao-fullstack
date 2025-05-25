@@ -22,7 +22,7 @@ public class GlobalExceptionHandler {
     /**
      * Modelo padrão para respostas de erro
      */
-    private record ApiError(
+    public record ApiError(
             String message,
             int statusCode,
             String statusName,
