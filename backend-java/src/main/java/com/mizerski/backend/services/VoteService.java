@@ -11,8 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.mizerski.backend.dtos.request.CreateVoteRequest;
 import com.mizerski.backend.dtos.response.PagedResponse;
 import com.mizerski.backend.dtos.response.VoteResponse;
-import com.mizerski.backend.exceptions.BadRequestException;
-import com.mizerski.backend.exceptions.NotFoundException;
+import com.mizerski.backend.models.domains.Result;
 import com.mizerski.backend.models.domains.Votes;
 import com.mizerski.backend.models.entities.AgendaEntity;
 import com.mizerski.backend.models.entities.VoteEntity;
@@ -35,39 +34,50 @@ public class VoteService {
     private final VoteRepository voteRepository;
     private final VoteMapper voteMapper;
     private final AgendaRepository agendaRepository;
+    private final ExceptionMappingService exceptionMappingService;
 
     /**
      * Cria um novo voto
      * 
      * @param request Dados do voto a ser criado
-     * @return Dados do voto criado
+     * @return Result com dados do voto criado ou erro
      */
     @Transactional
-    public VoteResponse createVote(CreateVoteRequest request) {
+    public Result<VoteResponse> createVote(CreateVoteRequest request) {
+        try {
+            // Valida se a sessão está aberta
+            AgendaEntity agendaEntity = agendaRepository.findById(request.getAgendaId()).orElse(null);
 
-        // Valida se a sessão está aberta
-        AgendaEntity agendaEntity = agendaRepository.findById(request.getAgendaId())
-                .orElseThrow(() -> new NotFoundException("Pauta não encontrada com ID: " + request.getAgendaId()));
+            if (agendaEntity == null) {
+                return Result.error("AGENDA_NOT_FOUND", "Pauta não encontrada com ID: " + request.getAgendaId());
+            }
 
-        if (agendaEntity.getStatus() != AgendaStatus.OPEN) {
-            throw new BadRequestException("A pauta não está aberta para votação");
+            if (agendaEntity.getStatus() != AgendaStatus.OPEN) {
+                return Result.error("AGENDA_NOT_OPEN", "A pauta não está aberta para votação");
+            }
+
+            // Valida se o usuário já votou na pauta
+            if (voteRepository.findByUserIdAndAgendaId(request.getUserId(), request.getAgendaId()).isPresent()) {
+                return Result.error("USER_ALREADY_VOTED", "O usuário já votou na pauta");
+            }
+
+            // Converte DTO para Domínio
+            Votes voteDomain = voteMapper.fromCreateRequest(request);
+
+            // Converte Domínio para Entity para persistir
+            VoteEntity voteEntityToSave = voteMapper.toEntity(voteDomain);
+
+            // Salva no banco
+            VoteEntity savedEntity = voteRepository.save(voteEntityToSave);
+            VoteResponse response = voteMapper.toResponse(savedEntity);
+
+            log.info("Voto criado com sucesso: {}", savedEntity.getId());
+            return Result.success(response);
+
+        } catch (Exception e) {
+            log.error("Erro ao criar voto: {}", e.getMessage(), e);
+            return exceptionMappingService.mapExceptionToResult(e);
         }
-
-        // Valida se o usuário já votou na pauta
-        if (voteRepository.findByUserIdAndAgendaId(request.getUserId(), request.getAgendaId()).isPresent()) {
-            throw new BadRequestException("O usuário já votou na pauta");
-        }
-
-        // Converte DTO para Domínio
-        Votes voteDomain = voteMapper.fromCreateRequest(request);
-
-        // Converte Domínio para Entity para persistir
-        VoteEntity voteEntityToSave = voteMapper.toEntity(voteDomain);
-
-        // Salva no banco
-        voteRepository.save(voteEntityToSave);
-
-        return voteMapper.toResponse(voteEntityToSave);
     }
 
     /**
@@ -75,30 +85,48 @@ public class VoteService {
      * 
      * @param userId   ID do usuário
      * @param agendaId ID da pauta
-     * @return Dados do voto encontrado
+     * @return Result com dados do voto encontrado ou erro
      */
     @Transactional(readOnly = true)
-    public VoteResponse getVoteByUserIdAndAgendaId(String userId, String agendaId) {
-        VoteEntity voteEntity = voteRepository.findByUserIdAndAgendaId(userId, agendaId)
-                .orElseThrow(() -> new NotFoundException("Voto não encontrado para o usuário: " + userId
-                        + " e pauta: " + agendaId));
+    public Result<VoteResponse> getVoteByUserIdAndAgendaId(String userId, String agendaId) {
+        try {
+            VoteEntity voteEntity = voteRepository.findByUserIdAndAgendaId(userId, agendaId).orElse(null);
 
-        return voteMapper.toResponse(voteEntity);
+            if (voteEntity == null) {
+                return Result.error("VOTE_NOT_FOUND",
+                        "Voto não encontrado para o usuário: " + userId + " e pauta: " + agendaId);
+            }
+
+            VoteResponse response = voteMapper.toResponse(voteEntity);
+            return Result.success(response);
+
+        } catch (Exception e) {
+            log.error("Erro ao buscar voto por usuário {} e pauta {}: {}", userId, agendaId, e.getMessage(), e);
+            return exceptionMappingService.mapExceptionToResult(e);
+        }
     }
 
     /**
      * Busca todos os votos por pauta
      * 
      * @param agendaId ID da pauta
-     * @return Lista de votos encontrados
+     * @return Result com lista de votos encontrados ou erro
      */
     @Transactional(readOnly = true)
-    public List<VoteResponse> getAllVotesByAgendaId(String agendaId) {
-        List<VoteEntity> voteEntities = voteRepository.findByAgendaId(agendaId);
+    public Result<List<VoteResponse>> getAllVotesByAgendaId(String agendaId) {
+        try {
+            List<VoteEntity> voteEntities = voteRepository.findByAgendaId(agendaId);
 
-        return voteEntities.stream()
-                .map(voteMapper::toResponse)
-                .collect(Collectors.toList());
+            List<VoteResponse> responses = voteEntities.stream()
+                    .map(voteMapper::toResponse)
+                    .collect(Collectors.toList());
+
+            return Result.success(responses);
+
+        } catch (Exception e) {
+            log.error("Erro ao buscar votos por pauta {}: {}", agendaId, e.getMessage(), e);
+            return exceptionMappingService.mapExceptionToResult(e);
+        }
     }
 
     /**
@@ -106,32 +134,49 @@ public class VoteService {
      * 
      * @param agendaId ID da pauta
      * @param pageable Configuração de paginação
-     * @return Resposta paginada de votos
+     * @return Result com resposta paginada de votos ou erro
      */
     @Transactional(readOnly = true)
-    public PagedResponse<VoteResponse> getAllVotesByAgendaId(String agendaId, Pageable pageable) {
-        Page<VoteEntity> page = voteRepository.findByAgendaId(agendaId, pageable);
+    public Result<PagedResponse<VoteResponse>> getAllVotesByAgendaId(String agendaId, Pageable pageable) {
+        try {
+            Page<VoteEntity> page = voteRepository.findByAgendaId(agendaId, pageable);
 
-        List<VoteResponse> content = page.getContent().stream()
-                .map(voteMapper::toResponse)
-                .collect(Collectors.toList());
+            List<VoteResponse> content = page.getContent().stream()
+                    .map(voteMapper::toResponse)
+                    .collect(Collectors.toList());
 
-        return new PagedResponse<>(content, page.getNumber(), page.getSize(), page.getTotalElements());
+            PagedResponse<VoteResponse> response = new PagedResponse<>(
+                    content, page.getNumber(), page.getSize(), page.getTotalElements());
+
+            return Result.success(response);
+
+        } catch (Exception e) {
+            log.error("Erro ao buscar votos paginados por pauta {}: {}", agendaId, e.getMessage(), e);
+            return exceptionMappingService.mapExceptionToResult(e);
+        }
     }
 
     /**
      * Busca todos os votos por usuário
      * 
      * @param userId ID do usuário
-     * @return Lista de votos encontrados
+     * @return Result com lista de votos encontrados ou erro
      */
     @Transactional(readOnly = true)
-    public List<VoteResponse> getAllVotesByUserId(String userId) {
-        List<VoteEntity> voteEntities = voteRepository.findByUserId(userId);
+    public Result<List<VoteResponse>> getAllVotesByUserId(String userId) {
+        try {
+            List<VoteEntity> voteEntities = voteRepository.findByUserId(userId);
 
-        return voteEntities.stream()
-                .map(voteMapper::toResponse)
-                .collect(Collectors.toList());
+            List<VoteResponse> responses = voteEntities.stream()
+                    .map(voteMapper::toResponse)
+                    .collect(Collectors.toList());
+
+            return Result.success(responses);
+
+        } catch (Exception e) {
+            log.error("Erro ao buscar votos por usuário {}: {}", userId, e.getMessage(), e);
+            return exceptionMappingService.mapExceptionToResult(e);
+        }
     }
 
     /**
@@ -139,17 +184,26 @@ public class VoteService {
      * 
      * @param userId   ID do usuário
      * @param pageable Configuração de paginação
-     * @return Resposta paginada de votos
+     * @return Result com resposta paginada de votos ou erro
      */
     @Transactional(readOnly = true)
-    public PagedResponse<VoteResponse> getAllVotesByUserId(String userId, Pageable pageable) {
-        Page<VoteEntity> page = voteRepository.findByUserId(userId, pageable);
+    public Result<PagedResponse<VoteResponse>> getAllVotesByUserId(String userId, Pageable pageable) {
+        try {
+            Page<VoteEntity> page = voteRepository.findByUserId(userId, pageable);
 
-        List<VoteResponse> content = page.getContent().stream()
-                .map(voteMapper::toResponse)
-                .collect(Collectors.toList());
+            List<VoteResponse> content = page.getContent().stream()
+                    .map(voteMapper::toResponse)
+                    .collect(Collectors.toList());
 
-        return new PagedResponse<>(content, page.getNumber(), page.getSize(), page.getTotalElements());
+            PagedResponse<VoteResponse> response = new PagedResponse<>(
+                    content, page.getNumber(), page.getSize(), page.getTotalElements());
+
+            return Result.success(response);
+
+        } catch (Exception e) {
+            log.error("Erro ao buscar votos paginados por usuário {}: {}", userId, e.getMessage(), e);
+            return exceptionMappingService.mapExceptionToResult(e);
+        }
     }
 
     /**
@@ -157,15 +211,24 @@ public class VoteService {
      * 
      * @param agendaId ID da pauta
      * @param userId   ID do usuário
-     * @return Dados do voto encontrado
+     * @return Result com dados do voto encontrado ou erro
      */
     @Transactional(readOnly = true)
-    public VoteResponse getVoteByAgendaIdAndUserId(String agendaId, String userId) {
-        VoteEntity voteEntity = voteRepository.findByUserIdAndAgendaId(userId, agendaId)
-                .orElseThrow(() -> new NotFoundException("Voto não encontrado para o usuário: " + userId
-                        + " e pauta: " + agendaId));
+    public Result<VoteResponse> getVoteByAgendaIdAndUserId(String agendaId, String userId) {
+        try {
+            VoteEntity voteEntity = voteRepository.findByUserIdAndAgendaId(userId, agendaId).orElse(null);
 
-        return voteMapper.toResponse(voteEntity);
+            if (voteEntity == null) {
+                return Result.error("VOTE_NOT_FOUND",
+                        "Voto não encontrado para o usuário: " + userId + " e pauta: " + agendaId);
+            }
+
+            VoteResponse response = voteMapper.toResponse(voteEntity);
+            return Result.success(response);
+
+        } catch (Exception e) {
+            log.error("Erro ao buscar voto por pauta {} e usuário {}: {}", agendaId, userId, e.getMessage(), e);
+            return exceptionMappingService.mapExceptionToResult(e);
+        }
     }
-
 }

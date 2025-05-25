@@ -72,12 +72,13 @@ public class AgendaController extends BaseController {
     })
     public ResponseEntity<AgendaResponse> getAgendaById(
             @PathVariable @ValidUUID(message = "ID deve ser um UUID válido") String id) {
-        try {
-            AgendaResponse agenda = agendaService.getAgendaById(id);
-            return ResponseEntity.ok(agenda);
-        } catch (Exception e) {
-            return ResponseEntity.notFound().build();
-        }
+        logOperation("getAgendaById", id, true);
+
+        Result<AgendaResponse> result = agendaService.getAgendaById(id);
+
+        logOperation("getAgendaById", id, result.isSuccess());
+
+        return handleGetOperation(result);
     }
 
     /**

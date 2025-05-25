@@ -12,8 +12,7 @@ import com.mizerski.backend.annotations.Idempotent;
 import com.mizerski.backend.dtos.request.CreateUserRequest;
 import com.mizerski.backend.dtos.response.PagedResponse;
 import com.mizerski.backend.dtos.response.UserResponse;
-import com.mizerski.backend.exceptions.ConflictException;
-import com.mizerski.backend.exceptions.NotFoundException;
+import com.mizerski.backend.models.domains.Result;
 import com.mizerski.backend.models.domains.Users;
 import com.mizerski.backend.models.entities.UserEntity;
 import com.mizerski.backend.models.mappers.UserMapper;
@@ -32,81 +31,94 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+    private final ExceptionMappingService exceptionMappingService;
 
     /**
      * Cria um novo usuário com tratamento de idempotência
      * 
      * @param request Dados do usuário a ser criado
-     * @return Dados do usuário criado
+     * @return Result com dados do usuário criado ou erro
      */
     @Transactional
     @Idempotent(expireAfterSeconds = 300, includeUserId = false) // 5 minutos para criação de usuário
-    public UserResponse createUser(CreateUserRequest request) {
+    public Result<UserResponse> createUser(CreateUserRequest request) {
+        try {
+            // Validação de email já cadastrado
+            if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+                return Result.error("DUPLICATE_EMAIL", "Email já cadastrado: " + request.getEmail());
+            }
 
-        // Validação de email já cadastrado
-        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
-            throw new ConflictException("Email já cadastrado: " + request.getEmail());
+            // Converte DTO para Domínio
+            Users userDomain = userMapper.fromCreateRequest(request);
+
+            if (!userDomain.isValidEmail()) {
+                return Result.error("INVALID_USER", "Email inválido");
+            }
+
+            // Converte Domínio para Entity para persistir
+            UserEntity userEntity = userMapper.toEntity(userDomain);
+
+            // Salva no banco
+            UserEntity savedEntity = userRepository.save(userEntity);
+            UserResponse response = userMapper.toResponse(savedEntity);
+
+            log.info("Usuário criado com sucesso: {}", savedEntity.getId());
+            return Result.success(response);
+
+        } catch (Exception e) {
+            log.error("Erro ao criar usuário: {}", e.getMessage(), e);
+            return exceptionMappingService.mapExceptionToResult(e);
         }
-
-        // Converte DTO para Domínio
-        Users userDomain = userMapper.fromCreateRequest(request);
-
-        if (!userDomain.isValidEmail()) {
-            throw new IllegalArgumentException("Email inválido");
-        }
-
-        // Converte Domínio para Entity para persistir
-        UserEntity userEntity = userMapper.toEntity(userDomain);
-
-        // Salva no banco
-        userRepository.save(userEntity);
-
-        return userMapper.toResponse(userEntity); // Entidade -> Domínio -> DTO
     }
 
     /**
      * Busca um usuário pelo ID
      * 
      * @param id ID do usuário
-     * @return Dados do usuário encontrado
+     * @return Result com dados do usuário encontrado ou erro
      */
     @Transactional(readOnly = true)
-    public UserResponse getUserById(String id) {
-        UserEntity userEntity = userRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Usuário não encontrado com ID: " + id));
+    public Result<UserResponse> getUserById(String id) {
+        try {
+            UserEntity userEntity = userRepository.findById(id).orElse(null);
 
-        return userMapper.toResponse(userEntity); // Entidade -> Domínio -> DTO
-    }
+            if (userEntity == null) {
+                return Result.error("USER_NOT_FOUND", "Usuário não encontrado com ID: " + id);
+            }
 
-    /**
-     * Busca todos os usuários
-     * 
-     * @return Lista de usuários
-     */
-    @Transactional(readOnly = true)
-    public List<UserResponse> getAllUsers() {
-        List<UserEntity> userEntities = userRepository.findAll();
+            UserResponse response = userMapper.toResponse(userEntity);
+            return Result.success(response);
 
-        return userEntities.stream()
-                .map(userMapper::toResponse)
-                .collect(Collectors.toList()); // Entidade -> DTO
+        } catch (Exception e) {
+            log.error("Erro ao buscar usuário por ID {}: {}", id, e.getMessage(), e);
+            return exceptionMappingService.mapExceptionToResult(e);
+        }
     }
 
     /**
      * Busca todos os usuários com paginação
      * 
      * @param pageable Configuração de paginação
-     * @return Resposta paginada de usuários
+     * @return Result com resposta paginada de usuários ou erro
      */
     @Transactional(readOnly = true)
-    public PagedResponse<UserResponse> getAllUsers(Pageable pageable) {
-        Page<UserEntity> page = userRepository.findAll(pageable);
+    public Result<PagedResponse<UserResponse>> getAllUsers(Pageable pageable) {
+        try {
+            Page<UserEntity> page = userRepository.findAll(pageable);
 
-        List<UserResponse> content = page.getContent().stream()
-                .map(userMapper::toResponse)
-                .collect(Collectors.toList());
+            List<UserResponse> content = page.getContent().stream()
+                    .map(userMapper::toResponse)
+                    .collect(Collectors.toList());
 
-        return new PagedResponse<>(content, page.getNumber(), page.getSize(), page.getTotalElements());
+            PagedResponse<UserResponse> response = new PagedResponse<>(
+                    content, page.getNumber(), page.getSize(), page.getTotalElements());
+
+            return Result.success(response);
+
+        } catch (Exception e) {
+            log.error("Erro ao buscar todos os usuários: {}", e.getMessage(), e);
+            return exceptionMappingService.mapExceptionToResult(e);
+        }
     }
 
     /**
@@ -114,16 +126,25 @@ public class UserService {
      * 
      * @param email    Email ou parte do email para busca
      * @param pageable Configuração de paginação
-     * @return Resposta paginada de usuários encontrados
+     * @return Result com resposta paginada de usuários encontrados ou erro
      */
     @Transactional(readOnly = true)
-    public PagedResponse<UserResponse> searchUsersByEmail(String email, Pageable pageable) {
-        Page<UserEntity> page = userRepository.findByEmailContainingIgnoreCase(email, pageable);
+    public Result<PagedResponse<UserResponse>> searchUsersByEmail(String email, Pageable pageable) {
+        try {
+            Page<UserEntity> page = userRepository.findByEmailContainingIgnoreCase(email, pageable);
 
-        List<UserResponse> content = page.getContent().stream()
-                .map(userMapper::toResponse)
-                .collect(Collectors.toList());
+            List<UserResponse> content = page.getContent().stream()
+                    .map(userMapper::toResponse)
+                    .collect(Collectors.toList());
 
-        return new PagedResponse<>(content, page.getNumber(), page.getSize(), page.getTotalElements());
+            PagedResponse<UserResponse> response = new PagedResponse<>(
+                    content, page.getNumber(), page.getSize(), page.getTotalElements());
+
+            return Result.success(response);
+
+        } catch (Exception e) {
+            log.error("Erro ao buscar usuários por email {}: {}", email, e.getMessage(), e);
+            return exceptionMappingService.mapExceptionToResult(e);
+        }
     }
 }

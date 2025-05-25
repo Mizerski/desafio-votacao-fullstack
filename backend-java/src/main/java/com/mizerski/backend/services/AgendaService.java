@@ -12,7 +12,6 @@ import com.mizerski.backend.annotations.Idempotent;
 import com.mizerski.backend.dtos.request.CreateAgendaRequest;
 import com.mizerski.backend.dtos.response.AgendaResponse;
 import com.mizerski.backend.dtos.response.PagedResponse;
-import com.mizerski.backend.exceptions.NotFoundException;
 import com.mizerski.backend.models.domains.Agendas;
 import com.mizerski.backend.models.domains.Result;
 import com.mizerski.backend.models.entities.AgendaEntity;
@@ -34,6 +33,7 @@ public class AgendaService {
     private final AgendaRepository agendaRepository;
     private final AgendaMapper agendaMapper;
     private final IdempotencyService idempotencyService;
+    private final ExceptionMappingService exceptionMappingService;
 
     /**
      * Cria uma nova pauta com tratamento de idempotência
@@ -90,7 +90,8 @@ public class AgendaService {
 
         } catch (Exception e) {
             log.error("Erro ao criar pauta: {}", e.getMessage(), e);
-            return Result.error("CREATION_ERROR", "Erro interno ao criar pauta");
+            // Usa o ExceptionMappingService para mapear a exceção
+            return exceptionMappingService.mapExceptionToResult(e);
         }
     }
 
@@ -98,14 +99,24 @@ public class AgendaService {
      * Busca uma pauta pelo ID
      * 
      * @param id ID da pauta
-     * @return Dados da pauta encontrada
+     * @return Result com dados da pauta encontrada ou erro
      */
     @Transactional(readOnly = true)
-    public AgendaResponse getAgendaById(String id) {
-        AgendaEntity agendaEntity = agendaRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Pauta não encontrada com ID: " + id));
+    public Result<AgendaResponse> getAgendaById(String id) {
+        try {
+            AgendaEntity agendaEntity = agendaRepository.findById(id).orElse(null);
 
-        return agendaMapper.toResponse(agendaEntity);
+            if (agendaEntity == null) {
+                return Result.error("AGENDA_NOT_FOUND", "Pauta não encontrada com ID: " + id);
+            }
+
+            AgendaResponse response = agendaMapper.toResponse(agendaEntity);
+            return Result.success(response);
+
+        } catch (Exception e) {
+            log.error("Erro ao buscar pauta por ID {}: {}", id, e.getMessage(), e);
+            return exceptionMappingService.mapExceptionToResult(e);
+        }
     }
 
     /**

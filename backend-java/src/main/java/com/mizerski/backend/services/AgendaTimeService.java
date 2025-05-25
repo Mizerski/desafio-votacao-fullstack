@@ -5,8 +5,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.mizerski.backend.annotations.Idempotent;
 import com.mizerski.backend.dtos.response.AgendaResponse;
-import com.mizerski.backend.exceptions.BadRequestException;
-import com.mizerski.backend.exceptions.NotFoundException;
+import com.mizerski.backend.models.domains.Result;
 import com.mizerski.backend.models.entities.AgendaEntity;
 import com.mizerski.backend.models.enums.AgendaResult;
 import com.mizerski.backend.models.enums.AgendaStatus;
@@ -27,29 +26,42 @@ public class AgendaTimeService {
 
     private final AgendaRepository agendaRepository;
     private final AgendaMapper agendaMapper;
+    private final ExceptionMappingService exceptionMappingService;
 
     /**
      * Inicia o timer de uma pauta com tratamento de idempotência
      * 
      * @param agendaId          ID da pauta a ser iniciada
      * @param durationInMinutes Tempo de duração da pauta em minutos
-     * @return Dados da pauta iniciada
+     * @return Result com dados da pauta iniciada ou erro
      */
     @Transactional
     @Idempotent(expireAfterSeconds = 180, includeUserId = false) // 3 minutos para início de pauta
-    public AgendaResponse startAgendaTimer(String agendaId, int durationInMinutes) {
-        AgendaEntity agendaEntity = agendaRepository.findById(agendaId)
-                .orElseThrow(() -> new NotFoundException("Pauta não encontrada com ID: " + agendaId));
+    public Result<AgendaResponse> startAgendaTimer(String agendaId, int durationInMinutes) {
+        try {
+            AgendaEntity agendaEntity = agendaRepository.findById(agendaId).orElse(null);
 
-        if (agendaEntity.getStatus() == AgendaStatus.CANCELLED || agendaEntity.getStatus() == AgendaStatus.FINISHED) {
-            throw new BadRequestException("A pauta não pode ser iniciada pois está cancelada ou encerrada");
+            if (agendaEntity == null) {
+                return Result.error("AGENDA_NOT_FOUND", "Pauta não encontrada com ID: " + agendaId);
+            }
+
+            if (agendaEntity.getStatus() == AgendaStatus.CANCELLED
+                    || agendaEntity.getStatus() == AgendaStatus.FINISHED) {
+                return Result.error("OPERATION_NOT_ALLOWED",
+                        "A pauta não pode ser iniciada pois está cancelada ou encerrada");
+            }
+
+            agendaEntity.setStatus(AgendaStatus.IN_PROGRESS);
+            AgendaEntity savedEntity = agendaRepository.save(agendaEntity);
+            AgendaResponse response = agendaMapper.toResponse(savedEntity);
+
+            log.info("Timer da pauta iniciado com sucesso: {}", agendaId);
+            return Result.success(response);
+
+        } catch (Exception e) {
+            log.error("Erro ao iniciar timer da pauta {}: {}", agendaId, e.getMessage(), e);
+            return exceptionMappingService.mapExceptionToResult(e);
         }
-
-        agendaEntity.setStatus(AgendaStatus.IN_PROGRESS);
-
-        agendaRepository.save(agendaEntity);
-
-        return agendaMapper.toResponse(agendaEntity);
     }
 
     /**
@@ -57,24 +69,35 @@ public class AgendaTimeService {
      *
      * @param agendaId ID da pauta a ser atualizada
      * @param voteType Tipo de voto a ser atualizado (YES/NO)
-     * @return Dados da pauta atualizada
+     * @return Result com dados da pauta atualizada ou erro
      */
     @Transactional
-    public AgendaResponse updateAgendaVotes(String agendaId, VoteType voteType) {
-        AgendaEntity agendaEntity = agendaRepository.findById(agendaId)
-                .orElseThrow(() -> new NotFoundException("Pauta não encontrada com ID: " + agendaId));
+    public Result<AgendaResponse> updateAgendaVotes(String agendaId, VoteType voteType) {
+        try {
+            AgendaEntity agendaEntity = agendaRepository.findById(agendaId).orElse(null);
 
-        agendaEntity.setTotalVotes(agendaEntity.getTotalVotes() + 1);
+            if (agendaEntity == null) {
+                return Result.error("AGENDA_NOT_FOUND", "Pauta não encontrada com ID: " + agendaId);
+            }
 
-        if (voteType == VoteType.YES) {
-            agendaEntity.setYesVotes(agendaEntity.getYesVotes() + 1);
-        } else if (voteType == VoteType.NO) {
-            agendaEntity.setNoVotes(agendaEntity.getNoVotes() + 1);
+            agendaEntity.setTotalVotes(agendaEntity.getTotalVotes() + 1);
+
+            if (voteType == VoteType.YES) {
+                agendaEntity.setYesVotes(agendaEntity.getYesVotes() + 1);
+            } else if (voteType == VoteType.NO) {
+                agendaEntity.setNoVotes(agendaEntity.getNoVotes() + 1);
+            }
+
+            AgendaEntity savedEntity = agendaRepository.save(agendaEntity);
+            AgendaResponse response = agendaMapper.toResponse(savedEntity);
+
+            log.info("Votos da pauta atualizados com sucesso: {}", agendaId);
+            return Result.success(response);
+
+        } catch (Exception e) {
+            log.error("Erro ao atualizar votos da pauta {}: {}", agendaId, e.getMessage(), e);
+            return exceptionMappingService.mapExceptionToResult(e);
         }
-
-        agendaRepository.save(agendaEntity);
-
-        return agendaMapper.toResponse(agendaEntity);
     }
 
     /**
@@ -82,27 +105,38 @@ public class AgendaTimeService {
      * tratamento de idempotência.
      *
      * @param agendaId ID da pauta a ser calculada
-     * @return Dados da pauta calculada
+     * @return Result com dados da pauta calculada ou erro
      */
     @Transactional
     @Idempotent(expireAfterSeconds = 3600, includeUserId = false) // 1 hora para finalização de pauta
-    public AgendaResponse calculateAgendaResult(String agendaId) {
-        AgendaEntity agendaEntity = agendaRepository.findById(agendaId)
-                .orElseThrow(() -> new NotFoundException("Pauta não encontrada com ID: " + agendaId));
+    public Result<AgendaResponse> calculateAgendaResult(String agendaId) {
+        try {
+            AgendaEntity agendaEntity = agendaRepository.findById(agendaId).orElse(null);
 
-        final int yes = agendaEntity.getYesVotes();
-        final int no = agendaEntity.getNoVotes();
-        final int total = agendaEntity.getTotalVotes();
+            if (agendaEntity == null) {
+                return Result.error("AGENDA_NOT_FOUND", "Pauta não encontrada com ID: " + agendaId);
+            }
 
-        AgendaResult result = calculateResult(yes, no, total);
+            final int yes = agendaEntity.getYesVotes();
+            final int no = agendaEntity.getNoVotes();
+            final int total = agendaEntity.getTotalVotes();
 
-        agendaEntity.setStatus(AgendaStatus.FINISHED);
-        agendaEntity.setResult(result);
-        agendaEntity.setIsActive(false);
+            AgendaResult result = calculateResult(yes, no, total);
 
-        agendaRepository.save(agendaEntity);
+            agendaEntity.setStatus(AgendaStatus.FINISHED);
+            agendaEntity.setResult(result);
+            agendaEntity.setIsActive(false);
 
-        return agendaMapper.toResponse(agendaEntity);
+            AgendaEntity savedEntity = agendaRepository.save(agendaEntity);
+            AgendaResponse response = agendaMapper.toResponse(savedEntity);
+
+            log.info("Resultado da pauta calculado com sucesso: {} - Resultado: {}", agendaId, result);
+            return Result.success(response);
+
+        } catch (Exception e) {
+            log.error("Erro ao calcular resultado da pauta {}: {}", agendaId, e.getMessage(), e);
+            return exceptionMappingService.mapExceptionToResult(e);
+        }
     }
 
     /**

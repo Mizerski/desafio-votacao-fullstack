@@ -16,7 +16,6 @@ import com.mizerski.backend.dtos.request.CreateVoteRequest;
 import com.mizerski.backend.dtos.response.PagedResponse;
 import com.mizerski.backend.dtos.response.VoteResponse;
 import com.mizerski.backend.models.domains.Result;
-import com.mizerski.backend.services.ExceptionMappingService;
 import com.mizerski.backend.services.IdempotencyService;
 import com.mizerski.backend.services.VoteService;
 
@@ -41,7 +40,6 @@ public class VoteController extends BaseController {
 
     private final VoteService voteService;
     private final IdempotencyService idempotencyService;
-    private final ExceptionMappingService exceptionMappingService;
 
     /**
      * Registra um novo voto com tratamento de idempotência
@@ -81,12 +79,9 @@ public class VoteController extends BaseController {
             @PathVariable @ValidUUID(message = "ID do usuário deve ser um UUID válido") String userId,
             @PathVariable @ValidUUID(message = "ID da agenda deve ser um UUID válido") String agendaId) {
 
-        try {
-            VoteResponse vote = voteService.getVoteByUserIdAndAgendaId(userId, agendaId);
-            return ResponseEntity.ok(vote);
-        } catch (Exception e) {
-            return ResponseEntity.notFound().build();
-        }
+        Result<VoteResponse> result = voteService.getVoteByUserIdAndAgendaId(userId, agendaId);
+
+        return handleGetOperation(result);
     }
 
     /**
@@ -100,10 +95,14 @@ public class VoteController extends BaseController {
             @RequestParam(defaultValue = "0") @Min(0) int page,
             @RequestParam(defaultValue = "20") @Min(1) @Max(100) int size) {
 
-        PagedResponse<VoteResponse> votes = voteService.getAllVotesByAgendaId(agendaId,
+        Result<PagedResponse<VoteResponse>> result = voteService.getAllVotesByAgendaId(agendaId,
                 org.springframework.data.domain.PageRequest.of(page, size));
 
-        return ResponseEntity.ok(votes);
+        if (result.isSuccess()) {
+            return ResponseEntity.ok(result.getValue().orElse(null));
+        }
+
+        return errorMappingService.mapErrorToResponse(result);
     }
 
     /**
@@ -117,10 +116,14 @@ public class VoteController extends BaseController {
             @RequestParam(defaultValue = "0") @Min(0) int page,
             @RequestParam(defaultValue = "20") @Min(1) @Max(100) int size) {
 
-        PagedResponse<VoteResponse> votes = voteService.getAllVotesByUserId(userId,
+        Result<PagedResponse<VoteResponse>> result = voteService.getAllVotesByUserId(userId,
                 org.springframework.data.domain.PageRequest.of(page, size));
 
-        return ResponseEntity.ok(votes);
+        if (result.isSuccess()) {
+            return ResponseEntity.ok(result.getValue().orElse(null));
+        }
+
+        return errorMappingService.mapErrorToResponse(result);
     }
 
     /**
@@ -142,18 +145,14 @@ public class VoteController extends BaseController {
             return cachedResult;
         }
 
-        try {
-            // Executa operação (validações são feitas pelo Bean Validation)
-            VoteResponse response = voteService.createVote(request);
+        // Executa operação usando Result Pattern
+        Result<VoteResponse> result = voteService.createVote(request);
 
-            // Armazena no cache
-            Result<VoteResponse> result = Result.success(response);
-            idempotencyService.storeResult(idempotencyKey, response, 300);
-
-            return result;
-
-        } catch (Exception e) {
-            return exceptionMappingService.mapExceptionToResult(e);
+        // Armazena no cache apenas se sucesso
+        if (result.isSuccess()) {
+            idempotencyService.storeResult(idempotencyKey, result.getValue().orElse(null), 300);
         }
+
+        return result;
     }
 }

@@ -20,6 +20,7 @@ import com.mizerski.backend.annotations.ValidUUID;
 import com.mizerski.backend.dtos.request.CreateUserRequest;
 import com.mizerski.backend.dtos.response.PagedResponse;
 import com.mizerski.backend.dtos.response.UserResponse;
+import com.mizerski.backend.models.domains.Result;
 import com.mizerski.backend.services.UserService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -63,22 +64,11 @@ public class UserController extends BaseController {
     public ResponseEntity<?> createUser(@RequestBody @Valid CreateUserRequest request) {
         logOperation("createUser", request.getEmail(), true);
 
-        try {
-            UserResponse response = userService.createUser(request);
-            logOperation("createUser", request.getEmail(), true);
+        Result<UserResponse> result = userService.createUser(request);
 
-            return handleCreateOperation(
-                    com.mizerski.backend.models.domains.Result.success(response),
-                    UserResponse::getId);
-        } catch (Exception e) {
-            logOperation("createUser", request.getEmail(), false);
+        logOperation("createUser", request.getEmail(), result.isSuccess());
 
-            // Mapeia exception para Result pattern
-            String errorCode = e.getMessage().contains("Email já cadastrado") ? "DUPLICATE_EMAIL" : "USER_ERROR";
-            var result = com.mizerski.backend.models.domains.Result.<UserResponse>error(errorCode, e.getMessage());
-
-            return handleCreateOperation(result, UserResponse::getId);
-        }
+        return handleCreateOperation(result, UserResponse::getId);
     }
 
     /**
@@ -99,15 +89,9 @@ public class UserController extends BaseController {
 
         logQuery("getUserById", id);
 
-        try {
-            UserResponse user = userService.getUserById(id);
+        Result<UserResponse> result = userService.getUserById(id);
 
-            return ResponseEntity.ok()
-                    .cacheControl(CacheControl.maxAge(5, TimeUnit.MINUTES))
-                    .body(user);
-        } catch (Exception e) {
-            return ResponseEntity.notFound().build();
-        }
+        return handleGetOperation(result);
     }
 
     /**
@@ -134,11 +118,15 @@ public class UserController extends BaseController {
         logQuery("getAllUsers", String.format("page=%d, size=%d", page, size));
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.valueOf(direction.toUpperCase()), sort));
-        PagedResponse<UserResponse> users = userService.getAllUsers(pageable);
+        Result<PagedResponse<UserResponse>> result = userService.getAllUsers(pageable);
 
-        return ResponseEntity.ok()
-                .cacheControl(CacheControl.maxAge(2, TimeUnit.MINUTES))
-                .body(users);
+        if (result.isSuccess()) {
+            return ResponseEntity.ok()
+                    .cacheControl(CacheControl.maxAge(2, TimeUnit.MINUTES))
+                    .body(result.getValue().orElse(null));
+        }
+
+        return errorMappingService.mapErrorToResponse(result);
     }
 
     /**
@@ -161,10 +149,14 @@ public class UserController extends BaseController {
         logQuery("searchUsersByEmail", String.format("email=%s, page=%d, size=%d", email, page, size));
 
         Pageable pageable = PageRequest.of(page, size);
-        PagedResponse<UserResponse> users = userService.searchUsersByEmail(email, pageable);
+        Result<PagedResponse<UserResponse>> result = userService.searchUsersByEmail(email, pageable);
 
-        return ResponseEntity.ok()
-                .cacheControl(CacheControl.maxAge(1, TimeUnit.MINUTES)) // Cache menor para buscas
-                .body(users);
+        if (result.isSuccess()) {
+            return ResponseEntity.ok()
+                    .cacheControl(CacheControl.maxAge(1, TimeUnit.MINUTES)) // Cache menor para buscas
+                    .body(result.getValue().orElse(null));
+        }
+
+        return errorMappingService.mapErrorToResponse(result);
     }
 }

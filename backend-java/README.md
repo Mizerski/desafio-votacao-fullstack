@@ -7,12 +7,14 @@ Sistema backend robusto para gerenciamento de votações desenvolvido como teste
 ### Características Principais
 
 - **Arquitetura Hexagonal** com separação clara de responsabilidades
-- **Sistema de Idempotência** customizado para evitar operações duplicadas
-- **Result Pattern** para tratamento de erros sem exceptions custosas
+- **Result Pattern** implementado em 100% dos serviços para tratamento de erros sem exceptions custosas
+- **Sistema de Idempotência** customizado com cache thread-safe para evitar operações duplicadas
+- **Tratamento de Erros Centralizado** com `ErrorMappingService` e `ExceptionMappingService`
+- **GlobalExceptionHandler Otimizado** para capturar apenas exceções inesperadas
 - **Versionamento de Banco** com Flyway para migrações controladas
 - **Mapeamento Automático** com MapStruct para conversões entre camadas
 - **Documentação Automática** da API com OpenAPI/Swagger
-- **Performance Otimizada** com cache em memória e transações granulares
+- **Performance Otimizada** com cache em memória, transações granulares e eliminação de stack traces desnecessários
 
 ---
 
