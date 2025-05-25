@@ -51,11 +51,7 @@ public class VoteService {
         }
 
         // Valida se o usuário já votou na pauta
-        VoteEntity voteEntity = voteRepository.findByUserIdAndAgendaId(request.getUserId(), request.getAgendaId())
-                .orElseThrow(() -> new NotFoundException("Voto não encontrado para o usuário: " + request.getUserId()
-                        + " e pauta: " + request.getAgendaId()));
-
-        if (voteEntity != null) {
+        if (voteRepository.findByUserIdAndAgendaId(request.getUserId(), request.getAgendaId()).isPresent()) {
             throw new BadRequestException("O usuário já votou na pauta");
         }
 
