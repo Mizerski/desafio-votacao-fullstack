@@ -3,6 +3,7 @@ package com.mizerski.backend.services;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.mizerski.backend.annotations.Idempotent;
 import com.mizerski.backend.dtos.response.AgendaResponse;
 import com.mizerski.backend.exceptions.BadRequestException;
 import com.mizerski.backend.exceptions.NotFoundException;
@@ -28,13 +29,14 @@ public class AgendaTimeService {
     private final AgendaMapper agendaMapper;
 
     /**
-     * Inicia o timer de uma pauta
+     * Inicia o timer de uma pauta com tratamento de idempotência
      * 
      * @param agendaId          ID da pauta a ser iniciada
      * @param durationInMinutes Tempo de duração da pauta em minutos
      * @return Dados da pauta iniciada
      */
     @Transactional
+    @Idempotent(expireAfterSeconds = 180, includeUserId = false) // 3 minutos para início de pauta
     public AgendaResponse startAgendaTimer(String agendaId, int durationInMinutes) {
         AgendaEntity agendaEntity = agendaRepository.findById(agendaId)
                 .orElseThrow(() -> new NotFoundException("Pauta não encontrada com ID: " + agendaId));
@@ -76,12 +78,14 @@ public class AgendaTimeService {
     }
 
     /**
-     * Calcula e atualiza o resultado final de uma pauta de forma eficiente.
+     * Calcula e atualiza o resultado final de uma pauta de forma eficiente com
+     * tratamento de idempotência.
      *
      * @param agendaId ID da pauta a ser calculada
      * @return Dados da pauta calculada
      */
     @Transactional
+    @Idempotent(expireAfterSeconds = 3600, includeUserId = false) // 1 hora para finalização de pauta
     public AgendaResponse calculateAgendaResult(String agendaId) {
         AgendaEntity agendaEntity = agendaRepository.findById(agendaId)
                 .orElseThrow(() -> new NotFoundException("Pauta não encontrada com ID: " + agendaId));

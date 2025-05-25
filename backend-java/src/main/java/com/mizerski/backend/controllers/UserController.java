@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.mizerski.backend.annotations.ValidUUID;
 import com.mizerski.backend.dtos.request.CreateUserRequest;
 import com.mizerski.backend.dtos.response.PagedResponse;
 import com.mizerski.backend.dtos.response.UserResponse;
@@ -35,7 +36,6 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * Controller responsável por gerenciar operações relacionadas a usuários.
- * Implementa padrões REST modernos com paginação, cache e validação robusta.
  */
 @RestController
 @RequestMapping("/api/v1/users")
@@ -95,7 +95,7 @@ public class UserController extends BaseController {
             @ApiResponse(responseCode = "404", description = "Usuário não encontrado")
     })
     public ResponseEntity<UserResponse> getUserById(
-            @PathVariable @Pattern(regexp = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$", message = "ID deve ser um UUID válido") String id) {
+            @PathVariable @ValidUUID(message = "ID deve ser um UUID válido") String id) {
 
         logQuery("getUserById", id);
 

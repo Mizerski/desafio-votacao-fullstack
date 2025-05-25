@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.mizerski.backend.annotations.Idempotent;
 import com.mizerski.backend.dtos.request.CreateUserRequest;
 import com.mizerski.backend.dtos.response.PagedResponse;
 import com.mizerski.backend.dtos.response.UserResponse;
@@ -33,12 +34,13 @@ public class UserService {
     private final UserMapper userMapper;
 
     /**
-     * Cria um novo usuário
+     * Cria um novo usuário com tratamento de idempotência
      * 
      * @param request Dados do usuário a ser criado
      * @return Dados do usuário criado
      */
     @Transactional
+    @Idempotent(expireAfterSeconds = 300, includeUserId = false) // 5 minutos para criação de usuário
     public UserResponse createUser(CreateUserRequest request) {
 
         // Validação de email já cadastrado

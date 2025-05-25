@@ -11,10 +11,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.mizerski.backend.annotations.Idempotent;
+import com.mizerski.backend.annotations.ValidUUID;
 import com.mizerski.backend.dtos.request.CreateVoteRequest;
 import com.mizerski.backend.dtos.response.PagedResponse;
 import com.mizerski.backend.dtos.response.VoteResponse;
 import com.mizerski.backend.models.domains.Result;
+import com.mizerski.backend.services.ExceptionMappingService;
 import com.mizerski.backend.services.IdempotencyService;
 import com.mizerski.backend.services.VoteService;
 
@@ -39,6 +41,7 @@ public class VoteController extends BaseController {
 
     private final VoteService voteService;
     private final IdempotencyService idempotencyService;
+    private final ExceptionMappingService exceptionMappingService;
 
     /**
      * Registra um novo voto com tratamento de idempotência
@@ -75,8 +78,8 @@ public class VoteController extends BaseController {
             @ApiResponse(responseCode = "404", description = "Voto não encontrado")
     })
     public ResponseEntity<VoteResponse> getVoteByUserAndAgenda(
-            @PathVariable String userId,
-            @PathVariable String agendaId) {
+            @PathVariable @ValidUUID(message = "ID do usuário deve ser um UUID válido") String userId,
+            @PathVariable @ValidUUID(message = "ID da agenda deve ser um UUID válido") String agendaId) {
 
         try {
             VoteResponse vote = voteService.getVoteByUserIdAndAgendaId(userId, agendaId);
@@ -93,7 +96,7 @@ public class VoteController extends BaseController {
     @Operation(summary = "Listar votos por pauta")
     @ApiResponse(responseCode = "200", description = "Lista de votos da pauta")
     public ResponseEntity<PagedResponse<VoteResponse>> getVotesByAgenda(
-            @PathVariable String agendaId,
+            @PathVariable @ValidUUID(message = "ID da agenda deve ser um UUID válido") String agendaId,
             @RequestParam(defaultValue = "0") @Min(0) int page,
             @RequestParam(defaultValue = "20") @Min(1) @Max(100) int size) {
 
@@ -110,7 +113,7 @@ public class VoteController extends BaseController {
     @Operation(summary = "Listar votos por usuário")
     @ApiResponse(responseCode = "200", description = "Lista de votos do usuário")
     public ResponseEntity<PagedResponse<VoteResponse>> getVotesByUser(
-            @PathVariable String userId,
+            @PathVariable @ValidUUID(message = "ID do usuário deve ser um UUID válido") String userId,
             @RequestParam(defaultValue = "0") @Min(0) int page,
             @RequestParam(defaultValue = "20") @Min(1) @Max(100) int size) {
 
@@ -140,20 +143,7 @@ public class VoteController extends BaseController {
         }
 
         try {
-            // Validações básicas
-            if (request.getUserId() == null || request.getUserId().trim().isEmpty()) {
-                return Result.error("INVALID_USER", "ID do usuário é obrigatório");
-            }
-
-            if (request.getAgendaId() == null || request.getAgendaId().trim().isEmpty()) {
-                return Result.error("INVALID_AGENDA", "ID da pauta é obrigatório");
-            }
-
-            if (request.getVoteType() == null) {
-                return Result.error("INVALID_VOTE_TYPE", "Tipo de voto é obrigatório");
-            }
-
-            // Executa operação
+            // Executa operação (validações são feitas pelo Bean Validation)
             VoteResponse response = voteService.createVote(request);
 
             // Armazena no cache
@@ -163,15 +153,7 @@ public class VoteController extends BaseController {
             return result;
 
         } catch (Exception e) {
-            // Mapeia exceptions
-            String errorCode = switch (e.getClass().getSimpleName()) {
-                case "NotFoundException" -> "AGENDA_NOT_FOUND";
-                case "BadRequestException" ->
-                    e.getMessage().contains("já votou") ? "USER_ALREADY_VOTED" : "AGENDA_NOT_OPEN";
-                default -> "VOTE_ERROR";
-            };
-
-            return Result.error(errorCode, e.getMessage());
+            return exceptionMappingService.mapExceptionToResult(e);
         }
     }
 }

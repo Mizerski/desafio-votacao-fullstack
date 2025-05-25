@@ -1,15 +1,13 @@
 package com.mizerski.backend.dtos.request;
 
+import com.mizerski.backend.models.enums.AgendaCategory;
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-
-import com.mizerski.backend.models.enums.AgendaCategory;
-import com.mizerski.backend.models.enums.AgendaStatus;
-import com.mizerski.backend.models.enums.AgendaResult;
-
+import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
 
 /**
  * DTO para criação de agenda
@@ -20,19 +18,15 @@ import lombok.AllArgsConstructor;
 public class CreateAgendaRequest {
 
     @NotBlank(message = "O título é obrigatório")
+    @Size(min = 3, max = 200, message = "O título deve ter entre 3 e 200 caracteres")
     private String title;
 
     @NotBlank(message = "A descrição é obrigatória")
+    @Size(min = 10, max = 1000, message = "A descrição deve ter entre 10 e 1000 caracteres")
     private String description;
 
     @NotNull(message = "A categoria é obrigatória")
     private AgendaCategory category;
-
-    @NotNull(message = "O status é obrigatório")
-    private AgendaStatus status;
-
-    @NotNull(message = "O resultado é obrigatório")
-    private AgendaResult result;
 
     private Integer totalVotes;
     private Integer yesVotes;

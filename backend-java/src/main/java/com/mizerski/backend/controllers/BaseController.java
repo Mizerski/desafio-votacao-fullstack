@@ -1,13 +1,13 @@
 package com.mizerski.backend.controllers;
 
 import java.net.URI;
-import java.time.LocalDateTime;
 
-import org.springframework.http.HttpStatus;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.mizerski.backend.models.domains.Result;
+import com.mizerski.backend.services.ErrorMappingService;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -16,6 +16,9 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public abstract class BaseController {
+
+    @Autowired
+    protected ErrorMappingService errorMappingService;
 
     /**
      * Cria ResponseEntity para operações de criação com Result pattern
@@ -39,7 +42,7 @@ public abstract class BaseController {
             }
         }
 
-        return handleErrorResponse(result);
+        return errorMappingService.mapErrorToResponse(result);
     }
 
     /**
@@ -53,8 +56,7 @@ public abstract class BaseController {
             return ResponseEntity.ok(result.getValue().orElse(null));
         }
 
-        // Para operações GET, erro geralmente é 404
-        return ResponseEntity.notFound().build();
+        return errorMappingService.mapErrorToResponse(result);
     }
 
     /**
@@ -68,7 +70,7 @@ public abstract class BaseController {
             return ResponseEntity.ok(result.getValue().orElse(null));
         }
 
-        return handleErrorResponse(result);
+        return errorMappingService.mapErrorToResponse(result);
     }
 
     /**
@@ -82,73 +84,25 @@ public abstract class BaseController {
     }
 
     /**
-     * Mapeia códigos de erro para status HTTP apropriados
+     * Cria ResponseEntity para operações de deleção com Result pattern
      * 
-     * @param result Resultado com erro
-     * @return ResponseEntity com status e body de erro
+     * @param result Resultado da operação de deleção
+     * @return ResponseEntity com status apropriado
      */
-    @SuppressWarnings("unchecked")
-    private <T> ResponseEntity<T> handleErrorResponse(Result<T> result) {
-        return result.getErrorCode()
-                .map(errorCode -> switch (errorCode) {
-                    case "INVALID_TITLE", "INVALID_DESCRIPTION", "INVALID_USER",
-                            "INVALID_AGENDA", "INVALID_VOTE_TYPE" ->
-                        (ResponseEntity<T>) ResponseEntity.badRequest()
-                                .body(createErrorResponse(errorCode,
-                                        result.getErrorMessage().orElse("Dados inválidos")));
-
-                    case "DUPLICATE_TITLE", "DUPLICATE_EMAIL", "USER_ALREADY_VOTED" ->
-                        (ResponseEntity<T>) ResponseEntity.status(HttpStatus.CONFLICT)
-                                .body(createErrorResponse(errorCode,
-                                        result.getErrorMessage().orElse("Recurso já existe")));
-
-                    case "AGENDA_NOT_FOUND", "USER_NOT_FOUND", "VOTE_NOT_FOUND" ->
-                        (ResponseEntity<T>) ResponseEntity.notFound()
-                                .build();
-
-                    case "AGENDA_NOT_OPEN", "OPERATION_NOT_ALLOWED" ->
-                        (ResponseEntity<T>) ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
-                                .body(createErrorResponse(errorCode,
-                                        result.getErrorMessage().orElse("Operação não permitida")));
-
-                    default ->
-                        (ResponseEntity<T>) ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                                .body(createErrorResponse(errorCode,
-                                        result.getErrorMessage().orElse("Erro interno do servidor")));
-                })
-                .orElse((ResponseEntity<T>) ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                        .body(createErrorResponse("UNKNOWN_ERROR", "Erro desconhecido")));
-    }
-
-    /**
-     * Cria uma resposta de erro padronizada
-     * 
-     * @param errorCode Código do erro
-     * @param message   Mensagem de erro
-     * @return Objeto de resposta de erro
-     */
-    @SuppressWarnings("unchecked")
-    private <T> T createErrorResponse(String errorCode, String message) {
-        return (T) new ErrorResponse(errorCode, message, LocalDateTime.now());
-    }
-
-    /**
-     * Classe para resposta de erro padronizada
-     */
-    public static class ErrorResponse {
-        public final String errorCode;
-        public final String message;
-        public final LocalDateTime timestamp;
-
-        public ErrorResponse(String errorCode, String message, LocalDateTime timestamp) {
-            this.errorCode = errorCode;
-            this.message = message;
-            this.timestamp = timestamp;
+    protected ResponseEntity<Void> handleDeleteOperation(Result<Void> result) {
+        if (result.isSuccess()) {
+            return ResponseEntity.noContent().build();
         }
+
+        return errorMappingService.mapErrorToResponse(result);
     }
 
     /**
      * Log simples para operações
+     * 
+     * @param operation  Nome da operação
+     * @param identifier Identificador do recurso
+     * @param success    Se a operação foi bem-sucedida
      */
     protected void logOperation(String operation, String identifier, boolean success) {
         if (success) {
@@ -166,5 +120,21 @@ public abstract class BaseController {
      */
     protected void logQuery(String operation, String identifier) {
         log.debug("Executando {} para: {}", operation, identifier);
+    }
+
+    /**
+     * Log para operações com Result pattern
+     * 
+     * @param operation  Nome da operação
+     * @param identifier Identificador do recurso
+     * @param result     Resultado da operação
+     */
+    protected <T> void logResult(String operation, String identifier, Result<T> result) {
+        if (result.isSuccess()) {
+            log.info("{} executado com sucesso: {}", operation, identifier);
+        } else {
+            log.warn("Falha em {}: {} - Erro: {}", operation, identifier,
+                    result.getErrorMessage().orElse("Erro desconhecido"));
+        }
     }
 }

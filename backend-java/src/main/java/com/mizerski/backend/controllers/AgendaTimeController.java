@@ -12,9 +12,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.mizerski.backend.annotations.ValidUUID;
 import com.mizerski.backend.dtos.response.AgendaResponse;
 import com.mizerski.backend.models.enums.VoteType;
 import com.mizerski.backend.services.AgendaTimeService;
+import com.mizerski.backend.services.ExceptionMappingService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -23,13 +25,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.Pattern;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
  * Controller responsável por gerenciar operações de tempo das pautas.
- * Implementa padrões REST modernos com validação robusta e cache inteligente.
  */
 @RestController
 @RequestMapping("/api/v1/agendas")
@@ -40,6 +40,7 @@ import lombok.extern.slf4j.Slf4j;
 public class AgendaTimeController extends BaseController {
 
     private final AgendaTimeService agendaTimeService;
+    private final ExceptionMappingService exceptionMappingService;
 
     /**
      * Inicia o timer de uma pauta
@@ -57,7 +58,7 @@ public class AgendaTimeController extends BaseController {
             @ApiResponse(responseCode = "422", description = "Pauta não pode ser iniciada (cancelada ou encerrada)")
     })
     public ResponseEntity<AgendaResponse> startAgendaTimer(
-            @PathVariable @Pattern(regexp = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$", message = "ID da pauta deve ser um UUID válido") String agendaId,
+            @PathVariable @ValidUUID(message = "ID da pauta deve ser um UUID válido") String agendaId,
 
             @RequestParam(defaultValue = "60") @Min(value = 1, message = "Duração deve ser pelo menos 1 minuto") @Max(value = 1440, message = "Duração máxima é 1440 minutos (24 horas)") @Parameter(description = "Duração da pauta em minutos (1-1440)") int durationInMinutes) {
 
@@ -71,17 +72,13 @@ public class AgendaTimeController extends BaseController {
             logOperation("startAgendaTimer", agendaId, true);
 
             return ResponseEntity.ok()
-                    .cacheControl(CacheControl.noCache()) // Não cachear operações de mudança de estado
+                    .cacheControl(CacheControl.noCache())
                     .body(response);
         } catch (Exception e) {
             logOperation("startAgendaTimer", agendaId, false);
 
-            // Mapeia exceptions para status HTTP apropriados
-            return switch (e.getClass().getSimpleName()) {
-                case "NotFoundException" -> ResponseEntity.notFound().build();
-                case "BadRequestException" -> ResponseEntity.unprocessableEntity().build();
-                default -> ResponseEntity.badRequest().build();
-            };
+            var result = exceptionMappingService.<AgendaResponse>mapExceptionToResult(e);
+            return errorMappingService.mapErrorToResponse(result);
         }
     }
 
@@ -100,7 +97,7 @@ public class AgendaTimeController extends BaseController {
             @ApiResponse(responseCode = "404", description = "Pauta não encontrada")
     })
     public ResponseEntity<AgendaResponse> updateAgendaVotes(
-            @PathVariable @Pattern(regexp = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$", message = "ID da pauta deve ser um UUID válido") String agendaId,
+            @PathVariable @ValidUUID(message = "ID da pauta deve ser um UUID válido") String agendaId,
 
             @RequestParam @Parameter(description = "Tipo de voto: YES ou NO") VoteType voteType) {
 
@@ -114,15 +111,13 @@ public class AgendaTimeController extends BaseController {
             logOperation("updateAgendaVotes", agendaId, true);
 
             return ResponseEntity.ok()
-                    .cacheControl(CacheControl.noCache()) // Não cachear dados dinâmicos
+                    .cacheControl(CacheControl.noCache())
                     .body(response);
         } catch (Exception e) {
             logOperation("updateAgendaVotes", agendaId, false);
 
-            return switch (e.getClass().getSimpleName()) {
-                case "NotFoundException" -> ResponseEntity.notFound().build();
-                default -> ResponseEntity.badRequest().build();
-            };
+            var result = exceptionMappingService.<AgendaResponse>mapExceptionToResult(e);
+            return errorMappingService.mapErrorToResponse(result);
         }
     }
 
@@ -141,7 +136,7 @@ public class AgendaTimeController extends BaseController {
             @ApiResponse(responseCode = "422", description = "Pauta não pode ser finalizada")
     })
     public ResponseEntity<AgendaResponse> finalizeAgenda(
-            @PathVariable @Pattern(regexp = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$", message = "ID da pauta deve ser um UUID válido") String agendaId) {
+            @PathVariable @ValidUUID(message = "ID da pauta deve ser um UUID válido") String agendaId) {
 
         logOperation("finalizeAgenda", agendaId, true);
 
@@ -153,16 +148,13 @@ public class AgendaTimeController extends BaseController {
                     true);
 
             return ResponseEntity.ok()
-                    .cacheControl(CacheControl.maxAge(1, TimeUnit.HOURS)) // Cache longo para resultados finais
+                    .cacheControl(CacheControl.maxAge(1, TimeUnit.HOURS))
                     .body(response);
         } catch (Exception e) {
             logOperation("finalizeAgenda", agendaId, false);
 
-            return switch (e.getClass().getSimpleName()) {
-                case "NotFoundException" -> ResponseEntity.notFound().build();
-                case "BadRequestException" -> ResponseEntity.unprocessableEntity().build();
-                default -> ResponseEntity.badRequest().build();
-            };
+            var result = exceptionMappingService.<AgendaResponse>mapExceptionToResult(e);
+            return errorMappingService.mapErrorToResponse(result);
         }
     }
 }

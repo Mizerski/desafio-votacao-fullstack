@@ -59,15 +59,6 @@ public class AgendaService {
         }
 
         try {
-            // Validações de negócio sem throws
-            if (request.getTitle() == null || request.getTitle().trim().isEmpty()) {
-                return Result.error("INVALID_TITLE", "Título da pauta é obrigatório");
-            }
-
-            if (request.getDescription() == null || request.getDescription().trim().isEmpty()) {
-                return Result.error("INVALID_DESCRIPTION", "Descrição da pauta é obrigatória");
-            }
-
             // Verifica se já existe pauta com mesmo título (evita duplicatas)
             if (agendaRepository.existsByTitle(request.getTitle())) {
                 return Result.error("DUPLICATE_TITLE", "Já existe uma pauta com este título");

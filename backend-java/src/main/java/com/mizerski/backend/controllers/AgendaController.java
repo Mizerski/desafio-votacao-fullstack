@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.mizerski.backend.annotations.ValidUUID;
 import com.mizerski.backend.dtos.request.CreateAgendaRequest;
 import com.mizerski.backend.dtos.response.AgendaResponse;
 import com.mizerski.backend.dtos.response.PagedResponse;
@@ -69,7 +70,8 @@ public class AgendaController extends BaseController {
             @ApiResponse(responseCode = "200", description = "Pauta encontrada"),
             @ApiResponse(responseCode = "404", description = "Pauta não encontrada")
     })
-    public ResponseEntity<AgendaResponse> getAgendaById(@PathVariable String id) {
+    public ResponseEntity<AgendaResponse> getAgendaById(
+            @PathVariable @ValidUUID(message = "ID deve ser um UUID válido") String id) {
         try {
             AgendaResponse agenda = agendaService.getAgendaById(id);
             return ResponseEntity.ok(agenda);
