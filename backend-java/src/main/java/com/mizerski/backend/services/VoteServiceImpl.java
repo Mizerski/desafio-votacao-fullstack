@@ -14,10 +14,13 @@ import com.mizerski.backend.dtos.response.VoteResponse;
 import com.mizerski.backend.models.domains.Result;
 import com.mizerski.backend.models.domains.Votes;
 import com.mizerski.backend.models.entities.AgendaEntity;
+import com.mizerski.backend.models.entities.UserEntity;
 import com.mizerski.backend.models.entities.VoteEntity;
 import com.mizerski.backend.models.enums.AgendaStatus;
+import com.mizerski.backend.models.enums.VoteType;
 import com.mizerski.backend.models.mappers.VoteMapper;
 import com.mizerski.backend.repositories.AgendaRepository;
+import com.mizerski.backend.repositories.UserRepository;
 import com.mizerski.backend.repositories.VoteRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -34,6 +37,7 @@ public class VoteServiceImpl implements VoteService {
     private final VoteRepository voteRepository;
     private final VoteMapper voteMapper;
     private final AgendaRepository agendaRepository;
+    private final UserRepository userRepository;
     private final ExceptionMappingService exceptionMappingService;
 
     /**
@@ -53,7 +57,7 @@ public class VoteServiceImpl implements VoteService {
                 return Result.error("AGENDA_NOT_FOUND", "Pauta não encontrada com ID: " + request.getAgendaId());
             }
 
-            if (agendaEntity.getStatus() != AgendaStatus.OPEN) {
+            if (agendaEntity.getStatus() != AgendaStatus.OPEN && agendaEntity.getStatus() != AgendaStatus.IN_PROGRESS) {
                 return Result.error("AGENDA_NOT_OPEN", "A pauta não está aberta para votação");
             }
 
@@ -62,17 +66,39 @@ public class VoteServiceImpl implements VoteService {
                 return Result.error("USER_ALREADY_VOTED", "O usuário já votou na pauta");
             }
 
+            // Busca o usuário
+            UserEntity userEntity = userRepository.findById(request.getUserId()).orElse(null);
+            if (userEntity == null) {
+                return Result.error("USER_NOT_FOUND", "Usuário não encontrado com ID: " + request.getUserId());
+            }
+
             // Converte DTO para Domínio
             Votes voteDomain = voteMapper.fromCreateRequest(request);
 
             // Converte Domínio para Entity para persistir
             VoteEntity voteEntityToSave = voteMapper.toEntity(voteDomain);
 
+            // Seta as entidades relacionadas
+            voteEntityToSave.setUser(userEntity);
+            voteEntityToSave.setAgenda(agendaEntity);
+
             // Salva no banco
             VoteEntity savedEntity = voteRepository.save(voteEntityToSave);
+
+            // Atualiza os contadores de votos na agenda diretamente
+            agendaEntity.setTotalVotes(agendaEntity.getTotalVotes() + 1);
+            if (request.getVoteType() == VoteType.YES) {
+                agendaEntity.setYesVotes(agendaEntity.getYesVotes() + 1);
+            } else if (request.getVoteType() == VoteType.NO) {
+                agendaEntity.setNoVotes(agendaEntity.getNoVotes() + 1);
+            }
+            agendaRepository.save(agendaEntity);
+
             VoteResponse response = voteMapper.toResponse(savedEntity);
 
-            log.info("Voto criado com sucesso: {}", savedEntity.getId());
+            log.info("Voto criado com sucesso: {} - Contadores atualizados: total={}, yes={}, no={}",
+                    savedEntity.getId(), agendaEntity.getTotalVotes(), agendaEntity.getYesVotes(),
+                    agendaEntity.getNoVotes());
             return Result.success(response);
 
         } catch (Exception e) {

@@ -22,6 +22,8 @@ public class Votes {
 
     private String id;
     private VoteType voteType;
+    private String userId;
+    private String agendaId;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 

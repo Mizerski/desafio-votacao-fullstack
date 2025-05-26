@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.mizerski.backend.annotations.Idempotent;
 import com.mizerski.backend.annotations.ValidUUID;
 import com.mizerski.backend.dtos.request.CreateVoteRequest;
 import com.mizerski.backend.dtos.response.PagedResponse;
@@ -55,10 +54,10 @@ public class VoteController extends BaseController {
     }
 
     /**
-     * Registra um novo voto com tratamento de idempotência
+     * Registra um novo voto com idempotência inteligente
      */
     @PostMapping
-    @Operation(summary = "Registrar voto", description = "Registra um voto em uma pauta com tratamento de idempotência")
+    @Operation(summary = "Registrar voto", description = "Registra um voto em uma pauta com idempotência inteligente")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Voto registrado com sucesso"),
             @ApiResponse(responseCode = "400", description = "Dados inválidos"),
@@ -70,7 +69,7 @@ public class VoteController extends BaseController {
                 String.format("user=%s, agenda=%s", request.getUserId(), request.getAgendaId()),
                 true);
 
-        Result<VoteResponse> result = createVoteWithIdempotency(request);
+        Result<VoteResponse> result = createVoteWithSmartIdempotency(request);
 
         logOperation("createVote",
                 String.format("user=%s, agenda=%s", request.getUserId(), request.getAgendaId()),
@@ -140,32 +139,41 @@ public class VoteController extends BaseController {
     }
 
     /**
-     * Cria um voto com tratamento de idempotência
+     * Cria um voto com idempotência inteligente
+     * 
+     * Estratégia:
+     * 1. Verifica se usuário já votou (validação de negócio)
+     * 2. Se já votou, retorna erro 409 (não usa cache)
+     * 3. Se não votou, usa idempotência para evitar requisições duplicadas
      */
-    @Idempotent(expireAfterSeconds = 300, includeUserId = true)
-    private Result<VoteResponse> createVoteWithIdempotency(CreateVoteRequest request) {
+    private Result<VoteResponse> createVoteWithSmartIdempotency(CreateVoteRequest request) {
 
-        // Gera chave de idempotência
+        Result<VoteResponse> existingVote = voteService.getVoteByUserIdAndAgendaId(
+                request.getUserId(),
+                request.getAgendaId());
+
+        if (existingVote.isSuccess()) {
+            return Result.error("USER_ALREADY_VOTED", "O usuário já votou na pauta");
+        }
+
         String idempotencyKey = idempotencyService.generateKey(
                 "createVote",
                 request.getUserId(),
                 request.getAgendaId(),
                 request.getVoteType().toString());
 
-        // Verifica cache
         Result<VoteResponse> cachedResult = idempotencyService.checkIdempotency(idempotencyKey);
         if (cachedResult.isSuccess()) {
             return cachedResult;
         }
 
-        // Executa operação usando Result Pattern
         Result<VoteResponse> result = voteService.createVote(request);
 
-        // Armazena no cache apenas se sucesso
         if (result.isSuccess()) {
             idempotencyService.storeResult(idempotencyKey, result.getValue().orElse(null), 300);
         }
 
         return result;
     }
+
 }

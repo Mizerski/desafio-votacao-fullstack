@@ -48,6 +48,11 @@ public class ExceptionMappingServiceImpl implements ExceptionMappingService {
         exceptionToErrorCodeMap.put("BusinessRuleException", "OPERATION_NOT_ALLOWED");
         exceptionToErrorCodeMap.put("AgendaNotOpenException", "AGENDA_NOT_OPEN");
 
+        // Exceções específicas de votação
+        exceptionToErrorCodeMap.put("VoteAlreadyExistsException", "USER_ALREADY_VOTED");
+        exceptionToErrorCodeMap.put("VotingNotAllowedException", "AGENDA_NOT_OPEN");
+        exceptionToErrorCodeMap.put("InvalidVoteTypeException", "INVALID_VOTE_TYPE");
+
         // Exceções JWT
         exceptionToErrorCodeMap.put("ExpiredJwtException", "TOKEN_EXPIRED");
         exceptionToErrorCodeMap.put("MalformedJwtException", "INVALID_TOKEN");
@@ -83,11 +88,22 @@ public class ExceptionMappingServiceImpl implements ExceptionMappingService {
             if (message != null && message.contains("já votou")) {
                 return "USER_ALREADY_VOTED";
             }
-            return "AGENDA_NOT_OPEN";
+            if (message != null && message.contains("não está aberta")) {
+                return "AGENDA_NOT_OPEN";
+            }
+            return "INVALID_DATA";
         }
 
-        // Tratamento específico para violações de constraint de banco
+        // Tratamento específico para violações de constraint de banco relacionadas a
+        // votos
         if ("DataIntegrityViolationException".equals(exceptionName) && message != null) {
+            // Violação de constraint única de voto (usuário + agenda)
+            if (message.contains("votes_user_id_agenda_id_key") ||
+                    message.contains("unique_user_agenda_vote")) {
+                return "USER_ALREADY_VOTED";
+            }
+
+            // Outras violações de constraint
             if (message.contains("email") || message.contains("UK_") && message.contains("email")) {
                 return "DUPLICATE_EMAIL";
             }
@@ -99,6 +115,18 @@ public class ExceptionMappingServiceImpl implements ExceptionMappingService {
 
         // Tratamento para violações de constraint de validação
         if ("ConstraintViolationException".equals(exceptionName) && message != null) {
+            // Validações específicas de voto
+            if (message.contains("voteType") || message.contains("vote_type")) {
+                return "INVALID_VOTE_TYPE";
+            }
+            if (message.contains("agendaId") || message.contains("agenda_id")) {
+                return "AGENDA_NOT_FOUND";
+            }
+            if (message.contains("userId") || message.contains("user_id")) {
+                return "USER_NOT_FOUND";
+            }
+
+            // Validações gerais de usuário
             if (message.contains("email")) {
                 return "INVALID_USER";
             }
@@ -109,6 +137,14 @@ public class ExceptionMappingServiceImpl implements ExceptionMappingService {
                 return "INVALID_USER";
             }
             return "INVALID_DATA";
+        }
+
+        // Tratamento específico para exceções de transação (pode indicar voto
+        // duplicado)
+        if ("TransactionSystemException".equals(exceptionName) && message != null) {
+            if (message.contains("já votou") || message.contains("duplicate")) {
+                return "USER_ALREADY_VOTED";
+            }
         }
 
         // Mapeamento padrão

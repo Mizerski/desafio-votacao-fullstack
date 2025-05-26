@@ -19,6 +19,8 @@ public interface VoteMapper {
     /**
      * Converte VoteEntity para Votes (domínio)
      */
+    @Mapping(target = "userId", source = "user.id")
+    @Mapping(target = "agendaId", source = "agenda.id")
     Votes toDomain(VoteEntity entity);
 
     /**
@@ -26,6 +28,8 @@ public interface VoteMapper {
      */
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "user", ignore = true)
+    @Mapping(target = "agenda", ignore = true)
     VoteEntity toEntity(Votes domain);
 
     /**

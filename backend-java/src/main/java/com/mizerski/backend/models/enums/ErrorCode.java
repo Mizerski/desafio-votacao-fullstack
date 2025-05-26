@@ -14,6 +14,7 @@ public enum ErrorCode {
     INVALID_USER(HttpStatus.BAD_REQUEST, "Usuário inválido"),
     INVALID_AGENDA(HttpStatus.BAD_REQUEST, "Agenda inválida"),
     INVALID_VOTE_TYPE(HttpStatus.BAD_REQUEST, "Tipo de voto inválido"),
+    INVALID_DATA(HttpStatus.BAD_REQUEST, "Dados inválidos"),
 
     // Erros de autenticação (401 - Unauthorized)
     INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "Token inválido"),
@@ -30,10 +31,12 @@ public enum ErrorCode {
     DUPLICATE_EMAIL(HttpStatus.CONFLICT, "Email já cadastrado"),
     DUPLICATE_DOCUMENT(HttpStatus.CONFLICT, "Documento já cadastrado"),
     USER_ALREADY_VOTED(HttpStatus.CONFLICT, "Usuário já votou nesta agenda"),
+    DUPLICATE_RESOURCE(HttpStatus.CONFLICT, "Recurso duplicado"),
 
     // Erros de regra de negócio (422 - Unprocessable Entity)
     AGENDA_NOT_OPEN(HttpStatus.UNPROCESSABLE_ENTITY, "Agenda não está aberta para votação"),
     OPERATION_NOT_ALLOWED(HttpStatus.UNPROCESSABLE_ENTITY, "Operação não permitida"),
+    INVALID_AGENDA_STATUS(HttpStatus.UNPROCESSABLE_ENTITY, "Status da agenda inválido para esta operação"),
 
     // Erros genéricos (500 - Internal Server Error)
     UNKNOWN_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Erro desconhecido"),
