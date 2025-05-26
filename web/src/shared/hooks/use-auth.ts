@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { api } from '@/lib/axios'
 import { User, AuthResponse } from '@/shared/types/user'
 import { storage } from '@/lib/storage'
+import { ApiError, ApiResponse } from '@wmmz/fn-api-client'
 
 /**
  * Hook personalizado para gerenciar a autenticação do usuário
@@ -34,17 +35,19 @@ export function useAuth() {
       setIsLoading(true)
       setError(null)
 
-      const response = await api.post<AuthResponse>('/authenticate', {
+      await api.post<AuthResponse>('/authenticate', {
         email,
         password,
+        onSuccess: (response: ApiResponse<AuthResponse>) => {
+          const { accessToken, refreshToken, ...userData } = response.data
+          storage.saveTokens(accessToken, refreshToken)
+          storage.saveUser(userData)
+          setUser(userData)
+        },
+        onError: (error: ApiError) => {
+          setError(error.message)
+        },
       })
-
-      const { accessToken, refreshToken, ...userData } = response.data
-
-      storage.saveTokens(accessToken, refreshToken)
-      storage.saveUser(userData)
-
-      setUser(userData)
 
       navigate('/home', { replace: true })
     } catch (err) {
