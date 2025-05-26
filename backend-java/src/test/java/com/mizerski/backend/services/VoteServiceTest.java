@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -37,6 +38,7 @@ import com.mizerski.backend.models.enums.AgendaStatus;
 import com.mizerski.backend.models.enums.VoteType;
 import com.mizerski.backend.models.mappers.VoteMapper;
 import com.mizerski.backend.repositories.AgendaRepository;
+import com.mizerski.backend.repositories.UserRepository;
 import com.mizerski.backend.repositories.VoteRepository;
 
 /**
@@ -59,6 +61,9 @@ class VoteServiceTest {
 
     @Mock
     private ExceptionMappingService exceptionMappingService;
+
+    @Mock
+    private UserRepository userRepository;
 
     @InjectMocks
     private VoteServiceImpl voteService;
@@ -144,6 +149,7 @@ class VoteServiceTest {
             when(agendaRepository.findById(createVoteRequest.getAgendaId())).thenReturn(Optional.of(agendaEntityOpen));
             when(voteRepository.findByUserIdAndAgendaId(createVoteRequest.getUserId(), createVoteRequest.getAgendaId()))
                     .thenReturn(Optional.empty());
+            when(userRepository.findById(createVoteRequest.getUserId())).thenReturn(Optional.of(userEntity));
             when(voteMapper.fromCreateRequest(createVoteRequest)).thenReturn(voteDomain);
             when(voteMapper.toEntity(voteDomain)).thenReturn(voteEntity);
             when(voteRepository.save(voteEntity)).thenReturn(voteEntity);
@@ -151,6 +157,7 @@ class VoteServiceTest {
 
             // Act
             Result<VoteResponse> result = voteService.createVote(createVoteRequest);
+            assertNotNull(result, "O resultado do serviço não deveria ser null");
 
             // Assert
             assertTrue(result.isSuccess());
@@ -162,6 +169,7 @@ class VoteServiceTest {
             verify(agendaRepository).findById(createVoteRequest.getAgendaId());
             verify(voteRepository).findByUserIdAndAgendaId(createVoteRequest.getUserId(),
                     createVoteRequest.getAgendaId());
+            verify(userRepository).findById(createVoteRequest.getUserId());
             verify(voteMapper).fromCreateRequest(createVoteRequest);
             verify(voteMapper).toEntity(voteDomain);
             verify(voteRepository).save(voteEntity);
@@ -242,6 +250,7 @@ class VoteServiceTest {
             when(agendaRepository.findById(createVoteRequest.getAgendaId())).thenReturn(Optional.of(agendaEntityOpen));
             when(voteRepository.findByUserIdAndAgendaId(createVoteRequest.getUserId(), createVoteRequest.getAgendaId()))
                     .thenReturn(Optional.empty());
+            when(userRepository.findById(createVoteRequest.getUserId())).thenReturn(Optional.of(userEntity));
             when(voteMapper.fromCreateRequest(createVoteRequest)).thenReturn(voteDomain);
             when(voteMapper.toEntity(voteDomain)).thenReturn(voteEntity);
             when(voteRepository.save(voteEntity)).thenThrow(new RuntimeException("Erro de banco de dados"));

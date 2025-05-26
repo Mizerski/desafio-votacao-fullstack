@@ -226,7 +226,7 @@ class AgendaServiceTest {
         }
 
         @Test
-        @DisplayName("Deve retornar erro quando ocorre exceção durante criação")
+        @DisplayName("x erro quando ocorre exceção durante criação")
         void deveRetornarErroQuandoOcorreExcecaoDuranteCriacao() {
             // Arrange
             RuntimeException exception = new RuntimeException("Erro de banco de dados");

@@ -35,7 +35,6 @@ public interface VoteMapper {
     /**
      * Converte Votes (domínio) para VoteResponse (DTO)
      */
-    @Mapping(target = "user", ignore = true)
     VoteResponse toResponse(Votes domain);
 
     /**
