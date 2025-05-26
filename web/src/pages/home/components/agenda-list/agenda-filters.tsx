@@ -3,7 +3,8 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Label } from '@/components/ui/label'
-import { AgendaStatus, AgendaCategory } from '@/shared/types/agenda'
+import {  AgendaCategory } from '@/shared/types/agenda'
+import { AgendaStatus } from '@/shared/types/agenda-status'
 
 interface AgendaFiltersProps {
   statusFilter: AgendaStatus

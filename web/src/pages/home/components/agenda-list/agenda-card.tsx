@@ -11,12 +11,10 @@ import {
 } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Agenda } from '@/shared/types/agenda'
-import { AgendaStatus, agendaStatusManager } from '@/shared/types/agenda-status'
+import { agendaStatusManager } from '@/shared/types/agenda-status'
 import { AgendaStatusBadge } from '../agenda-status-badge'
 import { useTimer } from '@/shared/hooks/use-timer'
 import { Progress } from '@/components/ui/progress'
-import { Badge } from '@/components/ui/badge'
-import { Separator } from '@/components/ui/separator'
 import { AgendaUtils } from '@/shared/types/agenda'
 
 interface AgendaCardProps {

@@ -12,7 +12,8 @@ import { AgendaFilters } from './agenda-filters'
 import { toast } from 'sonner'
 import { useTabsContext } from '../../contexts/tabs-context'
 import { useSelectedAgenda } from '../../contexts/selected-agenda-context'
-import { Agenda, AgendaCategory, AgendaStatus } from '@/shared/types/agenda'
+import { Agenda, AgendaCategory } from '@/shared/types/agenda'
+import { AgendaStatus } from '@/shared/types/agenda-status'
 import { Button } from '@/components/ui/button'
 
 /**
