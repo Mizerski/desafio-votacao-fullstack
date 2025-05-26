@@ -5,7 +5,6 @@ import { User } from '@/shared/types/user'
  */
 export const STORAGE_KEYS = {
   ACCESS_TOKEN: '@votacao:accessToken',
-  REFRESH_TOKEN: '@votacao:refreshToken',
   USER: '@votacao:user',
 } as const
 
@@ -47,11 +46,9 @@ export const storage = {
   /**
    * Salva os tokens no localStorage
    * @param accessToken - Token de acesso
-   * @param refreshToken - Token de refresh
    */
-  saveTokens: (accessToken: string, refreshToken: string) => {
+  saveTokens: (accessToken: string) => {
     localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, accessToken)
-    localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, refreshToken)
   },
 
   /**
@@ -60,13 +57,11 @@ export const storage = {
    */
   getTokens: () => {
     const accessToken = localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN)
-    const refreshToken = localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN)
 
-    if (!accessToken || !refreshToken) return null
+    if (!accessToken) return null
 
     return {
       accessToken,
-      refreshToken,
     }
   },
 
@@ -75,7 +70,6 @@ export const storage = {
    */
   removeTokens: () => {
     localStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN)
-    localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN)
   },
 
   /**
@@ -84,6 +78,5 @@ export const storage = {
   clear: () => {
     localStorage.removeItem(STORAGE_KEYS.USER)
     localStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN)
-    localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN)
   },
 }

@@ -15,6 +15,7 @@ import com.mizerski.backend.dtos.response.PagedResponse;
 import com.mizerski.backend.models.domains.Agendas;
 import com.mizerski.backend.models.domains.Result;
 import com.mizerski.backend.models.entities.AgendaEntity;
+import com.mizerski.backend.models.enums.AgendaResult;
 import com.mizerski.backend.models.enums.AgendaStatus;
 import com.mizerski.backend.models.mappers.AgendaMapper;
 import com.mizerski.backend.repositories.AgendaRepository;
@@ -73,6 +74,7 @@ public class AgendaServiceImpl implements AgendaService {
 
             // Define valores padrão
             agendaEntity.setStatus(AgendaStatus.DRAFT);
+            agendaEntity.setResult(AgendaResult.UNVOTED);
             agendaEntity.setTotalVotes(0);
             agendaEntity.setYesVotes(0);
             agendaEntity.setNoVotes(0);

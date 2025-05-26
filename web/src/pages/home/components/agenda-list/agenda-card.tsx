@@ -10,10 +10,12 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Agenda, AgendaStatus } from '@/shared/types/agenda'
+import { Agenda, AgendaStatus, AgendaUtils } from '@/shared/types/agenda'
 import { AgendaStatusBadge } from '../agenda-status-badge'
 import { useTimer } from '@/shared/hooks/use-timer'
 import { Progress } from '@/components/ui/progress'
+import { Badge } from '@/components/ui/badge'
+import { Separator } from '@/components/ui/separator'
 
 interface AgendaCardProps {
   agenda: Agenda
@@ -35,17 +37,21 @@ export function AgendaCard({
   onViewResults, 
   onVote 
 }: AgendaCardProps) {
-  const isSessionEnded = agenda.endDate && new Date(agenda.endDate) < new Date()
-  const { isRunning, formatTime, remainingTime } = useTimer(agenda.endDate)
+  const endDate = AgendaUtils.getEndDate(agenda)
+  const startDate = AgendaUtils.getStartDate(agenda)
+  const isSessionEnded = AgendaUtils.isSessionEnded(agenda)
+  const { isRunning, formatTime, remainingTime } = useTimer(endDate)
 
   const calculateProgress = () => {
-    if (!agenda.startDate || !agenda.endDate || !isRunning) return 100
+    if (!startDate || !endDate || !isRunning) return 100
 
-    const startTime = new Date(agenda.startDate).getTime()
-    const endTime = new Date(agenda.endDate).getTime()
-    const totalDuration = (endTime - startTime) / 1000
-    
-    return 100 - (remainingTime / totalDuration) * 100
+    const startTime = new Date(startDate).getTime()
+    const endTime = new Date(endDate).getTime()
+    const currentTime = new Date().getTime()
+    const totalDuration = endTime - startTime
+    const elapsed = currentTime - startTime
+
+    return Math.max(0, Math.min(100, (elapsed / totalDuration) * 100))
   }
 
   return (
@@ -86,13 +92,13 @@ export function AgendaCard({
               </div>
             )}
           </div>
-        ) : agenda.endDate ? (
+        ) : endDate ? (
           <div className="flex items-center text-sm text-muted-foreground">
             <Clock className="h-4 w-4 mr-1" />
             {isSessionEnded ? (
-              <span>Encerrada  {formatDistanceToNow(new Date(agenda.endDate), { locale: ptBR, addSuffix: true })}</span>
+              <span>Encerrada  {formatDistanceToNow(new Date(endDate), { locale: ptBR, addSuffix: true })}</span>
             ) : (
-              <span>Encerra em {formatDistanceToNow(new Date(agenda.endDate), { locale: ptBR, addSuffix: true })}</span>
+              <span>Encerra em {formatDistanceToNow(new Date(endDate), { locale: ptBR, addSuffix: true })}</span>
             )}
           </div>
         ) : (
@@ -103,7 +109,7 @@ export function AgendaCard({
         )}
       </CardContent>
       <CardFooter className="pt-2">
-        {!agenda.endDate ? (
+        {!endDate ? (
           <div className="flex gap-2 w-full">
             <Button
               variant="default"

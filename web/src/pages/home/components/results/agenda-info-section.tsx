@@ -1,4 +1,4 @@
-import { Agenda } from '@/shared/types/agenda'
+import { Agenda, AgendaUtils } from '@/shared/types/agenda'
 import { Tag, Clock, Timer } from 'lucide-react'
 import { formatDistance, format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
@@ -11,6 +11,9 @@ interface AgendaInfoSectionProps {
  * Componente que exibe as informações básicas de uma agenda
  */
 export function AgendaInfoSection({ agenda }: AgendaInfoSectionProps) {
+  const startDate = AgendaUtils.getStartDate(agenda)
+  const endDate = AgendaUtils.getEndDate(agenda)
+
   return (
     <div className="space-y-2">
       <h4 className="text-sm font-medium">Informações</h4>
@@ -23,25 +26,25 @@ export function AgendaInfoSection({ agenda }: AgendaInfoSectionProps) {
         </div>
         
         {/* Tempo da sessão */}
-        {agenda.startDate && agenda.endDate && (
+        {startDate && endDate && (
           <div className="flex items-center text-sm">
             <Timer className="h-4 w-4 mr-1 text-gray-400" />
             <span className="mr-1 text-muted-foreground">Duração:</span>
             {formatDistance(
-              new Date(agenda.startDate),
-              new Date(agenda.endDate),
+              new Date(startDate),
+              new Date(endDate),
               { locale: ptBR }
             )}
           </div>
         )}
         
         {/* Data de encerramento */}
-        {agenda.endDate && (
+        {endDate && (
           <div className="flex items-center text-sm">
             <Clock className="h-4 w-4 mr-1 text-gray-400" />
             <span className="mr-1 text-muted-foreground">Encerrada:</span>
             {format(
-              new Date(agenda.endDate), 
+              new Date(endDate), 
               "dd/MM/yyyy 'às' HH:mm", 
               { locale: ptBR }
             )}

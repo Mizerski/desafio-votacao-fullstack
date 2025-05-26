@@ -44,11 +44,11 @@ export function useAuth() {
       {
         onSuccess: (response: ApiResponse<AuthResponse>) => {
           const { token, user: userData } = response.data
-          storage.saveTokens(token, '')
+          storage.saveTokens(token)
           storage.saveUser(userData)
-          setUser(userData)
           setIsLoading(false)
           navigate('/home', { replace: true })
+          getUser()
         },
         onError: (error: ApiError) => {
           setError(error.message)
@@ -58,7 +58,16 @@ export function useAuth() {
       },
     )
   }
-
+  async function getUser() {
+    return await api.get<User>(AUTH.GET_USER, {
+      onSuccess: (response: ApiResponse<User>) => {
+        setUser(response.data)
+      },
+      onError: (error: ApiError) => {
+        console.error('Erro ao buscar usuário:', error)
+      },
+    })
+  }
   /**
    * Função para realizar o logout do usuário
    */

@@ -26,11 +26,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Loader2, CheckCircle } from 'lucide-react'
 import { toast, Toaster } from 'sonner'
 import { useAgenda } from '@/shared/hooks/use-agenda'
-import {
-  AgendaResult,
-  AgendaStatus,
-  AgendaCategory,
-} from '@/shared/types/agenda'
+import { AgendaCategory } from '@/shared/types/agenda'
 import {
   Select,
   SelectContent,
@@ -51,19 +47,6 @@ const formSchema = z.object({
     AgendaCategory.ESTATUTARIO,
     AgendaCategory.PROJETOS,
   ]),
-  status: z.enum([
-    AgendaStatus.OPEN,
-    AgendaStatus.IN_PROGRESS,
-    AgendaStatus.FINISHED,
-    AgendaStatus.CANCELLED,
-  ]),
-  result: z.enum([
-    AgendaResult.UNVOTED,
-    AgendaResult.APPROVED,
-    AgendaResult.REJECTED,
-  ]),
-  startDate: z.string().min(3, 'Data de início inválida!').max(255),
-  endDate: z.string().min(3, 'Data de término inválida!').max(255),
 })
 
 export function CreateAgenda() {
@@ -78,12 +61,6 @@ export function CreateAgenda() {
       title: '',
       description: '',
       category: AgendaCategory.OUTROS,
-      status: AgendaStatus.OPEN,
-      result: AgendaResult.UNVOTED,
-      startDate: new Date().toISOString(),
-      endDate: new Date(
-        new Date().getTime() + 1 * 60 * 60 * 1000,
-      ).toISOString(),
     },
   })
 
@@ -96,10 +73,6 @@ export function CreateAgenda() {
         title: form.getValues('title'),
         description: form.getValues('description'),
         category: form.getValues('category'),
-        status: form.getValues('status'),
-        result: form.getValues('result'),
-        startDate: form.getValues('startDate'),
-        endDate: form.getValues('endDate'),
       })
 
       setIsSuccess(true)
