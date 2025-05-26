@@ -23,5 +23,4 @@ public class Sessions {
     private LocalDateTime endTime;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    private Agendas agenda;
 }

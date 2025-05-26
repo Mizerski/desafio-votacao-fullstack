@@ -12,6 +12,7 @@ import com.mizerski.backend.annotations.Idempotent;
 import com.mizerski.backend.dtos.request.CreateAgendaRequest;
 import com.mizerski.backend.dtos.response.AgendaResponse;
 import com.mizerski.backend.dtos.response.PagedResponse;
+import com.mizerski.backend.dtos.response.SessionResponse;
 import com.mizerski.backend.models.domains.Agendas;
 import com.mizerski.backend.models.domains.Result;
 import com.mizerski.backend.models.entities.AgendaEntity;
@@ -35,6 +36,7 @@ public class AgendaServiceImpl implements AgendaService {
     private final AgendaMapper agendaMapper;
     private final IdempotencyService idempotencyService;
     private final ExceptionMappingService exceptionMappingService;
+    private final SessionService sessionService;
 
     /**
      * Cria uma nova pauta com tratamento de idempotência
@@ -224,5 +226,40 @@ public class AgendaServiceImpl implements AgendaService {
                 .collect(Collectors.toList());
 
         return new PagedResponse<>(content, page.getNumber(), page.getSize(), page.getTotalElements());
+    }
+
+    /**
+     * Inicia uma sessão de votação para uma agenda
+     * 
+     * @param agendaId          ID da agenda
+     * @param durationInMinutes Duração da sessão em minutos
+     * @return Result com dados da agenda atualizada
+     */
+    @Override
+    @Transactional
+    public Result<AgendaResponse> startAgendaSession(String agendaId, int durationInMinutes) {
+        try {
+            // Inicia a sessão através do SessionService
+            Result<SessionResponse> sessionResult = sessionService.startSession(agendaId, durationInMinutes);
+
+            if (!sessionResult.isSuccess()) {
+                return Result.error(
+                        sessionResult.getErrorCode().orElse("SESSION_ERROR"),
+                        sessionResult.getErrorMessage().orElse("Erro ao iniciar sessão"));
+            }
+
+            // Busca a agenda atualizada
+            Result<AgendaResponse> agendaResult = getAgendaById(agendaId);
+
+            if (agendaResult.isSuccess()) {
+                log.info("Sessão iniciada com sucesso para agenda {}", agendaId);
+            }
+
+            return agendaResult;
+
+        } catch (Exception e) {
+            log.error("Erro ao iniciar sessão para agenda {}: {}", agendaId, e.getMessage(), e);
+            return exceptionMappingService.mapExceptionToResult(e);
+        }
     }
 }

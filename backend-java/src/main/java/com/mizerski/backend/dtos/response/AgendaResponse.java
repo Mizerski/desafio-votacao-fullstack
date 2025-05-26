@@ -2,17 +2,15 @@ package com.mizerski.backend.dtos.response;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
-import com.mizerski.backend.models.entities.AgendaEntity;
-import com.mizerski.backend.models.enums.AgendaStatus;
 import com.mizerski.backend.models.enums.AgendaCategory;
 import com.mizerski.backend.models.enums.AgendaResult;
+import com.mizerski.backend.models.enums.AgendaStatus;
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * DTO para resposta de agenda
@@ -37,24 +35,6 @@ public class AgendaResponse {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private List<VoteResponse> votes;
+    private List<SessionResponse> sessions;
 
-    /*
-     * Converte um objeto Agenda para um objeto AgendaResponse
-     */
-    public static AgendaResponse fromEntity(AgendaEntity agenda) {
-        return AgendaResponse.builder()
-                .id(agenda.getId())
-                .title(agenda.getTitle())
-                .description(agenda.getDescription())
-                .status(agenda.getStatus())
-                .category(agenda.getCategory())
-                .result(agenda.getResult())
-                .totalVotes(agenda.getTotalVotes())
-                .yesVotes(agenda.getYesVotes())
-                .noVotes(agenda.getNoVotes())
-                .isActive(agenda.getIsActive())
-                .createdAt(agenda.getCreatedAt())
-                .votes(agenda.getVotes().stream().map(VoteResponse::fromEntity).collect(Collectors.toList()))
-                .build();
-    }
 }

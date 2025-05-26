@@ -1,7 +1,6 @@
 package com.mizerski.backend.models.domains;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 import com.mizerski.backend.models.enums.UserRole;
 
@@ -30,7 +29,6 @@ public class Users {
     private UserRole role = UserRole.USER;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    private List<Votes> votes;
 
     public boolean isValidEmail() {
         return email != null && email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
@@ -46,10 +44,6 @@ public class Users {
 
     public boolean isValidName() {
         return name != null && !name.trim().isEmpty();
-    }
-
-    public int getTotalVotes() {
-        return votes != null ? votes.size() : 0;
     }
 
 }

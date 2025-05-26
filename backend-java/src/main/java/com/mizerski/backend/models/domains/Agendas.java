@@ -1,7 +1,6 @@
 package com.mizerski.backend.models.domains;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 import com.mizerski.backend.models.enums.AgendaCategory;
 import com.mizerski.backend.models.enums.AgendaResult;
@@ -35,6 +34,4 @@ public class Agendas {
     private Boolean isActive;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    private List<Votes> votes;
-    private List<Sessions> sessions;
 }

@@ -2,8 +2,6 @@ package com.mizerski.backend.dtos.response;
 
 import java.time.LocalDateTime;
 
-import com.mizerski.backend.models.entities.UserEntity;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -25,16 +23,5 @@ public class UserResponse {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private Integer totalVotes;
-
-    public static UserResponse fromEntity(UserEntity userEntity) {
-        return UserResponse.builder()
-                .id(userEntity.getId())
-                .name(userEntity.getName())
-                .email(userEntity.getEmail())
-                .document(userEntity.getDocument())
-                .createdAt(userEntity.getCreatedAt())
-                .totalVotes(userEntity.getVotes() != null ? userEntity.getVotes().size() : 0)
-                .build();
-    }
 
 }

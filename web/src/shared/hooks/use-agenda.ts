@@ -127,7 +127,7 @@ export function useAgenda() {
     return new Promise<{ agenda: Agenda }>((resolve, reject) => {
       api.post(
         AGENDA.START_SESSION.replace(':agendaId', agendaId),
-        { durationInMinutes},
+        { durationInMinutes },
         {
           onSuccess: (response: ApiResponse<Agenda>) => {
             const updatedAgenda = response.data

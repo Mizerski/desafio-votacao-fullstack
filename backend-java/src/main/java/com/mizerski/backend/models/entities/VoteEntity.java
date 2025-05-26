@@ -35,13 +35,4 @@ public class VoteEntity extends BaseEntity {
     @JoinColumn(name = "agenda_id", nullable = false)
     private AgendaEntity agenda;
 
-    public com.mizerski.backend.models.domains.Votes toDomain() {
-        return com.mizerski.backend.models.domains.Votes.builder()
-                .id(this.getId())
-                .voteType(this.getVoteType())
-                .user(this.getUser().toDomain())
-                .agenda(this.getAgenda().toDomain())
-                .build();
-    }
-
 }

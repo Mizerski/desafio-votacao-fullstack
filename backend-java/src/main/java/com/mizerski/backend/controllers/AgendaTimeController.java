@@ -24,8 +24,6 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -43,43 +41,6 @@ public class AgendaTimeController extends BaseController {
         public AgendaTimeController(AgendaTimeService agendaTimeService, ErrorMappingService errorMappingService) {
                 super(errorMappingService);
                 this.agendaTimeService = agendaTimeService;
-        }
-
-        /**
-         * Inicia o timer de uma pauta
-         * 
-         * @param agendaId          ID da pauta a ser iniciada (UUID válido)
-         * @param durationInMinutes Duração da pauta em minutos (1-1440, padrão: 60)
-         * @return ResponseEntity com dados da pauta iniciada
-         */
-        @PostMapping("/{agendaId}/start")
-        @Operation(summary = "Iniciar pauta", description = "Inicia o timer de uma pauta e altera seu status para IN_PROGRESS")
-        @ApiResponses(value = {
-                        @ApiResponse(responseCode = "200", description = "Pauta iniciada com sucesso"),
-                        @ApiResponse(responseCode = "400", description = "ID inválido ou duração inválida"),
-                        @ApiResponse(responseCode = "404", description = "Pauta não encontrada"),
-                        @ApiResponse(responseCode = "422", description = "Pauta não pode ser iniciada (cancelada ou encerrada)")
-        })
-        public ResponseEntity<AgendaResponse> startAgendaTimer(
-                        @PathVariable @ValidUUID(message = "ID da pauta deve ser um UUID válido") String agendaId,
-
-                        @RequestParam(defaultValue = "60") @Min(value = 1, message = "Duração deve ser pelo menos 1 minuto") @Max(value = 1440, message = "Duração máxima é 1440 minutos (24 horas)") @Parameter(description = "Duração da pauta em minutos (1-1440)") int durationInMinutes) {
-
-                logOperation("startAgendaTimer",
-                                String.format("agenda=%s, duration=%d", agendaId, durationInMinutes),
-                                true);
-
-                Result<AgendaResponse> result = agendaTimeService.startAgendaTimer(agendaId, durationInMinutes);
-
-                logOperation("startAgendaTimer", agendaId, result.isSuccess());
-
-                if (result.isSuccess()) {
-                        return ResponseEntity.ok()
-                                        .cacheControl(CacheControl.noCache())
-                                        .body(result.getValue().orElse(null));
-                }
-
-                return errorMappingService.mapErrorToResponse(result);
         }
 
         /**

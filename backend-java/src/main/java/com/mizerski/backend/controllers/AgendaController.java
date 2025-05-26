@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.mizerski.backend.annotations.ValidUUID;
 import com.mizerski.backend.dtos.request.CreateAgendaRequest;
+import com.mizerski.backend.dtos.request.StartSessionRequest;
 import com.mizerski.backend.dtos.response.AgendaResponse;
 import com.mizerski.backend.dtos.response.PagedResponse;
 import com.mizerski.backend.models.domains.Result;
@@ -137,5 +138,29 @@ public class AgendaController extends BaseController {
         PagedResponse<AgendaResponse> agendas = agendaService.getAllAgendasFinished(pageable);
 
         return ResponseEntity.ok(agendas);
+    }
+
+    /**
+     * Inicia uma sessão de votação para uma agenda
+     */
+    @PostMapping("/{agendaId}/start")
+    @Operation(summary = "Iniciar sessão de votação", description = "Inicia uma nova sessão de votação para a agenda especificada")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Sessão iniciada com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Dados inválidos"),
+            @ApiResponse(responseCode = "404", description = "Agenda não encontrada"),
+            @ApiResponse(responseCode = "409", description = "Sessão já ativa ou agenda em status inválido")
+    })
+    public ResponseEntity<?> startAgendaSession(
+            @PathVariable @ValidUUID(message = "ID deve ser um UUID válido") String agendaId,
+            @RequestBody @Valid StartSessionRequest request) {
+
+        logOperation("startAgendaSession", agendaId, true);
+
+        Result<AgendaResponse> result = agendaService.startAgendaSession(agendaId, request.getDurationInMinutes());
+
+        logOperation("startAgendaSession", agendaId, result.isSuccess());
+
+        return handleUpdateOperation(result);
     }
 }

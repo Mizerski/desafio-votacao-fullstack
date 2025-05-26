@@ -38,7 +38,6 @@ public interface UserMapper {
      * Converte CreateUserRequest (DTO) para Users (domínio)
      */
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "votes", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     Users fromCreateRequest(CreateUserRequest request);

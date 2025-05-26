@@ -54,6 +54,117 @@ export function AgendaCard({
     return Math.max(0, Math.min(100, (elapsed / totalDuration) * 100))
   }
 
+  /**
+   * Renderiza a seção de informações de tempo da sessão
+   */
+  const renderSessionTimeInfo = () => {
+    // Se a agenda está em progresso e o timer está rodando
+    if (agenda.status === AgendaStatus.IN_PROGRESS && isRunning) {
+      return (
+        <div className="mt-2 space-y-1">
+          <div className="flex items-center justify-between text-sm">
+            <div className="flex items-center">
+              <Timer className="h-4 w-4 mr-1 text-orange-500" />
+              <span className="text-orange-500 font-medium">Votação em andamento</span>
+            </div>
+            <span className="font-mono font-bold text-orange-600">{formatTime()}</span>
+          </div>
+          <Progress value={calculateProgress()} className="h-1.5" />
+          {agenda.totalVotes !== undefined && (
+            <div className="flex justify-between text-xs text-muted-foreground mt-1">
+              <span>Total de votos: {agenda.totalVotes}</span>
+              <div className="flex gap-2">
+                <span className="text-green-600">Sim: {agenda.yesVotes || 0}</span>
+                <span className="text-red-600">Não: {agenda.noVotes || 0}</span>
+              </div>
+            </div>
+          )}
+        </div>
+      )
+    }
+
+    // Se tem data de fim mas a sessão já terminou
+    if (endDate && isSessionEnded) {
+      return (
+        <div className="flex items-center text-sm text-muted-foreground mt-2">
+          <Clock className="h-4 w-4 mr-1" />
+          <span>Encerrada {formatDistanceToNow(new Date(endDate), { locale: ptBR, addSuffix: true })}</span>
+        </div>
+      )
+    }
+
+    // Se tem data de fim mas ainda não terminou
+    if (endDate && !isSessionEnded) {
+      return (
+        <div className="flex items-center text-sm text-muted-foreground mt-2">
+          <Clock className="h-4 w-4 mr-1" />
+          <span>Encerra em {formatDistanceToNow(new Date(endDate), { locale: ptBR, addSuffix: true })}</span>
+        </div>
+      )
+    }
+
+    // Se não tem sessão iniciada
+    return (
+      <div className="flex items-center text-sm text-muted-foreground mt-2">
+        <Clock className="h-4 w-4 mr-1" />
+        <span>Sessão não iniciada</span>
+      </div>
+    )
+  }
+
+  /**
+   * Renderiza os botões de ação baseado no status da agenda
+   */
+  const renderActionButtons = () => {
+    // Se não tem sessão iniciada, mostra botões para iniciar
+    if (!endDate) {
+      return (
+        <div className="flex gap-2 w-full">
+          <Button
+            variant="default"
+            className="flex-1"
+            disabled={isProcessing}
+            onClick={() => onOpenSession(1)}
+          >
+            {isProcessing ? 'Iniciando...' : 'Abrir Sessão (1 min)'}
+          </Button>
+          <Button
+            variant="outline"
+            className="flex-1"
+            disabled={isProcessing}
+            onClick={() => onOpenSession(5)}
+          >
+            {isProcessing ? 'Iniciando...' : 'Abrir (5 min)'}
+          </Button>
+        </div>
+      )
+    }
+
+    // Se a sessão já terminou, mostra botão de resultados
+    if (isSessionEnded) {
+      return (
+        <Button
+          variant="secondary"
+          className="w-full"
+          onClick={onViewResults}
+        >
+          Ver Resultados
+        </Button>
+      )
+    }
+
+    // Se a sessão está ativa, mostra botão de votar
+    return (
+      <Button
+        variant="default"
+        className="w-full"
+        onClick={onVote}
+      >
+        Votar Agora
+      </Button>
+    )
+  }
+
   return (
     <Card className="overflow-hidden">
       <CardHeader className="pb-2">
@@ -72,79 +183,10 @@ export function AgendaCard({
           {agenda.category}
         </div>
         
-        {agenda.status === AgendaStatus.IN_PROGRESS && isRunning ? (
-          <div className="mt-2 space-y-1">
-            <div className="flex items-center justify-between text-sm">
-              <div className="flex items-center">
-                <Timer className="h-4 w-4 mr-1 text-orange-500" />
-                <span className="text-orange-500 font-medium">Votação em andamento</span>
-              </div>
-              <span className="font-mono font-bold">{formatTime()}</span>
-            </div>
-            <Progress value={calculateProgress()} className="h-1.5" />
-            {agenda.totalVotes !== undefined && (
-              <div className="flex justify-between text-xs text-muted-foreground mt-1">
-                <span>Total de votos: {agenda.totalVotes}</span>
-                <div className="flex gap-2">
-                  <span className="text-green-600">Sim: {agenda.yesVotes || 0}</span>
-                  <span className="text-red-600">Não: {agenda.noVotes || 0}</span>
-                </div>
-              </div>
-            )}
-          </div>
-        ) : endDate ? (
-          <div className="flex items-center text-sm text-muted-foreground">
-            <Clock className="h-4 w-4 mr-1" />
-            {isSessionEnded ? (
-              <span>Encerrada  {formatDistanceToNow(new Date(endDate), { locale: ptBR, addSuffix: true })}</span>
-            ) : (
-              <span>Encerra em {formatDistanceToNow(new Date(endDate), { locale: ptBR, addSuffix: true })}</span>
-            )}
-          </div>
-        ) : (
-          <div className="flex items-center text-sm text-muted-foreground">
-            <Clock className="h-4 w-4 mr-1" />
-            <span>Sessão não iniciada</span>
-          </div>
-        )}
+        {renderSessionTimeInfo()}
       </CardContent>
       <CardFooter className="pt-2">
-        {!endDate ? (
-          <div className="flex gap-2 w-full">
-            <Button
-              variant="default"
-              className="flex-1"
-              disabled={isProcessing}
-              onClick={() => onOpenSession(1)}
-            >
-              {isProcessing ? 'Iniciando...' : 'Abrir Sessão (1 min)'}
-            </Button>
-            <Button
-              variant="outline"
-              className="flex-1"
-              disabled={isProcessing}
-              onClick={() => onOpenSession(5)}
-            >
-              {isProcessing ? 'Iniciando...' : 'Abrir (5 min)'}
-            </Button>
-          </div>
-        ) : isSessionEnded ? (
-          <Button
-            variant="secondary"
-            className="w-full"
-            onClick={onViewResults}
-          >
-            Ver Resultados
-          </Button>
-        ) : (
-          <Button
-            variant="default"
-            className="w-full"
-            onClick={onVote}
-          >
-            Votar Agora
-          </Button>
-        )}
+        {renderActionButtons()}
       </CardFooter>
     </Card>
   )

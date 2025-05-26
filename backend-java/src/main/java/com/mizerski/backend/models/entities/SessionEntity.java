@@ -30,13 +30,4 @@ public class SessionEntity extends BaseEntity {
     @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "agenda_id", nullable = false)
     private AgendaEntity agenda;
-
-    public com.mizerski.backend.models.domains.Sessions toDomain() {
-        return com.mizerski.backend.models.domains.Sessions.builder()
-                .id(this.getId())
-                .startTime(this.getStartTime())
-                .endTime(this.getEndTime())
-                .agenda(this.getAgenda().toDomain())
-                .build();
-    }
 }

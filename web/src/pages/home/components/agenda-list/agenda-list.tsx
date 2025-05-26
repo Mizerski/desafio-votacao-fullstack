@@ -60,6 +60,19 @@ export function AgendaList() {
     return () => clearTimeout(loadingTimeout)
   }, [])
 
+  // Atualiza as agendas a cada 30 segundos para sincronizar com o servidor
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      try {
+        await getAllAgenda()
+      } catch (err) {
+        console.error('Erro ao atualizar agendas:', err)
+      }
+    }, 30000) // 30 segundos
+
+    return () => clearInterval(interval)
+  }, [getAllAgenda])
+
   async function handleOpenSession(agendaId: string, duration: number) {
     try {
       setProcessing(agendaId)

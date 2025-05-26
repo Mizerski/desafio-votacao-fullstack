@@ -3,7 +3,6 @@ package com.mizerski.backend.models.entities;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -144,18 +143,5 @@ public class UserEntity implements UserDetails {
     public void updateLastLogin() {
         this.lastLogin = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
-    }
-
-    public com.mizerski.backend.models.domains.Users toDomain() {
-        return com.mizerski.backend.models.domains.Users.builder()
-                .id(this.getId())
-                .createdAt(this.getCreatedAt())
-                .updatedAt(this.getUpdatedAt())
-                .name(this.getName())
-                .email(this.getEmail())
-                .document(this.getDocument())
-                .password(this.getPassword())
-                .votes(this.getVotes().stream().map(VoteEntity::toDomain).collect(Collectors.toList()))
-                .build();
     }
 }

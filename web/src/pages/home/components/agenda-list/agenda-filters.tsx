@@ -48,6 +48,7 @@ export function AgendaFilters({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value={AgendaStatus.ALL}>Todos os status</SelectItem>
+              <SelectItem value={AgendaStatus.DRAFT}>Rascunho</SelectItem>
               <SelectItem value={AgendaStatus.OPEN}>Não iniciadas</SelectItem>
               <SelectItem value={AgendaStatus.IN_PROGRESS}>Em andamento</SelectItem>
               <SelectItem value={AgendaStatus.FINISHED}>Encerradas</SelectItem>

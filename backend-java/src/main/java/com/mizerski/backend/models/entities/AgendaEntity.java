@@ -1,7 +1,6 @@
 package com.mizerski.backend.models.entities;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import com.mizerski.backend.models.enums.AgendaCategory;
 import com.mizerski.backend.models.enums.AgendaResult;
@@ -68,21 +67,4 @@ public class AgendaEntity extends BaseEntity {
 
     @OneToMany(mappedBy = "agenda", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<SessionEntity> sessions;
-
-    public com.mizerski.backend.models.domains.Agendas toDomain() {
-        return com.mizerski.backend.models.domains.Agendas.builder()
-                .id(this.getId())
-                .title(this.getTitle())
-                .description(this.getDescription())
-                .status(this.getStatus())
-                .category(this.getCategory())
-                .result(this.getResult())
-                .totalVotes(this.getTotalVotes())
-                .yesVotes(this.getYesVotes())
-                .noVotes(this.getNoVotes())
-                .isActive(this.getIsActive())
-                .votes(this.getVotes().stream().map(VoteEntity::toDomain).collect(Collectors.toList()))
-                .sessions(this.getSessions().stream().map(SessionEntity::toDomain).collect(Collectors.toList()))
-                .build();
-    }
 }

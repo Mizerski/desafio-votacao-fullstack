@@ -74,4 +74,13 @@ public interface AgendaService {
      * @return Resposta paginada de pautas encerradas
      */
     PagedResponse<AgendaResponse> getAllAgendasFinished(Pageable pageable);
+
+    /**
+     * Inicia uma sessão de votação para uma agenda
+     * 
+     * @param agendaId          ID da agenda
+     * @param durationInMinutes Duração da sessão em minutos
+     * @return Result com dados da agenda atualizada
+     */
+    Result<AgendaResponse> startAgendaSession(String agendaId, int durationInMinutes);
 }

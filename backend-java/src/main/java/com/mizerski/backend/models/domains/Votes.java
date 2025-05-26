@@ -24,7 +24,5 @@ public class Votes {
     private VoteType voteType;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    private Users user;
-    private Agendas agenda;
 
 }

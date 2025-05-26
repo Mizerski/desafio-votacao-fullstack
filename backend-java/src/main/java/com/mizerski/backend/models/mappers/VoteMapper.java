@@ -13,7 +13,7 @@ import com.mizerski.backend.models.entities.VoteEntity;
  * Mapper para conversão entre VoteEntity e Votes (domínio)
  * Utiliza MapStruct para gerar implementações automáticas.
  */
-@Mapper(componentModel = "spring", uses = { UserMapper.class }, unmappedTargetPolicy = ReportingPolicy.IGNORE)
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface VoteMapper {
 
     /**
@@ -40,8 +40,6 @@ public interface VoteMapper {
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "user", ignore = true)
-    @Mapping(target = "agenda", ignore = true)
     Votes fromCreateRequest(CreateVoteRequest request);
 
     /**
