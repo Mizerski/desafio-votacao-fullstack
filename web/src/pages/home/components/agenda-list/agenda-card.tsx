@@ -42,7 +42,7 @@ export function AgendaCard({
   const endDate = AgendaUtils.getEndDate(agenda)
   const startDate = AgendaUtils.getStartDate(agenda)
   const isSessionEnded = AgendaUtils.isSessionEnded(agenda)
-  const { isRunning, formatTime, remainingTime } = useTimer(endDate, onTimerEnd)
+  const { isRunning, formatTime } = useTimer(endDate, onTimerEnd)
 
   const calculateProgress = () => {
     if (!startDate || !endDate || !isRunning) return 100
@@ -139,8 +139,21 @@ export function AgendaCard({
    * Renderiza os botões de ação baseado no status da agenda
    */
   const renderActionButtons = () => {
-    // Se não tem sessão iniciada, mostra botões para iniciar
-    if (!endDate) {
+    // Se a agenda está finalizada, mostra botão de resultados
+    if (agenda.status === AgendaStatus.FINISHED) {
+      return (
+        <Button
+          variant="secondary"
+          className="w-full"
+          onClick={onViewResults}
+        >
+          Ver Resultados
+        </Button>
+      )
+    }
+
+    // Se a agenda está em OPEN ou DRAFT e não tem sessão iniciada, mostra botões para iniciar
+    if ((agenda.status === AgendaStatus.OPEN || agenda.status === AgendaStatus.DRAFT) && !isSessionEnded) {
       return (
         <div className="flex gap-2 w-full">
           <Button
