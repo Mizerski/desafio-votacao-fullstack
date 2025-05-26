@@ -6,7 +6,7 @@ import { VOTE } from '@/lib/endpoints'
 interface CreateVoteInput {
   userId: string
   agendaId: string
-  vote: AgendaVote
+  voteType: AgendaVote
 }
 
 export function useVote() {

@@ -18,7 +18,7 @@ export const AGENDA = {
 /**
  * @description Endpoint para gerenciar os votos
  * @example
- * const vote = await api.post(VOTE.CREATE, { agendaId, userId, vote })
+ * const vote = await api.post(VOTE.CREATE, { agendaId, userId, voteType })
  */
 export const VOTE = {
   CREATE: `${ENDPOINT_PREFIX}/v1/votes`,
@@ -36,7 +36,7 @@ export const AUTH = {
   LOGIN: `${ENDPOINT_PREFIX}/auth/login`,
   LOGOUT: `${ENDPOINT_PREFIX}/auth/logout`,
   REGISTER: `${ENDPOINT_PREFIX}/auth/register`,
-  GET_USER: `${ENDPOINT_PREFIX}/v1/auth/me`,
+  GET_USER: `${ENDPOINT_PREFIX}/auth/me`,
   REFRESH_TOKEN: `${ENDPOINT_PREFIX}/auth/refresh`,
   VALIDATE_TOKEN: `${ENDPOINT_PREFIX}/auth/validate`,
 } as const

@@ -87,7 +87,7 @@ export function AgendaVoting() {
       await createVote({
         userId,
         agendaId: selectedAgenda.id,
-        vote: voteOption,
+        voteType: voteOption,
       })
 
       toast.success('Voto registrado com sucesso!')
