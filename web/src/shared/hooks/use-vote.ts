@@ -1,6 +1,7 @@
-import { api } from '@/lib/axios'
+import { api } from '@/lib/api-client'
 import { AgendaVote } from '../types/agenda'
 import { ApiError, ApiResponse } from '@wmmz/fn-api-client'
+import { VOTE } from '@/lib/endpoints'
 
 interface CreateVoteInput {
   userId: string
@@ -15,7 +16,7 @@ export function useVote() {
    * @returns Dados do voto criado
    */
   async function createVote(vote: CreateVoteInput) {
-    await api.post('/votes', vote, {
+    await api.post(VOTE.CREATE, vote, {
       onSuccess: (response: ApiResponse<{ vote: AgendaVote }>) => {
         return response.data.vote
       },

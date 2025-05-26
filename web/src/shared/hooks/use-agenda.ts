@@ -1,4 +1,5 @@
-import { api } from '@/lib/axios'
+import { api } from '@/lib/api-client'
+import { AGENDA, VOTE } from '@/lib/endpoints'
 import { Agenda, AgendaVote } from '@/shared/types/agenda'
 import { ApiError, ApiResponse } from '@wmmz/fn-api-client'
 import { useState } from 'react'
@@ -19,7 +20,7 @@ export function useAgenda() {
     await api.get<{
       agendas: Agenda[]
       totalOnList: number
-    }>('/agenda', {
+    }>(AGENDA.GET_ALL, {
       onSuccess: (
         response: ApiResponse<{
           agendas: Agenda[]
@@ -44,7 +45,7 @@ export function useAgenda() {
     await api.get<{
       agendas: Agenda[]
       totalOnList: number
-    }>('/agenda/finished', {
+    }>(AGENDA.GET_ALL_FINISHED, {
       onSuccess: (
         response: ApiResponse<{
           agendas: Agenda[]
@@ -72,7 +73,7 @@ export function useAgenda() {
     await api.get<{
       agendas: Agenda[]
       totalOnList: number
-    }>('/agenda/open', {
+    }>(AGENDA.GET_ALL_OPEN, {
       onSuccess: (
         response: ApiResponse<{
           agendas: Agenda[]
@@ -96,7 +97,7 @@ export function useAgenda() {
    * @returns Dados da pauta criada
    */
   async function createAgenda(agenda: CreateAgendaInput) {
-    await api.post('/agenda', agenda, {
+    await api.post(AGENDA.CREATE, agenda, {
       onSuccess: (
         response: ApiResponse<{
           agenda: Agenda
@@ -122,7 +123,7 @@ export function useAgenda() {
     durationInMinutes: number,
   ) {
     await api.post(
-      '/agenda/start-session',
+      AGENDA.START_SESSION,
       {
         agendaId,
         durationInMinutes,
@@ -159,7 +160,7 @@ export function useAgenda() {
     vote: AgendaVote,
   ) {
     await api.post(
-      '/votes',
+      VOTE.CREATE,
       {
         agendaId,
         userId,

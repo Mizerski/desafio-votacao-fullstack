@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { api } from '@/lib/axios'
+import { api } from '@/lib/api-client'
 import { User, AuthResponse } from '@/shared/types/user'
 import { storage } from '@/lib/storage'
 import { ApiError, ApiResponse } from '@wmmz/fn-api-client'
+import { AUTH } from '@/lib/endpoints'
 
 /**
  * Hook personalizado para gerenciar a autenticação do usuário
@@ -35,7 +36,7 @@ export function useAuth() {
       setIsLoading(true)
       setError(null)
 
-      await api.post<AuthResponse>('/authenticate', {
+      await api.post<AuthResponse>(AUTH.LOGIN, {
         email,
         password,
         onSuccess: (response: ApiResponse<AuthResponse>) => {
