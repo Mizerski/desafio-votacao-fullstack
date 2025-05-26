@@ -135,4 +135,4 @@ http://localhost:5173
 
 ---
 
-Tudo pronto? Agora é só explorar, testar os fluxos e começar a colaborar com o projeto. Se tiver algo fora do lugar, geralmente é só dar uma olhada nas dependências ou no `.env`.
+Tudo pronto? Agora é só explorar, testar os fluxos e começar a colaborar com o projeto. 
