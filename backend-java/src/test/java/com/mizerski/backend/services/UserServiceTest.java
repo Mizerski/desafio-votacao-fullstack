@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import org.mockito.InjectMocks;
@@ -25,6 +26,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.mizerski.backend.dtos.request.CreateUserRequest;
 import com.mizerski.backend.dtos.response.PagedResponse;
@@ -52,6 +54,9 @@ class UserServiceTest {
 
     @Mock
     private ExceptionMappingService exceptionMappingService;
+
+    @Mock
+    private PasswordEncoder passwordEncoder;
 
     @InjectMocks
     private UserServiceImpl userService;
@@ -124,6 +129,7 @@ class UserServiceTest {
             when(userRepository.findByEmail(createUserRequest.getEmail())).thenReturn(Optional.empty());
             when(userRepository.findByDocument(createUserRequest.getDocument())).thenReturn(Optional.empty());
             when(userMapper.fromCreateRequest(createUserRequest)).thenReturn(userDomainValid);
+            when(passwordEncoder.encode(anyString())).thenReturn("senha-criptografada");
             when(userMapper.toEntity(userDomainValid)).thenReturn(userEntity);
             when(userRepository.save(userEntity)).thenReturn(userEntity);
             when(userMapper.toResponse(userEntity)).thenReturn(userResponse);
@@ -142,6 +148,7 @@ class UserServiceTest {
             verify(userRepository).findByEmail(createUserRequest.getEmail());
             verify(userRepository).findByDocument(createUserRequest.getDocument());
             verify(userMapper).fromCreateRequest(createUserRequest);
+            verify(passwordEncoder).encode("senha123456");
             verify(userMapper).toEntity(userDomainValid);
             verify(userRepository).save(userEntity);
             verify(userMapper).toResponse(userEntity);
@@ -222,6 +229,7 @@ class UserServiceTest {
             createUserRequest.setDocument(null);
             when(userRepository.findByEmail(createUserRequest.getEmail())).thenReturn(Optional.empty());
             when(userMapper.fromCreateRequest(createUserRequest)).thenReturn(userDomainValid);
+            when(passwordEncoder.encode(anyString())).thenReturn("senha-criptografada");
             when(userMapper.toEntity(userDomainValid)).thenReturn(userEntity);
             when(userRepository.save(userEntity)).thenReturn(userEntity);
             when(userMapper.toResponse(userEntity)).thenReturn(userResponse);
@@ -237,6 +245,7 @@ class UserServiceTest {
             verify(userRepository).findByEmail(createUserRequest.getEmail());
             verify(userRepository, never()).findByDocument(any()); // Não deve verificar documento quando é nulo
             verify(userMapper).fromCreateRequest(createUserRequest);
+            verify(passwordEncoder).encode("senha123456");
             verify(userRepository).save(userEntity);
         }
 
@@ -247,6 +256,7 @@ class UserServiceTest {
             createUserRequest.setDocument("   "); // String vazia com espaços
             when(userRepository.findByEmail(createUserRequest.getEmail())).thenReturn(Optional.empty());
             when(userMapper.fromCreateRequest(createUserRequest)).thenReturn(userDomainValid);
+            when(passwordEncoder.encode(anyString())).thenReturn("senha-criptografada");
             when(userMapper.toEntity(userDomainValid)).thenReturn(userEntity);
             when(userRepository.save(userEntity)).thenReturn(userEntity);
             when(userMapper.toResponse(userEntity)).thenReturn(userResponse);
@@ -262,6 +272,7 @@ class UserServiceTest {
             verify(userRepository).findByEmail(createUserRequest.getEmail());
             verify(userRepository, never()).findByDocument(any()); // Não deve verificar documento quando é vazio
             verify(userMapper).fromCreateRequest(createUserRequest);
+            verify(passwordEncoder).encode("senha123456");
             verify(userRepository).save(userEntity);
         }
 
@@ -697,6 +708,7 @@ class UserServiceTest {
             // Arrange
             when(userRepository.findByEmail(createUserRequest.getEmail())).thenReturn(Optional.empty());
             when(userMapper.fromCreateRequest(createUserRequest)).thenReturn(userDomainValid);
+            when(passwordEncoder.encode(anyString())).thenReturn("senha-criptografada");
             when(userMapper.toEntity(userDomainValid)).thenReturn(userEntity);
             when(userRepository.save(userEntity)).thenReturn(userEntity);
             when(userMapper.toResponse(userEntity)).thenReturn(userResponse);

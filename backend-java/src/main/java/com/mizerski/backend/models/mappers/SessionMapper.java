@@ -2,6 +2,7 @@ package com.mizerski.backend.models.mappers;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.ReportingPolicy;
 
 import com.mizerski.backend.dtos.request.CreateSessionRequest;
 import com.mizerski.backend.dtos.response.SessionResponse;
@@ -12,7 +13,8 @@ import com.mizerski.backend.models.entities.SessionEntity;
  * Mapper para conversão entre SessionEntity e Sessions (domínio)
  * Utiliza MapStruct para gerar implementações automáticas.
  */
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = { AgendaMapper.class,
+        UserMapper.class }, unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface SessionMapper {
 
     /**

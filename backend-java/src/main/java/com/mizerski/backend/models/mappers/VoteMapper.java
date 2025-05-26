@@ -2,6 +2,7 @@ package com.mizerski.backend.models.mappers;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.ReportingPolicy;
 
 import com.mizerski.backend.dtos.request.CreateVoteRequest;
 import com.mizerski.backend.dtos.response.VoteResponse;
@@ -12,7 +13,7 @@ import com.mizerski.backend.models.entities.VoteEntity;
  * Mapper para conversão entre VoteEntity e Votes (domínio)
  * Utiliza MapStruct para gerar implementações automáticas.
  */
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = { UserMapper.class }, unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface VoteMapper {
 
     /**

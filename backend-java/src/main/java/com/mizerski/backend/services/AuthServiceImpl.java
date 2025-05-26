@@ -4,17 +4,17 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.mizerski.backend.annotations.Idempotent;
+import com.mizerski.backend.dtos.request.CreateUserRequest;
 import com.mizerski.backend.dtos.request.LoginRequest;
 import com.mizerski.backend.dtos.request.RegisterRequest;
 import com.mizerski.backend.dtos.response.AuthResponse;
+import com.mizerski.backend.dtos.response.UserResponse;
 import com.mizerski.backend.models.domains.Result;
 import com.mizerski.backend.models.entities.UserEntity;
-import com.mizerski.backend.models.enums.UserRole;
 import com.mizerski.backend.repositories.UserRepository;
 
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * Implementação do serviço de autenticação.
  * Utiliza Result Pattern para tratamento de erros sem exceptions.
+ * Delega criação de usuários para UserService mantendo responsabilidade única.
  */
 @Service
 @Transactional
@@ -29,22 +30,22 @@ import lombok.extern.slf4j.Slf4j;
 public class AuthServiceImpl implements AuthService {
 
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
     private final ExceptionMappingService exceptionMappingService;
+    private final UserService userService;
 
     public AuthServiceImpl(
             UserRepository userRepository,
-            PasswordEncoder passwordEncoder,
             JwtService jwtService,
             AuthenticationManager authenticationManager,
-            ExceptionMappingService exceptionMappingService) {
+            ExceptionMappingService exceptionMappingService,
+            UserService userService) {
         this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
         this.authenticationManager = authenticationManager;
         this.exceptionMappingService = exceptionMappingService;
+        this.userService = userService;
     }
 
     /**
@@ -107,50 +108,54 @@ public class AuthServiceImpl implements AuthService {
     }
 
     /**
-     * Registra um novo usuário
+     * Registra um novo usuário delegando criação para UserService
      */
     @Override
     @Idempotent(expireAfterSeconds = 300, includeUserId = false)
     public Result<AuthResponse> register(RegisterRequest request) {
         try {
-            // Validações de negócio
-            if (userRepository.existsByEmail(request.getEmail())) {
-                return Result.error("DUPLICATE_EMAIL", "Email já cadastrado");
-            }
-
-            if (request.getDocument() != null && !request.getDocument().trim().isEmpty()) {
-                if (userRepository.existsByDocument(request.getDocument())) {
-                    return Result.error("DUPLICATE_DOCUMENT", "Documento já cadastrado");
-                }
-            }
-
-            // Cria o usuário
-            UserEntity user = UserEntity.builder()
+            // Converte RegisterRequest para CreateUserRequest
+            CreateUserRequest createUserRequest = CreateUserRequest.builder()
                     .name(request.getName())
                     .email(request.getEmail())
-                    .password(passwordEncoder.encode(request.getPassword()))
+                    .password(request.getPassword())
                     .document(request.getDocument())
-                    .role(request.getRole() != null ? request.getRole() : UserRole.USER)
-                    .isActive(true)
-                    .isEmailVerified(false)
-                    .isAccountNonExpired(true)
-                    .isAccountNonLocked(true)
-                    .isCredentialsNonExpired(true)
+                    .role(request.getRole())
                     .build();
 
-            UserEntity savedUser = userRepository.save(user);
+            // Delega criação do usuário para UserService
+            Result<UserResponse> userResult = userService.createUser(createUserRequest);
 
-            // Gera tokens
-            String accessToken = jwtService.generateToken(savedUser);
+            if (userResult.isError()) {
+                // Propaga o erro do UserService
+                return Result.error(userResult.getErrorCode().orElse("USER_CREATION_FAILED"),
+                        userResult.getErrorMessage().orElse("Erro ao criar usuário"));
+            }
 
-            // Cria resposta
-            AuthResponse.UserInfo userInfo = createUserInfo(savedUser);
+            UserResponse userResponse = userResult.getValue().orElse(null);
+            if (userResponse == null) {
+                return Result.error("USER_CREATION_FAILED", "Erro ao criar usuário");
+            }
+
+            // Busca o usuário criado para gerar token
+            UserEntity user = userRepository.findByEmailAndIsActiveTrue(userResponse.getEmail())
+                    .orElse(null);
+
+            if (user == null) {
+                return Result.error("USER_NOT_FOUND", "Usuário criado não encontrado");
+            }
+
+            // Gera tokens (responsabilidade do AuthService)
+            String accessToken = jwtService.generateToken(user);
+
+            // Cria resposta de autenticação
+            AuthResponse.UserInfo userInfo = createUserInfo(user);
             AuthResponse response = AuthResponse.createBearerToken(
                     accessToken,
                     jwtService.getExpirationTime(),
                     userInfo);
 
-            log.info("Usuário registrado com sucesso: {}", savedUser.getEmail());
+            log.info("Usuário registrado e autenticado com sucesso: {}", user.getEmail());
             return Result.success(response);
 
         } catch (Exception e) {

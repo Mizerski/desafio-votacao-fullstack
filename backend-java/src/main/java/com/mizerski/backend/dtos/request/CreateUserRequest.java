@@ -1,16 +1,20 @@
 package com.mizerski.backend.dtos.request;
 
-import lombok.Data;
+import com.mizerski.backend.models.enums.UserRole;
+
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
  * DTO para criação de usuário
  */
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class CreateUserRequest {
@@ -28,4 +32,7 @@ public class CreateUserRequest {
     private String password;
 
     private String document;
+
+    @Builder.Default
+    private UserRole role = UserRole.USER;
 }

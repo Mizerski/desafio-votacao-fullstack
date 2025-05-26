@@ -3,6 +3,8 @@ package com.mizerski.backend.models.domains;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.mizerski.backend.models.enums.UserRole;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -24,6 +26,8 @@ public class Users {
     private String email;
     private String document;
     private String password;
+    @Builder.Default
+    private UserRole role = UserRole.USER;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private List<Votes> votes;

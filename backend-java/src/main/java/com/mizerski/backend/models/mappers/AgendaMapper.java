@@ -2,6 +2,7 @@ package com.mizerski.backend.models.mappers;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.ReportingPolicy;
 
 import com.mizerski.backend.dtos.request.CreateAgendaRequest;
 import com.mizerski.backend.dtos.response.AgendaResponse;
@@ -12,7 +13,8 @@ import com.mizerski.backend.models.entities.AgendaEntity;
  * Mapper para conversão entre AgendaEntity e Agendas (domínio)
  * Utiliza MapStruct para gerar implementações automáticas.
  */
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = { VoteMapper.class,
+        UserMapper.class }, unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface AgendaMapper {
 
     /**

@@ -16,11 +16,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
+import com.mizerski.backend.dtos.request.CreateUserRequest;
 import com.mizerski.backend.dtos.request.LoginRequest;
 import com.mizerski.backend.dtos.request.RegisterRequest;
 import com.mizerski.backend.dtos.response.AuthResponse;
+import com.mizerski.backend.dtos.response.UserResponse;
 import com.mizerski.backend.models.domains.Result;
 import com.mizerski.backend.models.entities.UserEntity;
 import com.mizerski.backend.models.enums.UserRole;
@@ -37,9 +38,6 @@ class AuthServiceTest {
         private UserRepository userRepository;
 
         @Mock
-        private PasswordEncoder passwordEncoder;
-
-        @Mock
         private JwtService jwtService;
 
         @Mock
@@ -47,6 +45,9 @@ class AuthServiceTest {
 
         @Mock
         private ExceptionMappingService exceptionMappingService;
+
+        @Mock
+        private UserService userService;
 
         @Mock
         private Authentication authentication;
@@ -57,10 +58,10 @@ class AuthServiceTest {
         void setUp() {
                 authService = new AuthServiceImpl(
                                 userRepository,
-                                passwordEncoder,
                                 jwtService,
                                 authenticationManager,
-                                exceptionMappingService);
+                                exceptionMappingService,
+                                userService);
         }
 
         @Test
@@ -134,6 +135,12 @@ class AuthServiceTest {
                                 .role(UserRole.USER)
                                 .build();
 
+                UserResponse userResponse = UserResponse.builder()
+                                .id("new-user-id")
+                                .name("New User")
+                                .email("newuser@example.com")
+                                .build();
+
                 UserEntity savedUser = UserEntity.builder()
                                 .id("new-user-id")
                                 .name("New User")
@@ -143,9 +150,14 @@ class AuthServiceTest {
                                 .isActive(true)
                                 .build();
 
-                when(userRepository.existsByEmail(anyString())).thenReturn(false);
-                when(passwordEncoder.encode(anyString())).thenReturn("encoded-password");
-                when(userRepository.save(any(UserEntity.class))).thenReturn(savedUser);
+                // Mock UserService.createUser()
+                when(userService.createUser(any(CreateUserRequest.class)))
+                                .thenReturn(Result.success(userResponse));
+
+                // Mock busca do usuário criado
+                when(userRepository.findByEmailAndIsActiveTrue("newuser@example.com"))
+                                .thenReturn(Optional.of(savedUser));
+
                 when(jwtService.generateToken(any(UserEntity.class))).thenReturn("access-token");
                 when(jwtService.getExpirationTime()).thenReturn(86400L);
 
@@ -170,7 +182,10 @@ class AuthServiceTest {
                                 .password("password123")
                                 .build();
 
-                when(userRepository.existsByEmail(anyString())).thenReturn(true);
+                // Mock UserService retornando erro de email duplicado
+                when(userService.createUser(any(CreateUserRequest.class)))
+                                .thenReturn(Result.error("DUPLICATE_EMAIL",
+                                                "Email já cadastrado: existing@example.com"));
 
                 // Act
                 Result<AuthResponse> result = authService.register(request);
@@ -178,7 +193,7 @@ class AuthServiceTest {
                 // Assert
                 assertTrue(result.isError());
                 assertEquals("DUPLICATE_EMAIL", result.getErrorCode().orElse(null));
-                assertEquals("Email já cadastrado", result.getErrorMessage().orElse(null));
+                assertEquals("Email já cadastrado: existing@example.com", result.getErrorMessage().orElse(null));
         }
 
         @Test

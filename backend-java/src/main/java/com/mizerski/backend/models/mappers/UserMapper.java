@@ -2,6 +2,7 @@ package com.mizerski.backend.models.mappers;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.ReportingPolicy;
 
 import com.mizerski.backend.dtos.request.CreateUserRequest;
 import com.mizerski.backend.dtos.response.UserResponse;
@@ -12,7 +13,7 @@ import com.mizerski.backend.models.entities.UserEntity;
  * Mapper para conversão entre UserEntity, Users (domínio) e DTOs
  * Utiliza MapStruct para gerar implementações automáticas.
  */
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface UserMapper {
 
     /**

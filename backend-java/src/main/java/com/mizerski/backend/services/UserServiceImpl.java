@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,6 +33,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final ExceptionMappingService exceptionMappingService;
+    private final PasswordEncoder passwordEncoder;
 
     /**
      * Cria um novo usuário com tratamento de idempotência
@@ -72,8 +74,18 @@ public class UserServiceImpl implements UserService {
                 return Result.error("INVALID_USER", "Senha inválida");
             }
 
+            // Criptografa a senha antes de persistir
+            userDomain.setPassword(passwordEncoder.encode(userDomain.getPassword()));
+
             // Converte Domínio para Entity para persistir
             UserEntity userEntity = userMapper.toEntity(userDomain);
+
+            // Define valores padrão para campos de segurança
+            userEntity.setIsActive(true);
+            userEntity.setIsEmailVerified(false);
+            userEntity.setIsAccountNonExpired(true);
+            userEntity.setIsAccountNonLocked(true);
+            userEntity.setIsCredentialsNonExpired(true);
 
             // Salva no banco
             UserEntity savedEntity = userRepository.save(userEntity);
