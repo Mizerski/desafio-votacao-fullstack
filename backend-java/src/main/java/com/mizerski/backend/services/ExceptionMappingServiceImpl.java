@@ -47,6 +47,13 @@ public class ExceptionMappingServiceImpl implements ExceptionMappingService {
         // Exceções de regra de negócio
         exceptionToErrorCodeMap.put("BusinessRuleException", "OPERATION_NOT_ALLOWED");
         exceptionToErrorCodeMap.put("AgendaNotOpenException", "AGENDA_NOT_OPEN");
+
+        // Exceções JWT
+        exceptionToErrorCodeMap.put("ExpiredJwtException", "TOKEN_EXPIRED");
+        exceptionToErrorCodeMap.put("MalformedJwtException", "INVALID_TOKEN");
+        exceptionToErrorCodeMap.put("UnsupportedJwtException", "INVALID_TOKEN");
+        exceptionToErrorCodeMap.put("SecurityException", "INVALID_TOKEN");
+        exceptionToErrorCodeMap.put("JwtException", "INVALID_TOKEN");
     }
 
     /**

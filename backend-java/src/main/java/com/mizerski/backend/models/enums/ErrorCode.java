@@ -15,6 +15,11 @@ public enum ErrorCode {
     INVALID_AGENDA(HttpStatus.BAD_REQUEST, "Agenda inválida"),
     INVALID_VOTE_TYPE(HttpStatus.BAD_REQUEST, "Tipo de voto inválido"),
 
+    // Erros de autenticação (401 - Unauthorized)
+    INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "Token inválido"),
+    TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "Token expirado"),
+    INVALID_CREDENTIALS(HttpStatus.UNAUTHORIZED, "Credenciais inválidas"),
+
     // Erros de recurso não encontrado (404 - Not Found)
     AGENDA_NOT_FOUND(HttpStatus.NOT_FOUND, "Agenda não encontrada"),
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "Usuário não encontrado"),
@@ -109,5 +114,14 @@ public enum ErrorCode {
      */
     public boolean isConflict() {
         return httpStatus == HttpStatus.CONFLICT;
+    }
+
+    /**
+     * Verifica se o erro é de autenticação
+     * 
+     * @return true se for erro 401
+     */
+    public boolean isUnauthorized() {
+        return httpStatus == HttpStatus.UNAUTHORIZED;
     }
 }

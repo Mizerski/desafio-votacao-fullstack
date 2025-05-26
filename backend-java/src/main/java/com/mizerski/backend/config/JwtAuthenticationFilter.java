@@ -11,6 +11,7 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import com.mizerski.backend.services.JwtExceptionHandlerService;
 import com.mizerski.backend.services.JwtService;
 
 import jakarta.servlet.FilterChain;
@@ -29,10 +30,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
+    private final JwtExceptionHandlerService jwtExceptionHandlerService;
 
-    public JwtAuthenticationFilter(JwtService jwtService, UserDetailsService userDetailsService) {
+    public JwtAuthenticationFilter(
+            JwtService jwtService,
+            UserDetailsService userDetailsService,
+            JwtExceptionHandlerService jwtExceptionHandlerService) {
         this.jwtService = jwtService;
         this.userDetailsService = userDetailsService;
+        this.jwtExceptionHandlerService = jwtExceptionHandlerService;
     }
 
     @Override
@@ -49,7 +55,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         final String authHeader = request.getHeader("Authorization");
         final String jwt;
-        final String userEmail;
+        String userEmail = null;
 
         // Verifica se o header Authorization está presente e tem o formato correto
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
@@ -90,8 +96,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 }
             }
         } catch (Exception e) {
-            log.warn("Erro ao processar token JWT: {}", e.getMessage());
-            // Limpa o contexto de segurança em caso de erro
+            // Extrai email do usuário se possível para logs mais informativos
+            String extractedEmail = jwtExceptionHandlerService.extractUserEmailFromExpiredException(e);
+            if (extractedEmail == null) {
+                extractedEmail = userEmail;
+            }
+
+            // Delega tratamento para serviço especializado
+            jwtExceptionHandlerService.handleJwtException(e, extractedEmail);
+
+            // Limpa contexto de segurança em qualquer caso de erro
             SecurityContextHolder.clearContext();
         }
 
