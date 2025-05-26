@@ -1,55 +1,56 @@
 import { Badge } from '@/components/ui/badge'
-import { AgendaStatus } from '@/shared/types/agenda'
+import { AgendaStatus } from '@/shared/types/agenda-status'
 
 interface AgendaStatusBadgeProps {
   status: AgendaStatus
 }
 
 /**
- * Componente de badge para exibir o status da agenda
+ * Componente que exibe um badge com o status da agenda
  * @param props - Propriedades do componente
  * @returns Badge com o status da agenda
  */
 export function AgendaStatusBadge({ status }: AgendaStatusBadgeProps) {
-  if (status === AgendaStatus.DRAFT) {
-    return (
-      <Badge variant="secondary">
-        Rascunho
-      </Badge>
-    )
+  const getStatusConfig = (status: AgendaStatus): { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' } => {
+    switch (status) {
+      case AgendaStatus.DRAFT:
+        return {
+          label: 'Rascunho',
+          variant: 'outline'
+        }
+      case AgendaStatus.OPEN:
+        return {
+          label: 'Não iniciada',
+          variant: 'secondary'
+        }
+      case AgendaStatus.IN_PROGRESS:
+        return {
+          label: 'Em andamento',
+          variant: 'default'
+        }
+      case AgendaStatus.FINISHED:
+        return {
+          label: 'Encerrada',
+          variant: 'secondary'
+        }
+      case AgendaStatus.CANCELLED:
+        return {
+          label: 'Cancelada',
+          variant: 'destructive'
+        }
+      default:
+        return {
+          label: 'Status desconhecido',
+          variant: 'outline'
+        }
+    }
   }
 
-  if (status === AgendaStatus.OPEN) {
-    return (
-      <Badge variant="outline">
-        Não iniciada
-      </Badge>
-    )
-  }
+  const config = getStatusConfig(status)
 
-  if (status === AgendaStatus.IN_PROGRESS) {
-    return (
-      <Badge className="bg-green-100 text-green-600 border-green-400">
-        Em andamento
-      </Badge>
-    )
-  }
-
-  if (status === AgendaStatus.FINISHED) {
-    return (
-      <Badge className="bg-orange-100 text-orange-600 border-orange-400">
-        Encerrada
-      </Badge>
-    )
-  }
-
-  if (status === AgendaStatus.CANCELLED) {
-    return (
-      <Badge variant="destructive">
-        Cancelada
-      </Badge>
-    )
-  }
-
-  return null
+  return (
+    <Badge variant={config.variant}>
+      {config.label}
+    </Badge>
+  )
 } 

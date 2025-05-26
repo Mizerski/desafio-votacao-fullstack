@@ -15,7 +15,9 @@ INSERT INTO
         created_at,
         updated_at
     )
-VALUES (
+VALUES
+    -- Senha: acesso12345 (BCrypt hash)
+    (
         '550e8400-e29b-41d4-a716-446655440000',
         'Usuário Teste',
         'acesso@email.com',
@@ -43,36 +45,29 @@ INSERT INTO
         total_votes,
         yes_votes,
         no_votes,
-        is_active
+        is_active,
+        created_at,
+        updated_at
     )
 VALUES
-    -- Agendas em DRAFT
+    -- Agenda 1 - DRAFT
     (
         '660e8400-e29b-41d4-a716-446655440001',
-        'Implementação de Novo Sistema de Gestão',
-        'Proposta para implementação de um novo sistema de gestão integrada para melhorar a eficiência operacional.',
+        'Implementação de Sistema de Monitoramento',
+        'Proposta para implementação de câmeras e sistema de monitoramento nas áreas comuns.',
         'DRAFT',
         'PROJETOS',
         'UNVOTED',
         0,
         0,
         0,
-        true
+        true,
+        CURRENT_TIMESTAMP,
+        CURRENT_TIMESTAMP
     ),
+    -- Agenda 2 - DRAFT
     (
         '660e8400-e29b-41d4-a716-446655440002',
-        'Alteração no Horário de Funcionamento',
-        'Proposta de alteração do horário de funcionamento para melhor atendimento aos associados.',
-        'DRAFT',
-        'ADMINISTRATIVO',
-        'UNVOTED',
-        0,
-        0,
-        0,
-        true
-    ),
-    (
-        '660e8400-e29b-41d4-a716-446655440003',
         'Eleição para Representante do Conselho Fiscal',
         'Votação para escolha do novo representante do conselho fiscal para o biênio 2024-2025.',
         'DRAFT',
@@ -81,66 +76,37 @@ VALUES
         0,
         0,
         0,
-        true
+        true,
+        CURRENT_TIMESTAMP,
+        CURRENT_TIMESTAMP
     ),
+    -- Agenda 3 - FINISHED (Aprovada)
+    (
+        '660e8400-e29b-41d4-a716-446655440003',
+        'Implementação de Coleta Seletiva',
+        'Projeto para implementação de sistema de coleta seletiva no condomínio.',
+        'FINISHED',
+        'OUTROS',
+        'APPROVED',
+        35,
+        30,
+        5,
+        true,
+        CURRENT_TIMESTAMP,
+        CURRENT_TIMESTAMP
+    ),
+    -- Agenda 4 - FINISHED (Reprovada)
     (
         '660e8400-e29b-41d4-a716-446655440004',
-        'Revisão do Regimento Interno',
-        'Atualização do regimento interno com novas regras de convivência.',
-        'DRAFT',
-        'ESTATUTARIO',
-        'UNVOTED',
-        0,
-        0,
-        0,
-        true
-    ),
-    -- Agendas FINISHED
-    (
-        '660e8400-e29b-41d4-a716-446655440005',
-        'Reforma da Área de Lazer',
-        'Projeto de revitalização completa da área de lazer, incluindo playground e academia.',
+        'Festa de Fim de Ano',
+        'Aprovação do orçamento e planejamento da festa de fim de ano.',
         'FINISHED',
-        'PROJETOS',
-        'APPROVED',
-        15,
-        12,
-        3,
-        true
-    ),
-    (
-        '660e8400-e29b-41d4-a716-446655440006',
-        'Regulamento de Uso do Salão de Festas',
-        'Atualização das regras de utilização do salão de festas.',
-        'FINISHED',
-        'ADMINISTRATIVO',
+        'OUTROS',
         'REJECTED',
         20,
         8,
         12,
-        true
-    ),
-    (
-        '660e8400-e29b-41d4-a716-446655440007',
-        'Eleição Extraordinária - Conselho Consultivo',
-        'Eleição para preenchimento de vaga no conselho consultivo.',
-        'FINISHED',
-        'ELEICOES',
-        'APPROVED',
-        30,
-        25,
-        5,
-        true
-    ),
-    (
-        '660e8400-e29b-41d4-a716-446655440008',
-        'Alteração de Multas e Penalidades',
-        'Proposta de atualização das multas e penalidades do condomínio.',
-        'FINISHED',
-        'ESTATUTARIO',
-        'TIE',
-        40,
-        20,
-        20,
-        true
+        true,
+        CURRENT_TIMESTAMP,
+        CURRENT_TIMESTAMP
     );

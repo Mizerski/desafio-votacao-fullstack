@@ -1,3 +1,5 @@
+import { AgendaStatus } from './agenda-status'
+
 export interface Agenda {
   id: string
   title: string
@@ -38,15 +40,6 @@ export enum AgendaCategory {
   ESTATUTARIO = 'ESTATUTARIO',
   FINANCEIRO = 'FINANCEIRO',
   OUTROS = 'OUTROS',
-  ALL = 'ALL',
-}
-
-export enum AgendaStatus {
-  DRAFT = 'DRAFT',
-  OPEN = 'OPEN',
-  IN_PROGRESS = 'IN_PROGRESS',
-  FINISHED = 'FINISHED',
-  CANCELLED = 'CANCELLED',
   ALL = 'ALL',
 }
 

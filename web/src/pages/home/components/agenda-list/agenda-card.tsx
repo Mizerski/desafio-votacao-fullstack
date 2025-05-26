@@ -10,12 +10,14 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Agenda, AgendaStatus, AgendaUtils } from '@/shared/types/agenda'
+import { Agenda } from '@/shared/types/agenda'
+import { AgendaStatus, agendaStatusManager } from '@/shared/types/agenda-status'
 import { AgendaStatusBadge } from '../agenda-status-badge'
 import { useTimer } from '@/shared/hooks/use-timer'
 import { Progress } from '@/components/ui/progress'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
+import { AgendaUtils } from '@/shared/types/agenda'
 
 interface AgendaCardProps {
   agenda: Agenda
@@ -23,7 +25,7 @@ interface AgendaCardProps {
   onOpenSession: (duration: number) => void
   onViewResults: () => void
   onVote: () => void
-  onTimerEnd?: () => void // Callback quando timer termina
+  onTimerEnd?: () => void
 }
 
 /**
@@ -66,7 +68,7 @@ export function AgendaCard({
    */
   const renderSessionTimeInfo = () => {
     // Se a agenda está em progresso e o timer está rodando
-    if (agenda.status === AgendaStatus.IN_PROGRESS && isRunning) {
+    if (agendaStatusManager.isActive(agenda.status) && isRunning) {
       return (
         <div className="mt-2 space-y-1">
           <div className="flex items-center justify-between text-sm">
@@ -139,8 +141,8 @@ export function AgendaCard({
    * Renderiza os botões de ação baseado no status da agenda
    */
   const renderActionButtons = () => {
-    // Se a agenda está finalizada, mostra botão de resultados
-    if (agenda.status === AgendaStatus.FINISHED) {
+    // Se a agenda está finalizada ou a sessão terminou, mostra botão de resultados
+    if (agendaStatusManager.canViewResults(agenda.status) || isSessionEnded) {
       return (
         <Button
           variant="secondary"
@@ -152,8 +154,8 @@ export function AgendaCard({
       )
     }
 
-    // Se a agenda está em OPEN ou DRAFT e não tem sessão iniciada, mostra botões para iniciar
-    if ((agenda.status === AgendaStatus.OPEN || agenda.status === AgendaStatus.DRAFT) && !isSessionEnded) {
+    // Se a agenda pode iniciar sessão e não tem sessão iniciada
+    if (agendaStatusManager.canStartSession(agenda.status) && !isSessionEnded) {
       return (
         <div className="flex gap-2 w-full">
           <Button
@@ -176,20 +178,7 @@ export function AgendaCard({
       )
     }
 
-    // Se a sessão já terminou, mostra botão de resultados
-    if (isSessionEnded) {
-      return (
-        <Button
-          variant="secondary"
-          className="w-full"
-          onClick={onViewResults}
-        >
-          Ver Resultados
-        </Button>
-      )
-    }
-
-    // Se a sessão está ativa, mostra botão de votar
+    // Se o usuário já votou
     if (hasUserVoted) {
       return (
         <Button
@@ -202,38 +191,41 @@ export function AgendaCard({
       )
     }
 
-    return (
-      <Button
-        variant="default"
-        className="w-full"
-        onClick={onVote}
-      >
-        Votar Agora
-      </Button>
-    )
+    // Se a agenda está em votação e o usuário ainda não votou
+    if (agendaStatusManager.canVote(agenda.status) && !hasUserVoted) {
+      return (
+        <Button
+          variant="default"
+          className="w-full"
+          onClick={onVote}
+        >
+          Votar
+        </Button>
+      )
+    }
+
+    return null
   }
 
   return (
-    <Card className="overflow-hidden">
-      <CardHeader className="pb-2">
-        <div className="flex justify-between items-start">
-          <CardTitle className="text-lg">{agenda.title}</CardTitle>
+    <Card className="w-full">
+      <CardHeader>
+        <div className="flex items-start justify-between">
+          <div className="space-y-1">
+            <CardTitle>{agenda.title}</CardTitle>
+            <CardDescription>{agenda.description}</CardDescription>
+          </div>
           <AgendaStatusBadge status={agenda.status} />
         </div>
-        <CardDescription className="line-clamp-2">
-          {agenda.description}
-        </CardDescription>
       </CardHeader>
-      <CardContent className="pb-2">
-        <div className="flex items-center text-sm">
-          <Tag className="h-4 w-4 mr-1" />
-          <span className="mr-2">Categoria:</span>
-          {agenda.category}
+      <CardContent>
+        <div className="flex items-center space-x-1">
+          <Tag className="h-4 w-4" />
+          <span className="text-sm text-muted-foreground">{agenda.category}</span>
         </div>
-        
         {renderSessionTimeInfo()}
       </CardContent>
-      <CardFooter className="pt-2">
+      <CardFooter>
         {renderActionButtons()}
       </CardFooter>
     </Card>

@@ -1,85 +1,88 @@
-# Desafio Votação Fullstack
+# Sistema de Votação - Fullstack
 
-Sistema completo de votação digital com backend robusto e frontend moderno. Ideal para assembleias, conselhos ou qualquer processo de votação estruturado.
+Sistema completo para gerenciamento de votações desenvolvido como teste técnico. Implementa arquitetura limpa, padrões de design modernos e otimizações de performance avançadas.
 
-## O que temos por aqui?
+## 🚀 Começando
 
-Este projeto é dividido em duas partes principais:
+### Pré-requisitos
 
-### [Backend](/backend)
-
-API completa construída com:
-- **Fastify** para rotas rápidas e eficientes
-- **Prisma** como ORM para PostgreSQL
-- **JWT** para autenticação segura
-- **Zod** para validação de dados
-- **TypeScript** para tipagem forte
-
-[Ver detalhes completos do Backend →](/backend/README.md)
-
-### [Frontend](/web)
-
-Interface web moderna desenvolvida com:
-- **React 19** com hooks customizados
-- **TypeScript** para desenvolvimento seguro
-- **React Hook Form + Zod** para validação de formulários
-- **TailwindCSS** para UI responsiva
-- **React Router** para navegação fluida
-
-[Ver detalhes completos do Frontend →](/web/README.md)
-
-## Arquitetura geral
-
-O sistema segue uma arquitetura cliente-servidor com comunicação via API REST:
-
-```
-┌─────────────┐      HTTP/REST      ┌─────────────┐
-│             │ <---------------->  │             │
-│  Frontend   │                     │  Backend    │
-│  (React)    │ ------------------> │  (Fastify)  │
-│             │    JSON/JWT Auth    │             │
-└─────────────┘                     └─────────────┘
-                                          │
-                                          │ Prisma ORM
-                                          ▼
-                                    ┌─────────────┐
-                                    │             │
-                                    │ PostgreSQL  │
-                                    │             │
-                                    └─────────────┘
+```bash
+# Versões mínimas requeridas
+java --version    # OpenJDK 17+
+mvn --version     # Maven 3.8+
+docker --version  # Docker 20+
+node --version    # Node.js 18+
 ```
 
-## Fluxos principais
+### 🐳 Rodando com Docker
 
-1. **Autenticação:** Cadastro e login de usuários com JWT
-2. **Gestão de pautas:** Criação e visualização de pautas para votação
-3. **Processo de votação:** Abertura de sessão, votação (SIM/NÃO) e contabilização
-4. **Resultados:** Visualização de resultados em tempo real e histórico
+1. Clone o repositório
+```bash
+git clone [url-do-repositorio]
+cd desafio-votacao-fullstack
+```
 
-## Começando
+2. Inicie os containers
+```bash
+docker-compose up -d
+```
 
-Cada projeto (backend e frontend) tem seu próprio guia de instalação e execução.
+3. Verifique se os serviços estão rodando
+```bash
+docker-compose ps
+```
 
-Para rodar o projeto completo:
+### 📝 Criando sua Conta
 
-1. Primeiro, configure e inicie o [backend](/backend/README.md)
-2. Em seguida, configure e inicie o [frontend](/web/README.md)
+1. Acesse o Swagger UI em: http://localhost:8080/swagger-ui/index.html
 
-## Tecnologias
+2. Vá até a seção "Autenticação" e procure pelo endpoint `/api/auth/register`
 
-O stack completo usa tecnologias modernas e bem estabelecidas:
+3. Crie uma conta usando o seguinte modelo:
+```json
+{
+  "name": "Seu Nome",
+  "email": "seu.email@exemplo.com",
+  "password": "sua-senha-com-8-caracteres",
+  "document": "12345678900"
+}
+```
 
-- Node.js v18+
-- PostgreSQL (via Docker)
-- React 19
-- TypeScript
-- TailwindCSS
-- Vários utilitários de qualidade de código (ESLint, etc)
+4. Após criar a conta, faça login no endpoint `/api/auth/login` com seu email e senha
 
-## Contribuindo
+### 🌐 Acessando a Aplicação
 
-Sinta-se à vontade para abrir issues, propor melhorias ou enviar pull requests. Todo código novo deve seguir os padrões de estilo estabelecidos e incluir testes quando apropriado.
+- Frontend: http://localhost:3000
+- Backend API: http://localhost:8080
+- Swagger UI: http://localhost:8080/swagger-ui/index.html
 
----
+## 📚 Documentação
 
-Desenvolvido com 💙 por mizerski
+### Backend
+
+Para mais informações sobre a implementação do backend, consulte:
+
+- [Arquitetura e Padrões](backend-java/docs/ARCHITECTURE.md)
+- [Modelo de Dados](backend-java/docs/DATABASE.md)
+- [Padrões de Design](backend-java/docs/PATTERNS.md)
+- [Testes](backend-java/docs/TESTS.md)
+- [Deploy e Produção](backend-java/docs/DEPLOY.md)
+- [Métricas e Observabilidade](backend-java/docs/METRICS.md)
+- [Segurança](backend-java/docs/SECURITY.md)
+
+### Frontend
+
+Para mais informações sobre a implementação do frontend, consulte:
+
+- [Arquitetura](web/docs/ARCHITECTURE.md)
+- [Componentes](web/docs/COMPONENTS.md)
+- [Estado Global](web/docs/STATE.md)
+- [Testes](web/docs/TESTS.md)
+
+## 🤝 Contribuindo
+
+Por favor, leia o [Guia de Contribuição](CONTRIBUTING.md) para detalhes sobre nosso código de conduta e o processo para submeter pull requests.
+
+## 📄 Licença
+
+Este projeto está sob a licença MIT - veja o arquivo [LICENSE](LICENSE) para detalhes.
