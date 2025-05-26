@@ -2,14 +2,15 @@ export interface User {
   id: string
   name: string
   email: string
-  document: string | null
+  role: string
+  isActive: boolean
+  isEmailVerified: boolean
+  lastLogin: string | null
 }
 
 export interface AuthResponse {
-  id: string
-  name: string
-  email: string
-  document: string | null
-  accessToken: string
-  refreshToken: string
+  token: string
+  tokenType: string
+  expiresIn: number
+  user: User
 } 

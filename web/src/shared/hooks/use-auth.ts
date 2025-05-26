@@ -32,31 +32,31 @@ export function useAuth() {
    * @param {string} password - Senha do usuário
    */
   async function login(email: string, password: string) {
-    try {
-      setIsLoading(true)
-      setError(null)
+    setIsLoading(true)
+    setError(null)
 
-      await api.post<AuthResponse>(AUTH.LOGIN, {
+    await api.post<AuthResponse>(
+      AUTH.LOGIN,
+      {
         email,
         password,
+      },
+      {
         onSuccess: (response: ApiResponse<AuthResponse>) => {
-          const { accessToken, refreshToken, ...userData } = response.data
-          storage.saveTokens(accessToken, refreshToken)
+          const { token, user: userData } = response.data
+          storage.saveTokens(token, '')
           storage.saveUser(userData)
           setUser(userData)
+          setIsLoading(false)
+          navigate('/home', { replace: true })
         },
         onError: (error: ApiError) => {
           setError(error.message)
+          console.error('Erro no login:', error)
+          setIsLoading(false)
         },
-      })
-
-      navigate('/home', { replace: true })
-    } catch (err) {
-      setError('Email ou senha inválidos')
-      console.error('Erro ao fazer login:', err)
-    } finally {
-      setIsLoading(false)
-    }
+      },
+    )
   }
 
   /**

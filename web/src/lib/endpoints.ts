@@ -1,4 +1,4 @@
-export const ENDPOINT_PREFIX = 'http://localhost:8080/api/v1'
+export const ENDPOINT_PREFIX = 'http://localhost:8080/api'
 
 /**
  * @description Endpoint para gerenciar as agendas
