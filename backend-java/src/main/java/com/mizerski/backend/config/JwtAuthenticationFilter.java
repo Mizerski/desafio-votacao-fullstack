@@ -95,7 +95,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     log.warn("Token JWT inválido para usuário: {}", userEmail);
                 }
             }
-        } catch (Exception e) {
+        } catch (io.jsonwebtoken.JwtException | SecurityException | IllegalArgumentException e) {
             // Extrai email do usuário se possível para logs mais informativos
             String extractedEmail = jwtExceptionHandlerService.extractUserEmailFromExpiredException(e);
             if (extractedEmail == null) {
