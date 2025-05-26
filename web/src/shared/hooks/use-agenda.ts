@@ -1,8 +1,7 @@
 import { api } from '@/lib/api-client'
 import { AGENDA, VOTE } from '@/lib/endpoints'
 import { Agenda, AgendaVote } from '@/shared/types/agenda'
-import { ApiError, ApiResponse } from '@wmmz/fn-api-client'
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 
 type CreateAgendaInput = Pick<Agenda, 'title' | 'description' | 'category'>
 
@@ -24,48 +23,34 @@ export function useAgenda() {
    * Busca todas as agendas
    * @returns Dados das agendas
    */
-  async function getAllAgenda() {
-    await api.get<PagedResponse<Agenda>>(
-      AGENDA.GET_ALL, 
-      {
-        onSuccess: (
-          response: ApiResponse<PagedResponse<Agenda>>,
-        ) => {
-          const { content, totalElements } = response.data
-          setAgendas(content)
-          setTotalOnList(totalElements)
-        },
-        onError: (error: ApiError) => {
-          console.error('Erro ao buscar agendas:', error)
-        },
-    },
-   )
-
-   return {
-    agendas,
-    totalOnList,
-   }
-  }
+  const getAllAgenda = useCallback(async () => {
+    try {
+      const { data } = await api.get<PagedResponse<Agenda>>(AGENDA.GET_ALL)
+      const { content, totalElements } = data
+      setAgendas(content)
+      setTotalOnList(totalElements)
+      return { agendas: content, totalOnList: totalElements }
+    } catch (error) {
+      console.error('Erro ao buscar agendas:', error)
+      return { agendas: [], totalOnList: 0 }
+    }
+  }, [])
 
   /**
    * Busca todas as agendas encerradas
    * @returns Dados das agendas encerradas
    */
   async function getAllFinishedAgenda() {
-    return new Promise<{ agendas: Agenda[]; totalOnList: number }>((resolve, reject) => {
-      api.get<PagedResponse<Agenda>>(AGENDA.GET_ALL_FINISHED, {
-        onSuccess: (response: ApiResponse<PagedResponse<Agenda>>) => {
-          const { content, totalElements } = response.data
-          setFinishedAgendas(content)
-          setTotalOnList(totalElements)
-          resolve({ agendas: content, totalOnList: totalElements })
-        },
-        onError: (error: ApiError) => {
-          console.error('Erro ao buscar agendas encerradas:', error)
-          reject(error)
-        },
-      })
-    })
+    try {
+      const { data } = await api.get<PagedResponse<Agenda>>(AGENDA.GET_ALL_FINISHED)
+      const { content, totalElements } = data
+      setFinishedAgendas(content)
+      setTotalOnList(totalElements)
+      return { agendas: content, totalOnList: totalElements }
+    } catch (error) {
+      console.error('Erro ao buscar agendas encerradas:', error)
+      return { agendas: [], totalOnList: 0 }
+    }
   }
 
   /**
@@ -73,20 +58,16 @@ export function useAgenda() {
    * @returns Dados das agendas abertas
    */
   async function getAllOpenAgenda() {
-    return new Promise<{ agendas: Agenda[]; totalOnList: number }>((resolve, reject) => {
-      api.get<PagedResponse<Agenda>>(AGENDA.GET_ALL_OPEN, {
-        onSuccess: (response: ApiResponse<PagedResponse<Agenda>>) => {
-          const { content, totalElements } = response.data
-          setOpenAgendas(content)
-          setTotalOnList(totalElements)
-          resolve({ agendas: content, totalOnList: totalElements })
-        },
-        onError: (error: ApiError) => {
-          console.error('Erro ao buscar agendas abertas:', error)
-          reject(error)
-        },
-      })
-    })
+    try {
+      const { data } = await api.get<PagedResponse<Agenda>>(AGENDA.GET_ALL_OPEN)
+      const { content, totalElements } = data
+      setOpenAgendas(content)
+      setTotalOnList(totalElements)
+      return { agendas: content, totalOnList: totalElements }
+    } catch (error) {
+      console.error('Erro ao buscar agendas abertas:', error)
+      return { agendas: [], totalOnList: 0 }
+    }
   }
 
   /**
@@ -95,23 +76,14 @@ export function useAgenda() {
    * @returns Dados da pauta criada
    */
   async function createAgenda(agenda: CreateAgendaInput) {
-      await api.post<Agenda>(
-        AGENDA.CREATE,
-        agenda,
-        {
-          onSuccess: (response: ApiResponse<Agenda>) => {
-            const newAgenda = response.data
-            setAgendas([...agendas, newAgenda])
-          },
-          onError: (error: ApiError) => {
-            console.error('Erro ao criar agenda:', error)
-          },
-        },
-      )
-
-      return {
-        agenda,
-      }
+    try {
+      const { data: newAgenda } = await api.post<Agenda>(AGENDA.CREATE, agenda)
+      setAgendas((prev) => [...prev, newAgenda])
+      return { agenda: newAgenda }
+    } catch (error) {
+      console.error('Erro ao criar agenda:', error)
+      return { agenda: null }
+    }
   }
 
   /**
@@ -120,32 +92,26 @@ export function useAgenda() {
    * @param durationInMinutes Duração em minutos
    * @returns Dados da agenda atualizada
    */
-  async function startAgendaSession(
+  const startAgendaSession = useCallback(async (
     agendaId: string,
     durationInMinutes: number,
-  ) {
-    return new Promise<{ agenda: Agenda }>((resolve, reject) => {
-      api.post(
+  ) => {
+    try {
+      const { data: updatedAgenda } = await api.post(
         AGENDA.START_SESSION.replace(':agendaId', agendaId),
         { durationInMinutes },
-        {
-          onSuccess: (response: ApiResponse<Agenda>) => {
-            const updatedAgenda = response.data
-            setAgendas((prev) =>
-              prev.map((agenda) =>
-                agenda.id === agendaId ? updatedAgenda : agenda,
-              ),
-            )
-            resolve({ agenda: updatedAgenda })
-          },
-          onError: (error: ApiError) => {
-            console.error('Erro ao iniciar sessão de votação:', error)
-            reject(error)
-          },
-        },
       )
-    })
-  }
+      setAgendas((prev) =>
+        prev.map((agenda) =>
+          agenda.id === agendaId ? updatedAgenda : agenda,
+        ),
+      )
+      return { agenda: updatedAgenda }
+    } catch (error) {
+      console.error('Erro ao iniciar sessão de votação:', error)
+      return { agenda: null }
+    }
+  }, [])
 
   /**
    * Registra um voto em uma pauta
@@ -159,31 +125,25 @@ export function useAgenda() {
     userId: string,
     vote: AgendaVote,
   ) {
-    return new Promise<{ agenda: Agenda }>((resolve, reject) => {
-      api.post(
+    try {
+      const { data: updatedAgenda } = await api.post(
         VOTE.CREATE,
         {
           agendaId,
           userId,
           vote,
         },
-        {
-          onSuccess: (response: ApiResponse<Agenda>) => {
-            const updatedAgenda = response.data
-            setAgendas((prev) =>
-              prev.map((agenda) =>
-                agenda.id === agendaId ? updatedAgenda : agenda,
-              ),
-            )
-            resolve({ agenda: updatedAgenda })
-          },
-          onError: (error: ApiError) => {
-            console.error('Erro ao votar na pauta:', error)
-            reject(error)
-          },
-        },
       )
-    })
+      setAgendas((prev) =>
+        prev.map((agenda) =>
+          agenda.id === agendaId ? updatedAgenda : agenda,
+        ),
+      )
+      return { agenda: updatedAgenda }
+    } catch (error) {
+      console.error('Erro ao votar na pauta:', error)
+      return { agenda: null }
+    }
   }
 
   return {

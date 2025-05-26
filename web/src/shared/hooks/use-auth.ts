@@ -3,8 +3,8 @@ import { useNavigate } from 'react-router-dom'
 import { api } from '@/lib/api-client'
 import { User, AuthResponse } from '@/shared/types/user'
 import { storage } from '@/lib/storage'
-import { ApiError, ApiResponse } from '@wmmz/fn-api-client'
 import { AUTH } from '@/lib/endpoints'
+import { AxiosError } from 'axios'
 
 /**
  * Hook personalizado para gerenciar a autenticação do usuário
@@ -34,40 +34,25 @@ export function useAuth() {
   async function login(email: string, password: string) {
     setIsLoading(true)
     setError(null)
-
-    await api.post<AuthResponse>(
-      AUTH.LOGIN,
-      {
+    try {
+      const { data } = await api.post<AuthResponse>(AUTH.LOGIN, {
         email,
         password,
-      },
-      {
-        onSuccess: (response: ApiResponse<AuthResponse>) => {
-          const { token, user: userData } = response.data
-          storage.saveTokens(token)
-          storage.saveUser(userData)
-          setIsLoading(false)
-          navigate('/home', { replace: true })
-          getUser()
-        },
-        onError: (error: ApiError) => {
-          setError(error.message)
-          console.error('Erro no login:', error)
-          setIsLoading(false)
-        },
-      },
-    )
+      })
+      const { token, user: userData } = data
+      storage.saveTokens(token)
+      storage.saveUser(userData)
+      setUser(userData)
+      setIsLoading(false)
+      navigate('/home', { replace: true })
+    } catch (err: unknown) {
+      const error = err as AxiosError<{ message: string }>
+      setError(error.response?.data?.message || 'Erro ao fazer login')
+      setIsLoading(false)
+      console.error('Erro no login:', error)
+    }
   }
-  async function getUser() {
-    return await api.get<User>(AUTH.GET_USER, {
-      onSuccess: (response: ApiResponse<User>) => {
-        setUser(response.data)
-      },
-      onError: (error: ApiError) => {
-        console.error('Erro ao buscar usuário:', error)
-      },
-    })
-  }
+
   /**
    * Função para realizar o logout do usuário
    */

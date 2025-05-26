@@ -1,6 +1,5 @@
 import { api } from '@/lib/api-client'
 import { AgendaVote } from '../types/agenda'
-import { ApiError, ApiResponse } from '@wmmz/fn-api-client'
 import { VOTE } from '@/lib/endpoints'
 
 interface CreateVoteInput {
@@ -16,14 +15,13 @@ export function useVote() {
    * @returns Dados do voto criado
    */
   async function createVote(vote: CreateVoteInput) {
-    await api.post(VOTE.CREATE, vote, {
-      onSuccess: (response: ApiResponse<{ vote: AgendaVote }>) => {
-        return response.data.vote
-      },
-      onError: (error: ApiError) => {
-        console.error('Erro ao criar voto:', error)
-      },
-    })
+    try {
+      const { data } = await api.post(VOTE.CREATE, vote)
+      return data
+    } catch (error) {
+      console.error('Erro ao criar voto:', error)
+      return null
+    }
   }
 
   return { createVote }

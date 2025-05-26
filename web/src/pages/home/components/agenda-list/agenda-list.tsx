@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { AgendaCard } from './agenda-card'
 import {
   AgendaLoadingState,
@@ -71,7 +71,7 @@ export function AgendaList() {
     }, 30000) // 30 segundos
 
     return () => clearInterval(interval)
-  }, [getAllAgenda])
+  }, [])
 
   async function handleOpenSession(agendaId: string, duration: number) {
     try {
@@ -80,6 +80,8 @@ export function AgendaList() {
       toast.success(
         `Sessão iniciada por ${duration} ${duration === 1 ? 'minuto' : 'minutos'}`,
       )
+      // Recarrega as agendas para atualizar os dados da sessão
+      await getAllAgenda()
     } catch (error) {
       console.error('Erro ao iniciar sessão:', error)
       toast.error('Erro ao iniciar sessão de votação')
@@ -101,6 +103,18 @@ export function AgendaList() {
   function handleCreateAgenda() {
     setActiveTab('create')
   }
+
+  /**
+   * Callback executado quando o timer de uma agenda termina
+   * Recarrega as agendas para atualizar o status
+   */
+  const handleTimerEnd = useCallback(async () => {
+    try {
+      await getAllAgenda()
+    } catch (error) {
+      console.error('Erro ao atualizar agendas após timer:', error)
+    }
+  }, []) // Removida dependência para evitar loops infinitos
 
   if (loading) {
     return <AgendaLoadingState />
@@ -172,6 +186,7 @@ export function AgendaList() {
             onOpenSession={(duration) => handleOpenSession(agenda.id, duration)}
             onViewResults={() => handleViewResults(agenda)}
             onVote={() => handleVote(agenda)}
+            onTimerEnd={handleTimerEnd}
           />
         ))}
       </div>

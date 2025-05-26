@@ -13,6 +13,7 @@ export interface Agenda {
   updatedAt?: string
   votes?: VoteResponse[]
   sessions?: SessionResponse[]
+  userVote?: AgendaVote | null
 }
 
 export interface VoteResponse {

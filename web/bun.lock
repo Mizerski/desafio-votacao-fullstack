@@ -17,7 +17,7 @@
         "@radix-ui/react-switch": "^1.2.4",
         "@radix-ui/react-tabs": "^1.1.11",
         "@tailwindcss/vite": "^4.1.7",
-        "@wmmz/fn-api-client": "^1.0.2",
+        "@wmmz/fn-api-client": "^1.0.3",
         "axios": "^1.9.0",
         "class-variance-authority": "^0.7.1",
         "clsx": "^2.1.1",
@@ -398,7 +398,7 @@
 
     "@vitejs/plugin-react": ["@vitejs/plugin-react@4.4.1", "", { "dependencies": { "@babel/core": "^7.26.10", "@babel/plugin-transform-react-jsx-self": "^7.25.9", "@babel/plugin-transform-react-jsx-source": "^7.25.9", "@types/babel__core": "^7.20.5", "react-refresh": "^0.17.0" }, "peerDependencies": { "vite": "^4.2.0 || ^5.0.0 || ^6.0.0" } }, "sha512-IpEm5ZmeXAP/osiBXVVP5KjFMzbWOonMs0NaQQl+xYnUAcq4oHUBsF2+p4MgKWG4YMmFYJU8A6sxRPuowllm6w=="],
 
-    "@wmmz/fn-api-client": ["@wmmz/fn-api-client@1.0.2", "", { "dependencies": { "@types/node": "^20.11.24", "@wmmz/fn-api-client": "^1.0.0", "axios": "^1.6.7", "typescript": "^5.3.3" } }, "sha512-c9yna05dyNlGii/anyu+S7Oi748+4AotCz1hbQSTtArP+a6QLEnfz6ZmCsbaODRHyOwfxLnyBM3xGMsG2BShlQ=="],
+    "@wmmz/fn-api-client": ["@wmmz/fn-api-client@1.0.3", "", { "dependencies": { "@types/node": "^20.11.24", "@wmmz/fn-api-client": "^1.0.0", "axios": "^1.6.7", "typescript": "^5.3.3" } }, "sha512-t/QAsm5n9IuyKUo3VDNlAZ+zmO5GJS2KY0K1/LaYFoVZeeoSA8Ohown5UlVo4w02BhbjilO8CYNUYGSVuIMkXw=="],
 
     "acorn": ["acorn@8.14.1", "", { "bin": { "acorn": "bin/acorn" } }, "sha512-OvQ/2pUDKmgfCg++xsTX1wGxfTaszcHVcTctW4UJB4hibJx2HXxxO5UmVgyjMa+ZDsiaf5wWLXYpRWMmBI0QHg=="],
 

@@ -23,6 +23,7 @@ interface AgendaCardProps {
   onOpenSession: (duration: number) => void
   onViewResults: () => void
   onVote: () => void
+  onTimerEnd?: () => void // Callback quando timer termina
 }
 
 /**
@@ -35,12 +36,13 @@ export function AgendaCard({
   isProcessing = false, 
   onOpenSession, 
   onViewResults, 
-  onVote 
+  onVote,
+  onTimerEnd
 }: AgendaCardProps) {
   const endDate = AgendaUtils.getEndDate(agenda)
   const startDate = AgendaUtils.getStartDate(agenda)
   const isSessionEnded = AgendaUtils.isSessionEnded(agenda)
-  const { isRunning, formatTime, remainingTime } = useTimer(endDate)
+  const { isRunning, formatTime, remainingTime } = useTimer(endDate, onTimerEnd)
 
   const calculateProgress = () => {
     if (!startDate || !endDate || !isRunning) return 100
@@ -53,6 +55,11 @@ export function AgendaCard({
 
     return Math.max(0, Math.min(100, (elapsed / totalDuration) * 100))
   }
+
+  /**
+   * Verifica se o usuário já votou nesta agenda
+   */
+  const hasUserVoted = agenda.userVote !== null && agenda.userVote !== undefined
 
   /**
    * Renderiza a seção de informações de tempo da sessão
@@ -79,6 +86,13 @@ export function AgendaCard({
               </div>
             </div>
           )}
+          {hasUserVoted && (
+            <div className="flex items-center text-xs text-muted-foreground mt-1">
+              <span className="text-blue-600 font-medium">
+                ✓ Você votou: {agenda.userVote === 'YES' ? 'Sim' : 'Não'}
+              </span>
+            </div>
+          )}
         </div>
       )
     }
@@ -86,9 +100,18 @@ export function AgendaCard({
     // Se tem data de fim mas a sessão já terminou
     if (endDate && isSessionEnded) {
       return (
-        <div className="flex items-center text-sm text-muted-foreground mt-2">
-          <Clock className="h-4 w-4 mr-1" />
-          <span>Encerrada {formatDistanceToNow(new Date(endDate), { locale: ptBR, addSuffix: true })}</span>
+        <div className="mt-2 space-y-1">
+          <div className="flex items-center text-sm text-muted-foreground">
+            <Clock className="h-4 w-4 mr-1" />
+            <span>Encerrada {formatDistanceToNow(new Date(endDate), { locale: ptBR, addSuffix: true })}</span>
+          </div>
+          {hasUserVoted && (
+            <div className="flex items-center text-xs text-muted-foreground">
+              <span className="text-blue-600 font-medium">
+                ✓ Você votou: {agenda.userVote === 'YES' ? 'Sim' : 'Não'}
+              </span>
+            </div>
+          )}
         </div>
       )
     }
@@ -154,6 +177,18 @@ export function AgendaCard({
     }
 
     // Se a sessão está ativa, mostra botão de votar
+    if (hasUserVoted) {
+      return (
+        <Button
+          variant="outline"
+          className="w-full"
+          disabled
+        >
+          ✓ Voto Registrado ({agenda.userVote === 'YES' ? 'Sim' : 'Não'})
+        </Button>
+      )
+    }
+
     return (
       <Button
         variant="default"
