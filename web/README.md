@@ -1,4 +1,3 @@
-
 # Web
 
 ### Tecnologias que usei por aqui
@@ -20,6 +19,45 @@ Frontend moderno, rápido e direto ao ponto. Essas são as versões que garantem
 ```
 
 > Manter essas versões ajuda a evitar surpresas na build e inconsistência entre ambientes.
+
+---
+
+### Build e Deploy
+
+Este projeto suporta dois bundlers diferentes para atender diferentes necessidades:
+
+#### Build Padrão (Vite + npm)
+```bash
+# Para desenvolvimento
+npm run dev
+
+# Para produção (recomendado)
+npm run build
+npm run preview
+```
+
+#### Build com Bun (Performance)
+```bash
+# Para desenvolvimento
+bun dev:bun
+
+# Para produção (experimental)
+npm run build:bun
+npm run preview:bun
+
+# Build ambos os formatos
+npm run build:all
+```
+
+**Comparação de Performance:**
+- **Vite**: Estável, ecossistema maduro, ideal para produção
+- **Bun**: Build ~2x mais rápido, menor uso de memória, ainda experimental
+
+**Saídas:**
+- `dist/` - Build Vite (produção)
+- `dist-bun/` - Build Bun (experimental)
+
+> Para mais detalhes, consulte o [BUILD_GUIDE.md](docs/BUILD_GUIDE.md)
 
 ---
 

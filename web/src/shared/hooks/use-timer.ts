@@ -1,21 +1,19 @@
 import { useEffect, useState, useRef } from 'react'
 
-interface UseTimerProps {
-  endTime: string | null | undefined
-  onTimerEnd?: () => void
-}
-
 /**
  * Hook para gerenciar um timer regressivo
  * @param endTime - Data e hora de término
  * @param onTimerEnd - Callback executado quando o timer termina
  * @returns Objeto com informações do timer
  */
-export function useTimer(endTime: string | null | undefined, onTimerEnd?: () => void) {
+export function useTimer(
+  endTime: string | null | undefined,
+  onTimerEnd?: () => void,
+) {
   const [remainingTime, setRemainingTime] = useState<number>(0)
   const [isRunning, setIsRunning] = useState<boolean>(false)
   const onTimerEndRef = useRef(onTimerEnd)
-  
+
   // Atualiza a referência sempre que o callback muda
   useEffect(() => {
     onTimerEndRef.current = onTimerEnd

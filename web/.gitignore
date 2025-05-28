@@ -6,3 +6,15 @@ node_modules/
 
 # Logs
 logs/
+
+# Build outputs
+dist/
+dist-bun/
+
+# Build cache
+.vite/
+.bun/
+
+# OS files
+.DS_Store
+Thumbs.db

@@ -2,6 +2,7 @@ import { api } from '@/lib/api-client'
 import { VOTE } from '@/lib/endpoints'
 import { AgendaVote } from '../types/agenda'
 import { useState, useEffect } from 'react'
+import { AxiosError } from 'axios'
 
 interface UserVoteResponse {
   id: string
@@ -37,11 +38,15 @@ export function useUserVote(agendaId?: string, userId?: string) {
           .replace(':agendaId', agendaId!)
         const { data } = await api.get<UserVoteResponse>(url)
         setUserVote(data.voteType)
-      } catch (err: any) {
-        if (err.response?.status === 404) {
-          setUserVote(null)
+      } catch (err: unknown) {
+        if (err instanceof AxiosError) {
+          if (err.response?.status === 404) {
+            setUserVote(null)
+          } else {
+            setError(err.response?.data?.message || 'Erro ao verificar voto do usuário')
+          }
         } else {
-          setError(err.response?.data?.message || 'Erro ao verificar voto do usuário')
+          setError('Erro ao verificar voto do usuário')
         }
       } finally {
         setLoading(false)
