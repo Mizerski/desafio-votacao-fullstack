@@ -37,8 +37,8 @@ import {
 import { useTabsContext } from '../contexts/tabs-context'
 
 const formSchema = z.object({
-  title: z.string().min(3, 'Título inválido!').max(100),
-  description: z.string().min(3, 'Descrição inválida!').max(255),
+  title: z.string().min(10, 'Título inválido!').max(100),
+  description: z.string().min(10, 'Descrição inválida!').max(255),
   category: z.enum([
     AgendaCategory.OUTROS,
     AgendaCategory.FINANCEIRO,
